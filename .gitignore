@@ -1,0 +1,68 @@
+### XilinxISE ###
+# intermediate build files
+*.bgn
+*.bit
+*.bld
+*.cmd_log
+*.drc
+*.ll
+*.lso
+*.msd
+*.msk
+*.ncd
+*.ngc
+*.ngd
+*.ngr
+*.pad
+*.par
+*.pcf
+*.prj
+*.ptwx
+*.rbb
+*.rbd
+*.stx
+*.syr
+*.twr
+*.twx
+*.unroutes
+*.ut
+*.xpi
+*.xst
+*_bitgen.xwbt
+*_envsettings.html
+*_map.map
+*_map.mrp
+*_map.ngm
+*_map.xrpt
+*_ngdbuild.xrpt
+*_pad.csv
+*_pad.txt
+*_par.xrpt
+*_summary.html
+*_summary.xml
+*_usage.xml
+*_xst.xrpt
+
+# iMPACT generated files
+NES-hw/_impactbatch.log
+NES-hw/impact.xsl
+NES-hw/impact_impact.xwbt
+NES-hw/ise_impact.cmd
+NES-hw/webtalk_impact.xml
+
+# Core Generator generated files
+NES-hw/xaw2verilog.log
+
+# project-wide generated files
+*.gise
+NES-hw/par_usage_statistics.html
+NES-hw/usage_statistics_webtalk.html
+NES-hw/webtalk.log
+NES-hw/webtalk_pn.xml
+
+# generated folders
+NES-hw/iseconfig/
+NES-hw/xlnx_auto_0_xdb/
+NES-hw/xst/
+NES-hw/_ngo/
+NES-hw/_xmsgs/
