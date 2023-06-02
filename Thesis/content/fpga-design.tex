@@ -1,0 +1,118 @@
+\chapter{FPGA tervezés}
+
+\section{Működési órajel választása}
+
+\section{Picture Process Unit}
+
+	\subsection{PPU felkészítése VGA rendeléshez}
+
+	\subsection{Háttér rendering állapot gép}
+	
+	\begin{lstlisting}[style=prettyverilog]
+		//rendering in visible frame
+		always@(*)
+		begin
+		case (bgrender_state)
+		IDLE:begin
+		if (x_rendercntr[1:0] == 2'b01) // stay in visible frame or Pre rendering maybe should use this (& y_renderingcntr <= 9'd239 | x_rendercntr[1:0] == 2'b01 & y_renderingcntr == 9'd261)
+		next_state <= NT;
+		else
+		next_state <= IDLE;
+		end
+		NT:begin
+		if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr == 9'd261)begin // (341*2)-1 = 681 odd frame jump to NT in the last line of PPU rendering
+		if(oddframe)
+		next_state <= NT;
+		else
+		next_state <= IDLE;
+		end
+		else if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr <= 9'd239) // (341*2)-1 = 681 sleep just between 0-239
+		next_state <= SLEEP;
+		else if (x_rendercntr[9:0] == 10'd677) // (339*2)-1 = 677
+		next_state <= NT;
+		else if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= AT;
+		else 
+		next_state <= NT;
+		end
+		AT:begin
+		if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= BG_Lsb;
+		else
+		next_state <= AT;
+		end
+		BG_Lsb:begin
+		if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= BG_Msb;
+		else
+		next_state <= BG_Lsb;
+		end
+		BG_Msb:begin
+		if (x_rendercntr[9:0] == 10'd513) // (257*2)-1 = 513
+		next_state <= GB_NT_1;
+		else if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= NT;
+		else
+		next_state <= BG_Msb;
+		end
+		GB_NT_1:begin
+		if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= GB_NT_2;
+		else
+		next_state <= GB_NT_1;
+		end
+		GB_NT_2:begin
+		if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= SP_Lsb;
+		else
+		next_state <= GB_NT_2;
+		end
+		SP_Lsb:begin
+		if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= SP_Msb;
+		else
+		next_state <= SP_Lsb;
+		end
+		SP_Msb:begin
+		if (x_rendercntr[9:0] == 10'b641) // (321*2)-1 = 641
+		next_state <= NT;
+		else if (x_rendercntr[1:0] == 2'b01) 
+		next_state <= GB_NT_1;
+		else
+		next_state <= SP_Msb;
+		end
+		//PPU and CPU en off just VGA rendering goes
+		SLEEP:begin
+		if (x_rendercntr == 11'd1363 & y_renderingcntr == 9'd239)
+		next_state <= VBLANK;
+		else if (x_rendercntr == 11'd1363 & y_renderingcntr < 9'd239) // (341*4)-1 = 1363
+		next_state <= IDLE;	
+		else
+		next_state <= SLEEP;
+		end
+		//I take prost-rendering line and VBlank together just one bit set in thissection
+		VBLANK:begin
+		if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr <= 9'd260) //(341*2)-1 = 681
+		next_state <= IDLE;
+		else 
+		next_state <= VBLANK;
+		end
+		default:
+		next_state <= 4'bxxxx;
+		endcase
+		end
+	\end{lstlisting}
+
+	\subsection{Sprite rendering állapot gép}
+	
+	\subsection{Memória elérés}
+
+	\subsection{Irányító regiszterek és PPU adatbusz}
+
+\section{NES memória felépítése FPGA-ban}
+
+\section{CPU}
+
+\section{APU}
+
+\section{Játék vezérlők kezelése}
