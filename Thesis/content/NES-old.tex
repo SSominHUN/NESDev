@@ -1,10 +1,62 @@
 \chapter{Nintendo Entertainmain System ismertetése}
 
+A Nintendo Entertainment System (NES) egy otthoni videojáték-konzol, amelyet a Nintendo 1983-ban Japánban (Family Computer, röviden FamiCom néven) és 1985-ben Észak-Amerikában, Európában és Ausztráliában adott ki. Ez minden idők egyik legikonikusabb és legnagyobb hatású videojáték-konzolja.
+
+A NES döntő szerepet játszott a videojáték-ipar újjáélesztésében az 1983-as észak-amerikai videojáték-válság után. Számos klasszikus és kedvelt játékot mutatott be, amelyeket a játékosok még ma is nagyra tartanak. A konzol sikere az erős játéktárnak, a felhasználóbarát kialakításnak és az innovatív marketingstratégiáknak köszönhető.
+
+Az otthoni konzol 8 bites processzorral rendelkezett, és a játékok tárolására elsősorban kazettákat használt. Jellegzetes, téglalap alakú kialakítása volt, a játékkazetták behelyezésére szolgáló elülső betöltő mechanizmussal. A konzolhoz egy pár kontroller is tartozott, és bevezette a ma már ikonikus NES gamepad kialakítását, amely irányjelzővel, start- és választógombokkal, valamint az A és B gombokkal rendelkezett.
+
+%TODO kép a konzolról
+
+A konzolra megjelent legnépszerűbb és legnagyobb hatású játékai közé tartozik a Super Mario Bros., a The Legend of Zelda, a Metroid, a Mega Man, a Castlevania és még sok más játék. Ezek a játékok megalapozták számos sikeres franchise-t, amelyek ma is virágoznak.
+
+A játék konzol hardverének megismerésére, első sorban a hivatalos wiki oldalt használtam. Az itt olvasható tartalmakat az évek során nagy rész reverse engineering segítségével tárták fel, mivel a játék konzol pontos datasheet-jei, illetve időzítés és működési diagramjai nem lettek publikusak (a Nintendo tulajdonban vannak). Az itt szereplő adatokat a NESDev online közösség tartja karban, ezáltal az oldal pontos és helyes adatokat tartalmazhat (ezeket a közösség rendszeresen felül vizsgálja).   
+
 \section{Képalkotás - Picture process unit}
 
-\section{6502 - Central processing unit}
+A következőkben azt fogom bemutatni, hogy a NES hogyan tárol, dolgoz fel és jelenít meg sprite grafikákat. A Sprite egy 8x8-as pixel csempét jelent, ez a NES képalkotásának alap pillére.
 
-\section{Audio process unit}
+A NES főkomponensei közül a Picture Process Unit (későbbiekben PPU) felelős a konzol 8-bit-es grafikájának elő állításáért. A PPU egy a Nintendo által kifejlesztett speciális chip amely a processzor mellett működik, mint egy társprocesszor (co-processor), hasonlóan a napjainkban elterjedt videó kártya processzor pároshoz.
+
+A CPU-tól eltérően a PPU egy előre meghatározott grafikus műveleti parancs sorozatot hajt végre ciklikusan, nem lehet közvetlenül programozni. Saját memóriával rendelkezik
+amelyet a CPU képes módosítani, hogy ezzel megváltoztassa a grafika generálását. Ez a memóriaterület a következőképpen négy részre oszlik:
+
+\begin{itemize}
+	\item \emph{Pattern táblák:} Az első szekció tartalmazza a pattern táblákat, amelyek a nyers sprite-kép adatokat tartalmazzák az adott játékhoz. Két pattern tábla van a bal oldali és a jobb oldali tábla amelyek mindegyike 64 kilobyte-nyi memória. Együttesen pedig 256 darab 8 x 8 pixeles csempét tárolnak. A memória ezen része általában közvetlenül 
+	a játék kazetta karakter ROM vagy RAM chipjére van leképezve.
+	\item \emph{Névtáblák (Nametables):} A következő rész a PPU névtábláit tartalmazza, amelyek a háttérgrafikák kialakítására szolgálnak a játékhoz. Ezek 32x30-as raszterben vannak felépítve, a raszter minden egyes eleme egy 8x8 pixeles területet reprezentál a képernyőn. A cellák egyetlen byte-ot tartalmaznak, amely egy csempét címez meg a Pattern táblákban.  
+	\item \emph{Paletták (Palettes):} A harmadik rész az aktív szín paletták tárolására szolgál a játékhoz. A PPU képes több mint 50 különböző szín előállítására, de nem tudja az összes színt egyszerre használni egyidejűleg, ehelyett ezt a memória területet arra használják, hogy meghatározzunk nyolc aktív palettát amelyek egyenként négy színt tartalmaznak. Ebből a nyolc palettából, választhatunk színt a pixel-ek megjelenítése során.
+	\item \emph{Objektum Attribútum Memória (későbbiekben OAM):} A PPU memóriának ez a része vezérli a játék előtérben lévő grafikáját megjelenítését, ezek olyan dolgok, mint például Mario, Link az ellenségek és az olyan effektek, mint a tűzgolyók és robbanások alapvetően bármi, ami a háttér grafika felett vagy néha alatta jelenne meg.
+\end{itemize}
+
+Tehát, mindezt összegezve, úgy tekinthetjük a PPU-ra, mintha ez a négy jól elkülöníthető memória terület irányítaná ezt a segéd processzort. A Pattern táblák határozzák meg a nyers kép adatok a névtáblák határozzák meg a háttér generálását, a paletták határozzák meg a használandó színeket és az OAM vezérli az előtérbe vagy háttérbe kerülő mozgó sprite-okat.
+Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböző regiszter írásával és olvasásával érhetünk el. Ezekről a regiszterek az implementálása során \aref{sec:PPU-FPGA} fejezetben még olvashatunk.
+
+	\subsection{PPU által generált kimeneti jel}
+	Ebben a fejezetben bemutatom a PPU által generált jelet és ennek felhasználást a régi típusú CRT TV-kben. A CRT televízió (az eredeti TV) a modern lapos képernyők előfutára volt, alapvetően két fő komponensből épültek fel egy fluoreszkáló képernyőből és egy katódsugárcsőből. 
+	
+	A CRT működése röviden: a katódsugárcső egy pisztolyként funkcionál, amely elektronokat lő ki a képernyőre és amikor elég elektron találja el a képernyő egy bizonyos területét az világítani kezd. A televíziók kétféle típusban léteztek fekete-fehérben vagy színesben. A fekete-fehér esetben egy elektronágyú szabályozta a képernyő pixel-einek monokróm fényerejét, a színes esetben három külön álló elektronágyú szabályozta a vörös, kék és zöld komponensek arányát, ezzel megalkotva a színes képet. A színes TV-k esetben is a három elektron sugár együtt mozgott végig a képernyőn, ezért a könnyebb megértés érdekében érdemes egy elektron sugárként gondolni ezekre. 
+	
+	A televízió működése során a bal felső sarokból kezdve úgy irányítja az elektron sugarat, hogy a teljes képernyőn végigfusson sorról sorra, amíg el nem éri a jobb alsó sarkát a képernyőnek. Ha egy sor végére érünk akkor az elektron sugarat vissza pozicionáljuk a sor elejére, ezt az időt horizontális szinkronizációnak nevezzük (horizontal balnking). Ha végig értünk egy kép kockán a TV a fegyvert újra a felső sor bal oldalára állítja, ezt vertikális szinkronizációnak (vertical blanking) hívják. Ez képalkotási ciklus a TV működése közben folytonosan ismétlődik rögzített időközönként általában másodpercenként hatvan képkocka körül. 
+	
+	Miközben a elektronágyú mozog, a TV egy belső jel segítségével tudja szabályozni az elektronok kibocsátásának mértékét. Ez a jel megváltoztatja a szín fényerejét egy adott pozícióban (pixel-en), a pisztoly gyors mozgásának következtében, az eredmény egy folytonos animált kép képernyőn. Ezt a jelet kompozit jelnek nevezzük és általában egy rf antennáról vagy egy kábel boxból származott, de a NES esetében ezt a jelet a PPU állítja elő. 
+	
+	%TODO ábra a CRT monitor képalktásáról
+	
+	A NES két típusú kompozit jelet tudott elő állítani attól függően, hogy a világ melyik területére gyártották. Ez azért következett be mert a CRT TV-knek két standard típusa terjedt el világszerte az NTSC és a PAL. Az NTSC-t elsősorban az Egyesült Államokban és Japánban használták, és 60 képkocka/másodperces sebességgel jelenítette meg kompozit jelet, ezek a TV-k összesen 525 képsorral rendelkeztek. A PAL-t elsősorban Európában, Afrikában és Dél-Amerikában használták és 50 képkocka/másodperc sebességgel futott, összesen 625 képsort jelenített meg.
+	
+	A NES játékokat sosem programozták régió specifikusak, az egyetlen dolog ami változott területenként az a NES PPU-jának hardvere. Így a világ különböző területein ugyanaz a játék gyorsabban illetve lassabban futott, ez akár 17\%-os különbséget is jelenthetett. A NES emulálás szempontjából az NTSC készülékeket veszem alapul mivel ezeken gépek működését tárták fel részletesebben reverse engineering-el.
+	
+	\subsection{Pattern táblák és paletták}
+	A sprite képek, amelyeket a PPU Pattern tábla memóriájában helyezkednek el képezik az alapját minden grafikának a NES      
+ 
+\section{2A03 a NES CPU-ja}
+
+A fent szereplő 2A03 egy elterjedt rövidítés a RP2A03[G] típusú 8 bites CPU-ra, amely a NTSC típusú NES CPU egysége. Ez a  
+
+	\subsection{6502 - Central processing unit}
+
+	\subsection{Audio process unit}
 
 \section{Belső memória}
 
