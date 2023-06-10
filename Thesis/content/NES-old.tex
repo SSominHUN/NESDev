@@ -1,12 +1,17 @@
-\chapter{Nintendo Entertainmain System ismertetése}
+\chapter{Nintendo Entertainment System ismertetése}
 
 A Nintendo Entertainment System (NES) egy otthoni videojáték-konzol, amelyet a Nintendo 1983-ban Japánban (Family Computer, röviden FamiCom néven) és 1985-ben Észak-Amerikában, Európában és Ausztráliában adott ki. Ez minden idők egyik legikonikusabb és legnagyobb hatású videojáték-konzolja.
 
 A NES döntő szerepet játszott a videojáték-ipar újjáélesztésében az 1983-as észak-amerikai videojáték-válság után. Számos klasszikus és kedvelt játékot mutatott be, amelyeket a játékosok még ma is nagyra tartanak. A konzol sikere az erős játéktárnak, a felhasználóbarát kialakításnak és az innovatív marketingstratégiáknak köszönhető.
+%TODO kép a konzolról
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=120mm, keepaspectratio]{figures/NES-console-set}
+	\caption{Nintendo Entertainment System}
+	\label{fig:NES-Consol}
+\end{figure}
 
 Az otthoni konzol 8 bites processzorral rendelkezett, és a játékok tárolására elsősorban kazettákat használt. Jellegzetes, téglalap alakú kialakítása volt, a játékkazetták behelyezésére szolgáló elülső betöltő mechanizmussal. A konzolhoz egy pár kontroller is tartozott, és bevezette a ma már ikonikus NES gamepad kialakítását, amely irányjelzővel, start- és választógombokkal, valamint az A és B gombokkal rendelkezett.
-
-%TODO kép a konzolról
 
 A konzolra megjelent legnépszerűbb és legnagyobb hatású játékai közé tartozik a Super Mario Bros., a The Legend of Zelda, a Metroid, a Mega Man, a Castlevania és még sok más játék. Ezek a játékok megalapozták számos sikeres franchise-t, amelyek ma is virágoznak.
 
@@ -33,23 +38,114 @@ Tehát, mindezt összegezve, úgy tekinthetjük a PPU-ra, mintha ez a négy jól
 Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböző regiszter írásával és olvasásával érhetünk el. Ezekről a regiszterek az implementálása során \aref{sec:PPU-FPGA} fejezetben még olvashatunk.
 
 	\subsection{PPU által generált kimeneti jel}
+	\label{subsec:PPU-CRT}
 	Ebben a fejezetben bemutatom a PPU által generált jelet és ennek felhasználást a régi típusú CRT TV-kben. A CRT televízió (az eredeti TV) a modern lapos képernyők előfutára volt, alapvetően két fő komponensből épültek fel egy fluoreszkáló képernyőből és egy katódsugárcsőből. 
 	
 	A CRT működése röviden: a katódsugárcső egy pisztolyként funkcionál, amely elektronokat lő ki a képernyőre és amikor elég elektron találja el a képernyő egy bizonyos területét az világítani kezd. A televíziók kétféle típusban léteztek fekete-fehérben vagy színesben. A fekete-fehér esetben egy elektronágyú szabályozta a képernyő pixel-einek monokróm fényerejét, a színes esetben három külön álló elektronágyú szabályozta a vörös, kék és zöld komponensek arányát, ezzel megalkotva a színes képet. A színes TV-k esetben is a három elektron sugár együtt mozgott végig a képernyőn, ezért a könnyebb megértés érdekében érdemes egy elektron sugárként gondolni ezekre. 
 	
 	A televízió működése során a bal felső sarokból kezdve úgy irányítja az elektron sugarat, hogy a teljes képernyőn végigfusson sorról sorra, amíg el nem éri a jobb alsó sarkát a képernyőnek. Ha egy sor végére érünk akkor az elektron sugarat vissza pozicionáljuk a sor elejére, ezt az időt horizontális szinkronizációnak nevezzük (horizontal balnking). Ha végig értünk egy kép kockán a TV a fegyvert újra a felső sor bal oldalára állítja, ezt vertikális szinkronizációnak (vertical blanking) hívják. Ez képalkotási ciklus a TV működése közben folytonosan ismétlődik rögzített időközönként általában másodpercenként hatvan képkocka körül. 
 	
-	Miközben a elektronágyú mozog, a TV egy belső jel segítségével tudja szabályozni az elektronok kibocsátásának mértékét. Ez a jel megváltoztatja a szín fényerejét egy adott pozícióban (pixel-en), a pisztoly gyors mozgásának következtében, az eredmény egy folytonos animált kép képernyőn. Ezt a jelet kompozit jelnek nevezzük és általában egy rf antennáról vagy egy kábel boxból származott, de a NES esetében ezt a jelet a PPU állítja elő. 
-	
 	%TODO ábra a CRT monitor képalktásáról
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=150mm, keepaspectratio]{figures/CRT-TV}
+		\caption{Katódsugárcsöves TV-k működése}
+		\label{fig:CRT-TV}
+	\end{figure}
+	
+	Miközben a elektronágyú mozog, a TV egy belső jel segítségével tudja szabályozni az elektronok kibocsátásának mértékét. Ez a jel megváltoztatja a szín fényerejét egy adott pozícióban (pixel-en), a pisztoly gyors mozgásának következtében, az eredmény egy folytonos animált kép képernyőn. Ezt a jelet kompozit jelnek nevezzük és általában egy rf antennáról vagy egy kábel boxból származott, de a NES esetében ezt a jelet a PPU állítja elő. 
 	
 	A NES két típusú kompozit jelet tudott elő állítani attól függően, hogy a világ melyik területére gyártották. Ez azért következett be mert a CRT TV-knek két standard típusa terjedt el világszerte az NTSC és a PAL. Az NTSC-t elsősorban az Egyesült Államokban és Japánban használták, és 60 képkocka/másodperces sebességgel jelenítette meg kompozit jelet, ezek a TV-k összesen 525 képsorral rendelkeztek. A PAL-t elsősorban Európában, Afrikában és Dél-Amerikában használták és 50 képkocka/másodperc sebességgel futott, összesen 625 képsort jelenített meg.
 	
 	A NES játékokat sosem programozták régió specifikusak, az egyetlen dolog ami változott területenként az a NES PPU-jának hardvere. Így a világ különböző területein ugyanaz a játék gyorsabban illetve lassabban futott, ez akár 17\%-os különbséget is jelenthetett. A NES emulálás szempontjából az NTSC készülékeket veszem alapul mivel ezeken gépek működését tárták fel részletesebben reverse engineering-el.
 	
 	\subsection{Pattern táblák és paletták}
-	A sprite képek, amelyeket a PPU Pattern tábla memóriájában helyezkednek el képezik az alapját minden grafikának a NES      
+	A sprite képek, amelyeket a PPU Pattern tábla memóriájában helyezkednek el, képezik az alapját minden grafikái megjelenítésnek. Ezek a  8 x 8 pixeles csempék alkotják a bonyolult háttereket, mozgó objektumokat és speciális effekteket. Alapvetően a sprite-ok tárolása hasonló módon történik mint egy modern számítógépek által használt kép esetében, mit például png. Mindkét tárolási formátumot kétdimenziós szám rácsként tudjuk elképzelni, ahol minden egyes cellához tartozó érték egy pixelhez tartozó színt reprezentál, csak amíg a png több millió színt támogat addig a NES egy pixel-e csupán négy különböző színű lehet. Gyakorlatilag egy ilyen csempe nem is tárol szín adatokat, a pixel-eket reprezentáló számértékek referenciák egy éppen aktív szín paletta színére.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=150mm, keepaspectratio]{figures/Mario-Patterns}
+		\caption{Super Mario Bros. Pattern táblái}
+		\label{fig:Mario-Pattern}
+	\end{figure}
+	
+	A szín paletták memória területének írásával, nyolc különböző palettát állíthatunk be a grafikus megjelenítéshez, négyet a háttér megjelenítéséhez és a maradék négyet az előtér rendereléséhez. Minden egyes paletta négy színt tárol, az első szín minden egyes palettán egy átlátszósági szín, ez azt jelenti, hogy ha a pixel szín értéke nullás indexel rendelkezik akkor az megjelenítés során minden esetben átlátszó lesz (függetlenül a palettába írt szín értéktől).
+	
+	A fentiek alapján, tehát egy pixel 0-3-ig vehet fel értéket, tehát 2 biten vagyunk képesek eltárolni az értékét. Egy 8 x 8 as csempe pedig 64 pixelt tartalmaz, ezért összesen 16 byte helyet foglal. Mivel a NES processzora egy 6502-es (8 bit-es) modell volt, ennek okán a legkisebb memória egység amit képes volt megcímezni az egy byte volt, így a csempe adatok ésszerű tárolásához egyedi megoldásra volt szükség.
+	
+	%todo ábra egy spriteról
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=100mm, keepaspectratio]{figures/Gumba-tile}
+		\caption{Gumba (Mario egyik ellenfele) bal felső csempe elem szín adatai}
+		\label{fig:Gumba-tile}
+	\end{figure}
+
+	Mivel a NES nem képes direkt a 2 bit-es számértékekkel dolgozni, ezért ezeket fel daraboljuk először logikailag magas és alacsony bitekre. Ezt követően elsőként a csempe alacsony 8 byte-ját tároljuk el majd ezt követően a magas nyolc byte-ot, így megkapjuk a fentebb kiszámolt 16 byte-os értéket. Ezáltal könnyel elérhetővé tettük a kép adatainkat a cpu számára, illetve a PPU-is helyesen képes ezeket megjeleníteni.
+	
+	\subsection{A név táblák és tulajdonság táblák (Attribute tables)}
+	
+	A név táblák alapvetően, ahogyan már fentebb olvashattuk egy-egy 32 x 30-as rácsként képzelhetők el, ahol minden egyes cella egy csempének felel meg (8 x 8 pixel). Ebből következően egy név tábla 256 x 240 pixelt tartalmaz, ez a CRT monitorok teljes képernyő területe. Egy rács elem, pedig egy, egy byte-os címet tartalmaz, amely az éppen aktív pattern tábla egy csempéjét címzi meg (mivel összesen 256 aktív csempénk lehet ezért elég egy byte a címzéshez).
+	
+	Ahhoz, hogy a PPU-nk képes legyen egy játék során gyors és gördülékeny háttér változásokra több különböző eszközt fejlesztettek ki. Kezdve azzal, hogy a NES hardveren belül két név táblát helyeztek el, ezek okos címzésével és a hardver sajátosságainak kihasználásával (mirroring) képesek vagyunk az úgy nevezett scrolling megvalósítására. Ez egyszerűen egy vertikális vagy egy horizontális finom lapozásnak írható le (egy-két sor pixel eltolásával, illetve megjelenítésével). Alapvető esetben a NES játékok vagy fix háttérrel rendelkeztek (lásd donkey kong), vagy csak horizontális vagy vertikális scrolling-ot alkalmaztak (horizontális - Super Mario Bros.). Viszont a későbbiekben megjelentek komplexebb játékok is amelyek ezek vegyítését alkalmazták ilyen például a Metroid vagy a Legend of Zelda.
+	
+	A mirroring az a jelenség, amikor két cím azonos memória területre mutat, ez azért fordulhat elő, mert a PPU nem teljes címzést használ (kevesebb bit-tel címez meg tartományokat). A név táblák esetében például egy 2 x 2-es rácsot szoktak képezni ennek segítségével, így kiterjesztve a két névtáblánk címzési tartományát. De ez a jelenség ez egész PPU memória felépítése során megfigyelhető.
+	
+	%todo memória map
+	\begin{table}[H]
+		\footnotesize
+		\centering
+		\begin{tabular}{|l|l|l|}
+			\hline
+			\rowcolor[HTML]{C0C0C0} 
+			\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}\textbf{Memórai címek}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Méret}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Leírás}} \\ \hline
+			$0000 - $0FFF                                                        & \$1000                                                      & Pattern tábla 1                                              \\ \hline
+			$1000 - $1FFF                                                        & \$1000                                                      & Pattern tábla 2                                              \\ \hline
+			$2000 - $23FF                                                        & \$0400                                                      & Név tábla 1                                                  \\ \hline
+			$2400 - $27FF                                                        & \$0400                                                      & Név tábla 2                                                  \\ \hline
+			$2800 - $2BFF                                                        & \$0400                                                      & Név tábla 3                                                  \\ \hline
+			$2C00 - $2FFF                                                        & \$0400                                                      & Név tábla 4                                                  \\ \hline
+			$3000 - $3EFF                                                        & \$0F00                                                      & A $2000 - $2EFF címterület mirror-ja                         \\ \hline
+			$3F00 - $3F1F                                                        & \$0020                                                      & Szín paletta RAM indexek                                     \\ \hline
+			$3F20 - $3FFF                                                        & \$00E0                                                      & A $3F00 - $3F1F címterület mirror-ja                         \\ \hline
+		\end{tabular}
+		\caption{A PPU memória kezelése (14 bit címek) mirroring jelenséggel}
+		\label{tab:PPU-memory}
+	\end{table}
+	
+	Minden egyes névtábla végén egy kisebb extra memória terület található, amelyet tulajdonság táblának (vagyis Attribute Table-nek) nevezünk. Ez egy kisebb táblázatként képzelhető el ahol miden egyes cellában egy byte adatot tárolunk, viszont ennek feloldása bonyolultabb mint névtáblák esetében. Ez a 8 bit egy 4 X 4 csempényi háttér terület szín palettáját határozza meg a következő képen:
+	
+	\begin{itemize}
+		\item az első két bit a bal felső 2 x 2 csempe palettáját határozza meg, 
+		\item a második két bit a jobb felső 2 x 2-es terület palettáját határozza meg, 
+		\item a harmadik két bit a bal alsó 2 x 2-es terület palettáját határozza meg,
+		\item végül pedig az utolsó két bit a jobb alsó terület színérért felelős.
+	\end{itemize}
+	
+	 Így a teljes képünket 8 x 8 ilyen byte al írhatjuk le. 
  
+ 	 \subsection{Objektum Attribútum Memória (OAM)}
+ 	 Ez a memória terület 64 külön álló sprite tárolására képes. Minden egyes OAM spritehoz négy byte adat tartozik. Az első byte meghatározza a vertikális vagy y koordinátáját a sprite-nak. A második byte azt határozza meg, hogy melyik 8 x 8-as csempe legyen megjelenítve az éppen aktív Pattern táblából. A harmadik byte segítségével különböző tulajdonságait vagyunk képesek befolyásolni a sprite-nak. Végül pedig az utolsó byte a horizontális vagyis x koordinátáját határozzam meg az objektumnak.
+ 	 
+ 	 Az előbb bemutatott byte-ok közül az egyetlen bonyolultabb működésű a harmadik, ebben az estben is a különböző bit-ek más és más működést kódolnak.  Az nulladik és az első bit egy előtér szín palettát választanak ki a sprite számára. A következő három bit (3, 4 és 5) nem használtak. Ezt követően az ötödik bit határozza meg, hogy a sprite a háttér elé vagy mögé kerüljön (ha értéke nulla akkor a háttér fölé fog kerülni, ha pedig egy mögé). Végül pedig a hatodik illetve hetedik bitek azt határozzák, hogy a sprite pixel-ei horizontálisan vagy vertikálisan helyet cseréljenek (tükrözve legyenek), nulla esetén a sprite eredeti formájában marad, egy esetén, pedig meg tükröződik. Ez egy nagyon hasznos tulajdonság, hiszen így a játék fejlesztők rengeteg memória területet spórolhattak a Pattern táblákból. Mivel több olyan objektumot, karaktert vagy effektet is tervezhettek amelyek vagy horizontálisan vagy vertikálisan szimmetrikusak voltak (erre az egyik legjobb példa a felvető gomba  a Super Mario Bros. videojátékból).    
+ 	     
+ 	 \subsection{PPU hardveres bug-ok}
+ 	 Mivel hardveres emulálást készítünk, ezért nem mehetünk el az eredeti hardver bug-jai mellett. Az esetek többségében a NES játék fejlesztői kihasználták ezeket az hazárdokat bug-okat a játékfejlesztéseik során. Tehát ha az eredeti játékokkal szeretnénk játszani ezekkel is maradéktalanul meg kell ismerkednünk.
+ 	 
+ 	 A PPU leghíresebb, ilyen bug-ja a Sprite Overflow Bug. Ez a OAM feldolgozása és megjelenítése közben alakulhat ki a NES-ben. Ennek megismeréséhez először is érdemes áttekinteni, hogy a PPU milyen állapot gép alapján dolgozza fel a OAM-ot. A PPU-n belül található egy másodlagos OAM amely nyolc sprite eltárolására képes, ennek a nyolc spritenak a megjelenítése történik a NES egy 256 pixeles sorban. Minden egyes sorral ebbe a memória területbe töltjük be az éppen aktív spritokat, ennek következtében a 64 sprite közül csupán nyolcat tudunk egy sorba megjeleníteni. Ezek alapján az OAM megjelenítés a következő négy lépésből áll:
+ 	  
+ 	 \begin{enumerate}
+ 	 	\item először is megtisztítjuk a másodlagos OAM-ot,
+ 	 	\item majd végig vizsgáljuk a teljes OAM-ot és kiválasztjuk azokat a sprite-okat amiket a következő sorban meg kell jeleníteni (ezekből az első nyolcat),
+ 	 	\item ha a megtaláltuk a 8 megjelenítendő sprite-ot akkor sajnos egy hibás implementációval végig vizsgálja az eszköz, hogy van-e még aktív sprite a sorban (ha talál ilyet beállítja a Sprite Overflow Flaget),
+ 	 	\item végül pedig a PPU feltölti a megjelenítéshez szükséges regisztereket az éppen aktív spritok adataival.
+ 	 \end{enumerate}
+ 	 
+ 	 A következő sorban megjelenítendő aktív sprite-ok kiválasztása, az objektumok y értéke alapján történik az OAM-ban tárolt prioritási sorrend alapján. A fent említett bug a harmadik lépésben következhet be, amikor a PPU megtalálta a nyolcadik sprite-ot ezt követően elkezdi vizsgálni a maradék OAM területet, viszont ennek vizsgálata csak az első esetben következik be helyes tulajdonság szerint (y érték). Ezt követően a a sprite-ok tulajdonságaiban diagonálisan haladunk (tehát a második keresés a Pattern tábla cím alapján történik, és későbbiekben így tovább halad az objektum négy byte-ján keresztül), így olyan esetben is bejelezhet a Sprite Overflow Flag amikor ez nem is történt meg. Erre a bug-ra több híres játék is épített az egyik leghíresebb a The Legend of Zelda, de például a Ninja Gaiden és Castlevania sorozatokban is meg jelent.
+ 	 
+ 	 Egy másik kevésbé ismert bug-ot az OAMADDR regiszterrel kapcsolatban találtak meg. Ez általában akkor jött elő amikor nem a DMA vezérlőt használták az OAM frissítésére, hanem a szimpla byte elérését. Ilyenkor néha elő fordult, hogy egy egy byteot rossz OAM területre másolt az eszköz, ezzel beszennyezve az OAM-ot. Ennek a bug-nak későbbi kompatibilitási okai voltak.    
+ 	 
+ 	       
 \section{2A03 a NES CPU-ja}
 
 A fent szereplő 2A03 egy elterjedt rövidítés a RP2A03[G] típusú 8 bites CPU-ra, amely a NTSC típusú NES CPU egysége. Ez a  
