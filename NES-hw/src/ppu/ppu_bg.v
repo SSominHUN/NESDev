@@ -26,19 +26,19 @@ module ppu_bg(
     input cpu_en
     );
 
+parameter end_of_rendering_line = 11'd1599;
+parameter prerendering_row = 9'd261;
+
 //ppu background rendering counters
 reg [10:0] x_rendercntr;
 reg [8:0] y_renderingcntr;
-
-always@(posedge clk)
+//nes x rendering
+always @ (posedge clk)
 begin
-	if (rst)
-		x_rendercntr <= 11'd0;
-//341*4, 341 is the original cycle time for NES rendering, we double it (341*2) for VGA line rendering, and wait (341*2) for the next line to render the same pixels
-	else if (x_rendercntr == 11'd1363 | (y_renderingcntr >= 9'd240 & x_rendercntr == 10'd681)) //1364 OR we are over the visible frame and at 681
+	if (rst | x_rendercntr == end_of_rendering_line)
 		x_rendercntr <= 11'd0;
 	else
-		x_rendercntr <= x_rendercntr + 1; 
+		x_rendercntr <= x_rendercntr + 1;
 end
 //original nes y rendering
 always@(posedge clk)
@@ -54,6 +54,15 @@ begin
 	end
 	else if (x_rendercntr == 11'd1363)
 		y_renderingcntr <= y_renderingcntr + 1;
+end
+
+always @ (posedge clk)
+begin
+	if (rst) begin
+		y_renderingcntr <= prerendering_row;
+	end else if (x_rendercntr == end_of_rendering_line) begin
+		y_renderingcntr <= y_renderingcntr +1;
+	end
 end
 
 reg oddframe;
