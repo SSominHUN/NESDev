@@ -26,9 +26,9 @@ module ppu_rendering_FSM(
     input cpu_en
     );
 
-parameter end_of_rendering_line = 11'd1599;
-parameter prerendering_row = 9'd261;
-parameter first_rendering_row = 9'd1;
+parameter END_OF_RENDERING_LINE = 11'd1599;
+parameter PRERENDERING_ROW = 9'd261;
+parameter FIRST_RENDERING_ROW = 9'd1;
 
 //ppu background rendering counters
 reg [10:0] x_rendercntr;
@@ -36,7 +36,7 @@ reg [8:0] y_renderingcntr;
 //nes x rendering
 always @ (posedge clk)
 begin
-	if (rst || (x_rendercntr == end_of_rendering_line))
+	if (rst || (x_rendercntr == END_OF_RENDERING_LINE))
 		x_rendercntr <= 11'd0;
 	else
 		x_rendercntr <= x_rendercntr + 1;
@@ -45,10 +45,10 @@ end
 always @ (posedge clk)
 begin
 	if (rst) begin
-		y_renderingcntr <= prerendering_row;
-	end else if ((y_renderingcntr == prerendering_row) && (x_rendercntr == end_of_rendering_line)) begin
+		y_renderingcntr <= PRERENDERING_ROW;
+	end else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_RENDERING_LINE)) begin
 		y_renderingcntr <= 9'd0;
-	end else if (x_rendercntr == end_of_rendering_line) begin
+	end else if (x_rendercntr == END_OF_RENDERING_LINE) begin
 		y_renderingcntr <= y_renderingcntr +1;
 	end
 end
@@ -59,7 +59,7 @@ always@(posedge clk)
 begin
 	if (rst)
 		oddframe <= 1'd0;
-	else if ((y_renderingcntr == prerendering_row) && (x_rendercntr == end_of_rendering_line))
+	else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_RENDERING_LINE))
 		oddframe <= oddframe + 1;
 end
 
@@ -68,20 +68,20 @@ parameter SLEEP  = 3'b000;
 parameter IDLE = 3'b001;
 parameter NT = 3'b010;
 parameter AT = 3'b011;
-parameter BG_Lsb = 3'b100;
-parameter BG_Msb = 3'b101;
+parameter BG_LSB = 3'b100;
+parameter BG_MSB = 3'b101;
 parameter VBLANK = 3'b110;
 
-parameter start_rendering_line = 11'd127; 
-parameter start_of_last_NT = 11'd1482; 
-parameter end_of_BG_renderingline = 11'd1490;
-parameter bg_next_step_condition = 3'b011;
+parameter START_OF_RENDERING_LINE = 11'd127; 
+parameter START_OF_LAST_NT = 11'd1482; 
+parameter END_OF_BG_RENDERING_LINE = 11'd1490;
+parameter BG_NEXT_STEP_CONDITION = 3'b011;
 
-parameter oddframe_end_of_first_NT = 11'd131;
-parameter oddframe_end_of_BG_renderingline = 11'd1486;
+parameter ODDFRAME_END_OF_FIRST_NT = 11'd131;
+parameter ODDFRAME_END_OF_BG_RENDERING_LINE = 11'd1486;
 
-parameter end_of_visible_frame_row = 9'd239;
-parameter end_of_VBLANK_row = 9'd260;
+parameter END_OF_VISIBLE_FRAME_ROW = 9'd239;
+parameter END_OF_VBLANK_ROW = 9'd260;
 
 reg [2:0] bgrender_state;
 reg [2:0] next_state;
@@ -99,52 +99,52 @@ always @ (*)
 begin
 	case (bgrender_state)
 		SLEEP: begin
-			if ((x_rendercntr == end_of_rendering_line) && (y_renderingcntr == end_of_visible_frame_row))
+			if ((x_rendercntr == END_OF_RENDERING_LINE) && (y_renderingcntr == END_OF_VISIBLE_FRAME_ROW))
 				next_state <= VBLANK;
-			else if ((x_rendercntr == start_rendering_line) && oddframe && (y_renderingcntr == first_rendering_row))
+			else if ((x_rendercntr == START_OF_RENDERING_LINE) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 				next_state <= NT;
-			else if (x_rendercntr == start_rendering_line)
+			else if (x_rendercntr == START_OF_RENDERING_LINE)
 				next_state <= IDLE;
 			else
 				next_state <= SLEEP;
 		end
 		IDLE: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= NT;
 			else
 				next_state <= IDLE;
 		end
 		NT: begin
-			if ((x_rendercntr == end_of_BG_renderingline) || ((y_renderingcntr == prerendering_row) && oddframe && (x_rendercntr == oddframe_end_of_BG_renderingline)))
+			if ((x_rendercntr == END_OF_BG_RENDERING_LINE) || ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
 				next_state <= SLEEP;
-				// oddframe_end_of_first_NT is good here because x_rendercntr will always be higher then this just in the first line 
-			else if ((x_rendercntr == oddframe_end_of_first_NT) || (x_rendercntr == start_of_last_NT))
+				// ODDFRAME_END_OF_FIRST_NT is good here because x_rendercntr will always be higher then this just in the first line 
+			else if ((x_rendercntr == ODDFRAME_END_OF_FIRST_NT) || (x_rendercntr == START_OF_LAST_NT))
 				next_state <= NT;
-			else if (x_rendercntr[2:0] == bg_next_step_condition)
+			else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= AT;
 			else
 				next_state <= NT;
 		end
 		AT: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
-				next_state <= BG_Lsb;
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				next_state <= BG_LSB;
 			else
 				next_state <= AT;
 		end
-		BG_Lsb: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
-				next_state <= BG_Msb;
+		BG_LSB: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				next_state <= BG_MSB;
 			else
-				next_state <= BG_Lsb;
+				next_state <= BG_LSB;
 		end
-		BG_Msb: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
+		BG_MSB: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= NT;
 			else
-				next_state <= BG_Msb;
+				next_state <= BG_MSB;
 		end
 		VBLANK: begin
-			if ((x_rendercntr == end_of_rendering_line) && (y_renderingcntr == end_of_VBLANK_row))
+			if ((x_rendercntr == END_OF_RENDERING_LINE) && (y_renderingcntr == END_OF_VBLANK_ROW))
 				next_state <= SLEEP;
 			else
 				next_state <= VBLANK;
@@ -159,44 +159,44 @@ always @ (*)
 begin
 	case (bgrender_state)
 		SLEEP: begin
-			if (x_rendercntr == start_rendering_line && ((y_renderingcntr == prerendering_row) || (y_renderingcntr <= end_of_visible_frame_row)))
+			if (x_rendercntr == START_OF_RENDERING_LINE && ((y_renderingcntr == PRERENDERING_ROW) || (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)))
 				next_state <= IDLE;
 			else
 				next_state <= SLEEP;
 		end
 		IDLE: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= NT;
 			else
 				next_state <= IDLE;
 		end
 		NT: begin
-			if (x_rendercntr == end_of_BG_renderingline)
+			if (x_rendercntr == END_OF_BG_RENDERING_LINE)
 				next_state <= SLEEP;
-			else if (x_rendercntr == start_of_last_NT)
+			else if (x_rendercntr == START_OF_LAST_NT)
 				next_state <= NT;
-			else if (x_rendercntr[2:0] == bg_next_step_condition)
+			else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= AT;
 			else
 				next_state <= NT;
 		end
 		AT: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
-				next_state <= BG_Lsb;
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				next_state <= BG_LSB;
 			else
 				next_state <= AT;
 		end
-		BG_Lsb: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
-				next_state <= BG_Msb;
+		BG_LSB: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				next_state <= BG_MSB;
 			else
-				next_state <= BG_Lsb;
+				next_state <= BG_LSB;
 		end
-		BG_Msb: begin
-			if (x_rendercntr[2:0] == bg_next_step_condition)
+		BG_MSB: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 				next_state <= NT;
 			else
-				next_state <= BG_Msb;
+				next_state <= BG_MSB;
 		end
 		default:
 			next_state <= 3'bxxx;
