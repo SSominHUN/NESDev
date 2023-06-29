@@ -28,7 +28,7 @@ module ppu_rendering_FSM(
 
 parameter END_OF_RENDERING_LINE = 11'd1599;
 parameter PRERENDERING_ROW = 9'd261;
-parameter FIRST_RENDERING_ROW = 9'd1;
+parameter FIRST_RENDERING_ROW = 9'd0;
 
 //ppu background rendering counters
 reg [10:0] x_rendercntr;
@@ -39,18 +39,18 @@ begin
 	if (rst || (x_rendercntr == END_OF_RENDERING_LINE))
 		x_rendercntr <= 11'd0;
 	else
-		x_rendercntr <= x_rendercntr + 1;
+		x_rendercntr <= x_rendercntr + 11'd1;
 end
 //original nes y rendering
 always @ (posedge clk)
 begin
-	if (rst) begin
+	if (rst)
 		y_renderingcntr <= PRERENDERING_ROW;
-	end else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_RENDERING_LINE)) begin
-		y_renderingcntr <= 9'd0;
-	end else if (x_rendercntr == END_OF_RENDERING_LINE) begin
-		y_renderingcntr <= y_renderingcntr +1;
-	end
+	else if (x_rendercntr == END_OF_RENDERING_LINE)
+		if (y_renderingcntr == PRERENDERING_ROW)
+			y_renderingcntr <= 9'd0;
+		else 
+			y_renderingcntr <= y_renderingcntr + 11'd1;
 end
 
 reg oddframe;
@@ -59,8 +59,9 @@ always@(posedge clk)
 begin
 	if (rst)
 		oddframe <= 1'd0;
-	else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_RENDERING_LINE))
-		oddframe <= oddframe + 1;
+	else 
+		if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_RENDERING_LINE))
+			oddframe <= ~oddframe;
 end
 
 //FSM for BG rendering
@@ -72,7 +73,7 @@ parameter BG_LSB = 3'b100;
 parameter BG_MSB = 3'b101;
 parameter VBLANK = 3'b110;
 
-parameter START_OF_RENDERING_LINE = 11'd127; 
+parameter FIRST_SCANLINE_PIXEL = 11'd127;
 parameter START_OF_LAST_NT = 11'd1482; 
 parameter END_OF_BG_RENDERING_LINE = 11'd1490;
 parameter BG_NEXT_STEP_CONDITION = 3'b011;
@@ -101,9 +102,9 @@ begin
 		SLEEP: begin
 			if ((x_rendercntr == END_OF_RENDERING_LINE) && (y_renderingcntr == END_OF_VISIBLE_FRAME_ROW))
 				next_state <= VBLANK;
-			else if ((x_rendercntr == START_OF_RENDERING_LINE) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
+			else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 				next_state <= NT;
-			else if (x_rendercntr == START_OF_RENDERING_LINE)
+			else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
 				next_state <= IDLE;
 			else
 				next_state <= SLEEP;
@@ -115,7 +116,8 @@ begin
 				next_state <= IDLE;
 		end
 		NT: begin
-			if ((x_rendercntr == END_OF_BG_RENDERING_LINE) || ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
+			if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
+			|| ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
 				next_state <= SLEEP;
 				// ODDFRAME_END_OF_FIRST_NT is good here because x_rendercntr will always be higher then this just in the first line 
 			else if ((x_rendercntr == ODDFRAME_END_OF_FIRST_NT) || (x_rendercntr == START_OF_LAST_NT))
@@ -154,12 +156,14 @@ begin
 	endcase
 end
 
+/*
 // BG rendering without oddframe counting withou VBLANK
 always @ (*)
 begin
 	case (bgrender_state)
 		SLEEP: begin
-			if (x_rendercntr == START_OF_RENDERING_LINE && ((y_renderingcntr == PRERENDERING_ROW) || (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)))
+			if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
+			&& ((y_renderingcntr == PRERENDERING_ROW) || (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)))
 				next_state <= IDLE;
 			else
 				next_state <= SLEEP;
@@ -202,5 +206,7 @@ begin
 			next_state <= 3'bxxx;
 	endcase
 end
+*/
+
 
 endmodule
