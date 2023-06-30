@@ -84,6 +84,8 @@ parameter ODDFRAME_END_OF_BG_RENDERING_LINE = 11'd1486;
 parameter END_OF_VISIBLE_FRAME_ROW = 9'd239;
 parameter END_OF_VBLANK_ROW = 9'd260;
 
+parameter START_OF_VBLANK_ROW = 9'd240; 
+
 reg [2:0] bgrender_state;
 reg [2:0] next_state;
 
@@ -100,7 +102,8 @@ always @ (*)
 begin
 	case (bgrender_state)
 		SLEEP: begin
-			if ((x_rendercntr == END_OF_RENDERING_LINE) && (y_renderingcntr == END_OF_VISIBLE_FRAME_ROW))
+			if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
+				&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && (y_renderingcntr != PRERENDERING_ROW)))
 				next_state <= VBLANK;
 			else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 				next_state <= NT;
@@ -146,7 +149,7 @@ begin
 				next_state <= BG_MSB;
 		end
 		VBLANK: begin
-			if ((x_rendercntr == END_OF_RENDERING_LINE) && (y_renderingcntr == END_OF_VBLANK_ROW))
+			if (x_rendercntr == END_OF_BG_RENDERING_LINE) //&& (y_renderingcntr == END_OF_VBLANK_ROW)
 				next_state <= SLEEP;
 			else
 				next_state <= VBLANK;
