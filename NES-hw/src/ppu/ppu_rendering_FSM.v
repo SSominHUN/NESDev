@@ -149,7 +149,7 @@ begin
 				next_state <= BG_MSB;
 		end
 		VBLANK: begin
-			if (x_rendercntr == END_OF_BG_RENDERING_LINE) //&& (y_renderingcntr == END_OF_VBLANK_ROW)
+			if (x_rendercntr == END_OF_BG_RENDERING_LINE)
 				next_state <= SLEEP;
 			else
 				next_state <= VBLANK;
