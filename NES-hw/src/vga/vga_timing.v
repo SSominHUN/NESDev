@@ -26,7 +26,7 @@ module vga_timing(
      //Órajel és reset.
     input wire clk, //Pixel órajel bemenet.
     input wire rst, //Reset bemenet.
-    input reg en,
+    input wire en,
 
     //Az aktuális pixel pozíció.
     output reg [9:0] h_cnt = 10'd0, //X-koordináta.

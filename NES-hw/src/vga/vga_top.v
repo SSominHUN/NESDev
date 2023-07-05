@@ -81,10 +81,13 @@ begin
 		startupcntr <= startupcntr + 12'd1;
 end
 
+wire vga_en_wire;
+assign vga_en_wire = vga_en;
+
 vga_timing timing(
    .clk(pclk),
    .rst(rst),
-   .en(vga_en),
+   .en(vga_en_wire),
 
    .h_cnt(h_cnt),
    .v_cnt(v_cnt),
@@ -135,11 +138,12 @@ begin
 	else if(x_ppucntr[0] == 1'b0)
 		x_writecntr <= x_writecntr + 10'd1;
 end
-/*
+
 //*****************************************************************************
 //* RGB in one BRAM                                                           *
 //*****************************************************************************
 
+/*
 reg [23:0] buff1_dout = 24'd0;
 reg [23:0] buff2_dout = 24'd0;
 
@@ -167,6 +171,7 @@ begin
       buff2_dout <= buffer_2[h_cnt];
 end
 */
+
 //*****************************************************************************
 //* RGB in dual port BRAM                                                     *
 //*****************************************************************************
@@ -203,13 +208,17 @@ end
 always @ (posedge pclk)
 begin
    if (buff_we)
+	begin
       red_reg <= buff_dout_b[7:0];
       green_reg <= buff_dout_b[15:8];
       blue_reg <= buff_dout_b[23:16];
+	end
    else
+	begin
       red_reg <= buff_dout_a[7:0];
       green_reg <= buff_dout_a[15:8];
       blue_reg <= buff_dout_a[23:16];
+	end
 end
 
 //*****************************************************************************
