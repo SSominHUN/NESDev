@@ -42,7 +42,7 @@ module vga_top(
    );
 
 //*****************************************************************************
-//* h_sync, v_sync                                *
+//* Generating hsync vsynck and blank                                         *
 //*****************************************************************************
 
 //Szinkron és kioltó jelek.
@@ -95,7 +95,7 @@ vga_timing timing(
 );
 
 //*****************************************************************************
-//* Generating the picture data from buffers.                                 *
+//* Receiving picture data from buffers.                                      *
 //*****************************************************************************
 reg [7:0] red_reg;
 reg [7:0] green_reg;
@@ -135,41 +135,81 @@ begin
 	else if(x_ppucntr[0] == 1'b0)
 		x_writecntr <= x_writecntr + 10'd1;
 end
+/*
+//*****************************************************************************
+//* RGB in one BRAM                                                           *
+//*****************************************************************************
 
-reg [7:0] buff1_red_dout = 8'd0;
+reg [23:0] buff1_dout = 24'd0;
+reg [23:0] buff2_dout = 24'd0;
 
 (*ram_style = "BLOCK"*)
-reg [7:0] red_buffer_1 [799:0];
+reg [23:0] buffer_1 [1023:0];
 
 always@(posedge pclk)
 begin
    if(buff_we)
       if (x_ppucntr[0] == 1'b0)
-         red_buffer_1[x_writecntr] <= red_din;
+         buffer_1[x_writecntr] <= {blue_din, green_din, red_din};
    else
-      buff1_red_dout <= red_buffer_1[h_cnt];
+      buff1_dout <= buffer_1[h_cnt];
 end
 
-reg [7:0] buff2_red_dout = 8'd0;
-
 (*ram_style = "BLOCK"*)
-reg [7:0] red_buffer_2 [799:0];
+reg [23:0] buffer_2 [1023:0];
 
 always@(posedge pclk)
 begin
    if(~buff_we)
       if (x_ppucntr[0] == 1'b0)
-         red_buffer_2[x_writecntr] <= red_din;
+         buffer_2[x_writecntr] <= {blue_din, green_din, red_din};
    else
-      buff2_red_dout <= red_buffer_2[h_cnt];
+      buff2_dout <= buffer_2[h_cnt];
 end
+*/
+//*****************************************************************************
+//* RGB in dual port BRAM                                                     *
+//*****************************************************************************
+
+reg [23:0] buff_dout_a = 24'd0;
+reg [23:0] buff_dout_b = 24'd0;
+
+(*ram_style = "BLOCK"*)
+reg [23:0] buffer [2047:0];
+
+always@(posedge pclk)
+begin
+   if(buff_we)
+      if (x_ppucntr[0] == 1'b0)
+         buffer[x_writecntr] <= {blue_din, green_din, red_din};
+   else
+      buff_dout_a <= buffer[h_cnt];
+end
+
+always@(posedge pclk)
+begin
+   if(~buff_we)
+      if (x_ppucntr[0] == 1'b0)
+         buffer[x_writecntr + 1024] <= {blue_din, green_din, red_din};
+   else
+      buff_dout_b <= buffer[h_cnt + 1024];
+end
+
+
+//*****************************************************************************
+//* RGB REGISTERS                                                             *
+//*****************************************************************************
 
 always @ (posedge pclk)
 begin
    if (buff_we)
-      red_reg <= buff2_red_dout;
+      red_reg <= buff_dout_b[7:0];
+      green_reg <= buff_dout_b[15:8];
+      blue_reg <= buff_dout_b[23:16];
    else
-      red_reg <= buff1_red_dout;
+      red_reg <= buff_dout_a[7:0];
+      green_reg <= buff_dout_a[15:8];
+      blue_reg <= buff_dout_a[23:16];
 end
 
 //*****************************************************************************
