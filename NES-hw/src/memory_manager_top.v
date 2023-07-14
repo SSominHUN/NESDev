@@ -27,7 +27,7 @@ module memory_manager_top #(
 	// SRAM interface
 	inout wire [15:0] sram_dio,
 	output wire [17:0] sram_addr,
-	output wire sram_cen,
+	output wire sram_cen, 
 	output wire sram_oen,
 	output wire sram_wen,
 	output wire sram_lbn,
@@ -106,7 +106,8 @@ begin
 end
 
 // SRAM interface
-reg [7:0] sram_data_reg;
+reg [7:0] sram_to_ppu_data_reg;
+reg [7:0] sram_to_cpu_data_reg;
 reg [17:0] sram_addr_reg;
 reg sram_cen_reg;
 reg sram_oen_reg;
@@ -154,9 +155,9 @@ begin
 				sram_hbn_reg <= 1'b0;
 				sram_lbn_reg <= 1'b0;
 				if (ppu_addr[0])
-					sram_data_reg <= sram_dio [7:0];
+					sram_to_ppu_data_reg <= sram_dio [7:0];
 				else
-					sram_data_reg <= sram_dio [15:8];
+					sram_to_ppu_data_reg <= sram_dio [15:8];
 			end
 			else
 			begin
@@ -166,9 +167,9 @@ begin
 				sram_hbn_reg <= 1'b0;
 				sram_lbn_reg <= 1'b0;
 				if (cpu_addr[0])
-					sram_data_reg <= sram_dio [7:0];
+					sram_to_cpu_data_reg <= sram_dio [7:0];
 				else
-					sram_data_reg <= sram_dio [15:8];
+					sram_to_cpu_data_reg <= sram_dio [15:8];
 			end
 		end
 		WRITE: begin //undefined?
@@ -294,7 +295,7 @@ end
 //*****************************************************************************
 wire [7:0] ppu_data_out_wire;
 
-assign ppu_data_out_wire = (en_ppu_pt_read) ? sram_data_reg : out_reg_ppu;
+assign ppu_data_out_wire = (en_ppu_pt_read) ? sram_to_ppu_data_reg : out_reg_ppu;
 assign ppu_data_out = (en_ppu_pt_read || en_ppu_NT) ? ppu_data_out_wire : 8'dx;
 
 endmodule
