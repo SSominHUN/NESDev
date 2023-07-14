@@ -25,9 +25,9 @@ module ppu_top(
 	input wire [7:0] data_in, 
 	output wire [7:0] data_out,
 	output wire [13:0] addr,
-   	output wire write_request,
-   	output wire read_request
-   	);
+	output wire write_request,
+	output wire read_request
+	);
 
 
 endmodule
