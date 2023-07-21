@@ -159,6 +159,8 @@ begin
 	endcase
 end
 
+
+
 /*
 // BG rendering without oddframe counting withou VBLANK
 always @ (*)

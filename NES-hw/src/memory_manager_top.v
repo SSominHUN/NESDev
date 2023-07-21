@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 module memory_manager_top #(
 	parameter NT_MIRRORING = 0,
-	parameter SRAM_PATTERN_START = 0,
-	parameter SRAM_PROGRAM_START = 0
+	parameter SRAM_PATTERN_START = 18'd0,
+	parameter SRAM_PROGRAM_START = 18'd0
 )(
 	input wire clk,
 	// SRAM interface
@@ -35,7 +35,7 @@ module memory_manager_top #(
 
     // CPU interface for memory acess
 	input wire [7:0] cpu_data_in,
-	input wire [13:0] cpu_addr, //cpu address size?
+	input wire [15:0] cpu_addr,
 	output wire [7:0] cpu_data_out,
 	input wire cpu_rnw,
 	output wire cpu_ce,
@@ -61,7 +61,7 @@ reg [1:0] next_sram_state;
 
 wire en_ppu_pt_read;
 wire en_cpu_sram_read;
-wire en_cpu_sram_write;//maybe not need because on run CPU dous not write SRAM
+wire en_cpu_sram_write; // maybe not need because on run CPU does not write SRAM
 
 assign en_ppu_pt_read = (ppu_read_request && (ppu_addr >= 14'h1FFF)) ? 1'b1 : 1'b0;
 assign en_cpu_sram_read = cpu_rnw; // if we understand the cpu we can build from this
@@ -109,6 +109,7 @@ end
 reg [7:0] sram_to_ppu_data_reg;
 reg [7:0] sram_to_cpu_data_reg;
 reg [17:0] sram_addr_reg;
+reg [15:0] sram_dio_reg;
 reg sram_cen_reg;
 reg sram_oen_reg;
 reg sram_wen_reg;
@@ -135,6 +136,8 @@ begin
 end
 */
 // can be * too? pr posedge clk
+// ce enable always enabeled? 
+// hbn, lbn -> in read always
 always @ (*)
 begin
 	case (sram_state)
@@ -161,7 +164,7 @@ begin
 			end
 			else
 			begin
-				sram_addr_reg <= SRAM_PROGRAM_START + {cpu_addr[13:1], 0};
+				sram_addr_reg <= SRAM_PROGRAM_START + {cpu_addr[15:1], 0};
 				sram_cen_reg <= 1'b0;
 				sram_oen_reg <= 1'b0;
 				sram_hbn_reg <= 1'b0;
@@ -172,12 +175,22 @@ begin
 					sram_to_cpu_data_reg <= sram_dio [15:8];
 			end
 		end
-		WRITE: begin //undefined?
-				sram_addr_reg <= SRAM_PROGRAM_START + cpu_addr;
+		WRITE: begin //undefined? hogy valósítsam meg az írást?
+				sram_addr_reg <= SRAM_PROGRAM_START + cpu_addr[15:1];
 				sram_cen_reg <= 1'b0;
 				sram_wen_reg <= 1'b0;
-				sram_hbn_reg <= 1'b0;
-				sram_lbn_reg <= 1'b0;
+				if (cpu_addr[0]) 
+				begin
+					sram_dio_reg <= {8'dx, cpu_data_in};
+					sram_hbn_reg <= 1'b1;
+					sram_lbn_reg <= 1'b0;
+				end
+				else
+				begin
+					sram_dio_reg <= {cpu_data_in, 8'dx};
+					sram_hbn_reg <= 1'b0;
+					sram_lbn_reg <= 1'b1;
+				end
 		end
 		default: begin
 			sram_addr_reg <= 18'dx;
@@ -190,14 +203,13 @@ begin
 	endcase
 end
 
+assign sram_dio = (en_cpu_sram_read) ? 16'hZZZZ : sram_dio_reg; //not sure for hzzzz
 assign sram_addr = sram_addr_reg;
 assign sram_cen = sram_cen_reg;
 assign sram_oen = sram_oen_reg;
 assign sram_wen = sram_wen_reg;
 assign sram_lbn = sram_lbn_reg;
 assign sram_hbn = sram_hbn_reg;
-
-//	[15:0] sram_data,
 
 //*****************************************************************************
 //* Nametable mirroring and addr PPU side                                     *
@@ -266,13 +278,12 @@ end
 reg [7:0] nametable [4095:0];
 
 reg [7:0] out_reg_ppu;
-reg [7:0] out_reg_cpu;
+//reg [7:0] out_reg_cpu;
 
 wire we_ppu;
-wire we_cpu;
+//wire we_cpu;
 
-wire en_cpu_NT;
-
+//wire en_cpu_NT;
 
 always @(posedge clk)
 if (en_ppu_NT) 
@@ -281,7 +292,7 @@ begin
 		nametable[ppu_addr_reg] <= ppu_data_in;
 	out_reg_ppu <= nametable[ppu_addr_reg];
 end
-
+/*
 always @(posedge clk)
 if (en_cpu_NT) 
 begin
@@ -289,7 +300,7 @@ begin
 		nametable[addr_cpu] <= cpu_data_in;
 	out_reg_cpu <= nametable[addr_cpu];
 end
-
+*/
 //*****************************************************************************
 //* Data outs			                                                      *
 //*****************************************************************************
