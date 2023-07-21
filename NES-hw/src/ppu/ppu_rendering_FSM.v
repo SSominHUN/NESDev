@@ -22,8 +22,22 @@
 module ppu_rendering_FSM(
     input clk, // 25MHz 
     input rst,
+
     input ppu_en,
-    input cpu_en
+    input cpu_en,
+
+	// PPU registers
+	inout reg [14:0] v, // VRAM address
+	inout reg [14:0] t,	// Temporary VRAM address
+	inout reg [2:0] x, //Fine x scroll
+	inout wire w, //first or second toggle
+
+	// PPU interface for memory acess
+	output wire [7:0] ppu_data_out,
+	input wire [7:0] ppu_data_in,
+	output wire [13:0] ppu_addr, 
+	output wire ppu_wr_request,
+	output wire ppu_read_request
     );
 
 parameter END_OF_RENDERING_LINE = 11'd1599;
@@ -156,6 +170,42 @@ begin
 		end
 		default:
 			next_state <= 3'bxxx;
+	endcase
+end
+
+reg [7:0] ppu_data_out_reg;
+reg [7:0] ppu_data_in_reg;
+reg [13:0] ppu_addr_reg;
+reg ppu_wr_request_reg;
+reg ppu_read_request_reg;
+
+always @ (*)
+begin
+	case (bgrender_state)
+		SLEEP: begin
+			
+		end
+		IDLE: begin
+			
+		end
+		NT: begin
+
+		end
+		AT: begin
+
+		end
+		BG_LSB: begin
+
+		end
+		BG_MSB: begin
+
+		end
+		VBLANK: begin
+
+		end
+		default: begin
+			
+		end
 	endcase
 end
 
