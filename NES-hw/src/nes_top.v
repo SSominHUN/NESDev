@@ -99,10 +99,34 @@ BUFPLL #(
 );
 
 //*****************************************************************************
-//* Generating the vga reset signal.                                              *
+//* Generating the vga reset signal.                                          *
 //*****************************************************************************
 wire vga_rst = ~rst | ~pll_locked;
 
+//*****************************************************************************
+//* PPU                                                                       *
+//*****************************************************************************
+wire [ 7:0] ppu_ri_dout;
 
+assign ppu_ri_sel  = cpu_addr[2:0];
+assign ppu_ri_ncs  = (cpu_addr[15:13] == 3'b001) ? 1'b0 : 1'b1; // 0x2000-0x2007 every 8 bytes mirrored through 0x3FFF
+assign ppu_ri_r_nw = cpu_r_nw;
+assign ppu_ri_din  = cpu_din;
+
+ppu_top ppu(
+   .clk(clk),
+   // register interface
+   .ri_sel_in(ppu_ri_sel),
+   .ri_ncs_in(ppu_ri_ncs),
+   .ri_r_nw_in(ppu_ri_r_nw),
+   .ri_d_in(ppu_ri_din),
+   .ri_d_out(ppu_ri_dout),
+   // PPU interface
+   .data_in(), 
+	.data_out(),
+	.addr(),
+	.write_request(),
+	.read_request()
+);
 
 endmodule
