@@ -46,11 +46,11 @@ module vga_top(
 //*****************************************************************************
 
 //Szinkron és kioltó jelek.
-reg [9:0] h_cnt = 10'd0;
-reg [9:0] v_cnt = 10'd0;
+wire [9:0] h_cnt;
+wire [9:0] v_cnt;
 
-reg hsync_reg = 1'b1;   //Horizontális szinkron pulzus.
-reg vsync_reg = 1'b0;   //Vertikális szinkron pulzus.
+wire hsync_reg;   //Horizontális szinkron pulzus.
+wire vsync_reg;   //Vertikális szinkron pulzus.
 wire blank;             //Kioltó jel.
 
 reg blank_reg;

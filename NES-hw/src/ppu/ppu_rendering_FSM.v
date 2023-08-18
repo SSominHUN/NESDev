@@ -169,7 +169,7 @@ begin
 				next_state <= VBLANK;
 		end
 		default:
-			next_state <= 3'bxxx;
+			next_state <= IDLE;
 	endcase
 end
 
