@@ -23,39 +23,152 @@ module memory_manager_top #(
 	parameter SRAM_PATTERN_START = 18'd0,
 	parameter SRAM_PROGRAM_START = 18'd0
 )(
-	input wire clk,
-	// SRAM interface
-	inout wire [15:0] sram_dio,
-	output wire [17:0] sram_addr,
-	output wire sram_cen, 
-	output wire sram_oen,
-	output wire sram_wen,
-	output wire sram_lbn,
-	output wire sram_hbn,
+	//clock and rst signals
+	input 	wire 				clk,
+	input	wire				rst,
+	input	wire				ph1_rising,
+	input	wire				ph1_falling,
+	input	wire				ph2_rising,
+	input	wire				ph2_falling,
 
-    // CPU interface for memory acess
-	input wire [7:0] cpu_data_in,
-	input wire [15:0] cpu_addr,
-	output wire [7:0] cpu_data_out,
-	input wire cpu_rnw,
-	output wire cpu_ce,
+	//Output controll signals
+	output	wire				ready, //low -> cpu stops at reading cycles
+	output	wire				cpu_apu_rst,
 
-	// PPU interface for memory acess
-	input wire [7:0] ppu_data_in,
-	input wire [13:0] ppu_addr, 
-	output wire [7:0] ppu_data_out,
-	input wire ppu_wr_request,
-	input wire ppu_read_request
+	// external SRAM interface
+	output 	wire 				sram_csn, 
+	output 	wire 				sram_oen,
+	output 	wire 				sram_wen,
+	output 	wire 				sram_lbn,
+	output 	wire 				sram_hbn,
+	output 	wire 	[17:0] 		sram_addr, // size is 18 bit?
+	input 	wire 	[7:0] 		sram_din,
+	output 	wire 	[7:0] 		sram_dout,
+	output 	wire 	[7:0] 		sram_data_t,
+
+    // CPU interface for memory acess master
+	output 	wire 	[15:0] 		cpu_addr,
+	output 	wire 				cpu_rnw,
+	output 	wire 				cpu_ce,
+	output 	wire 	[7:0] 		cpu_data_out,
+	input 	wire 	[7:0] 		cpu_data_in,
+
+	// Memory inerface slave
+	input 	wire 				ppu_mem_wr_req, //mem write request signal
+	input 	wire 				ppu_mem_rd_req, //mem read request signal
+	input 	wire 	[13:0] 		ppu_mem_addr,
+	input 	wire 	[7:0] 		ppu_mem_din,
+	output 	reg 	[7:0] 		ppu_mem_dout
+
 	);
+//SRAM_AWIDTH = 17, SRAM_DWIDTH = 8
+//*****************************************************************************
+//* SRAM data input reg	                                           			  *
+//*****************************************************************************
+
+(* iob = "force" *)
+
+
+//*****************************************************************************
+//* SRAM interface	                                            			  *
+//*****************************************************************************
+
+localparam SRAM_IDLE = 2'd0;
+localparam SRAM_READ = 2'd1;
+localparam SRAM_WRITE = 2'd2;
+
+reg [1:0] sram_state;
+(* iob = "force" *)
+reg	sram_csn_reg = 1'b1;
+(* iob = "force" *)
+reg	sram_oen_reg = 1'b1;
+(* iob = "force" *)
+reg	sram_wen_reg = 1'b1;
+(* iob = "force" *)
+reg [15:0] sram_data_t_reg = 16'hFFFF; // what is t? {SRAM_WIDTH {1'b1}} replicator operator sram_width = 3 reg = 3'b111;
+
+always @ (posedge clk)
+begin
+	if (rst)
+	begin //we set the registers and change to SRAM_IDLE
+		sram_csn_reg <= 1'b1;
+		sram_oen_reg <= 1'b1;
+		sram_wen_reg <= 1'b1;
+		sram_data_t_reg <= 8'hFF;
+		sram_state <= SRAM_IDLE;
+	end
+	else
+		case (sram_state)
+			IDLE: 
+				if (cpu_sram_wr_req) //if we get a cpu request
+					begin
+						sram_csn_reg <= 1'b0;
+						sram_oen_reg <= 1'b1;
+						sram_wen_reg <= 1'b0;
+						sram_data_t_reg <= 8'h00;
+						sram_state <= SRAM_WRITE;
+					end
+				else
+					if (cpu_sram_rd_req || ppu_sram_rd_req)
+					begin
+						sram_csn_reg <= 1'b0;
+						sram_oen_reg <= 1'b0;
+						sram_wen_reg <= 1'b1;
+						sram_data_t_reg <= 8'hFF;
+						sram_state <= SRAM_READ;
+					end
+					else
+					begin
+						sram_csn_reg <= 1'b1;
+						sram_oen_reg <= 1'b1;
+						sram_wen_reg <= 1'b1;
+						sram_data_t_reg <= 8'hFF;
+						sram_state <= SRAM_IDLE;
+					end
+
+			READ:
+				if (cpu_sram_wr_req)
+					begin
+						sram_csn_reg <= 1'b0;
+						sram_oen_reg <= 1'b1;
+						sram_wen_reg <= 1'b0;
+						sram_data_t_reg <= 8'h00;
+						sram_state <= SRAM_WRITE;
+					end
+				else
+					if(cpu_sram_rd_req || ppu_sram_rd_req)
+					begin
+						sram_csn_reg <= 1'b0;
+						sram_oen_reg <= 1'b0;
+						sram_wen_reg <= 1'b1;
+						sram_data_t_reg <= 8'hFF;
+						sram_state <= SRAM_READ;
+					end
+					else
+					begin
+						sram_csn_reg <= 1'b1;
+						sram_oen_reg <= 1'b1;
+						sram_wen_reg <= 1'b1;
+						sram_data_t_reg <= 8'hFF;
+						sram_state <= SRAM_IDLE;
+					end
+
+			WRITE:	begin
+						sram_csn_reg <= 1'b1;
+						sram_oen_reg <= 1'b1;
+						sram_wen_reg <= 1'b1;
+						sram_data_t_reg <= 8'hFF;
+						sram_state <= SRAM_IDLE;
+					end
+
+			default: sram_state <= SRAM_IDLE;
+		endcase
+end
 
 //*****************************************************************************
 //* PATTERN DATA SRAM interface	                                              *
 //*****************************************************************************
-
-parameter IDLE = 2'd0;
-parameter READ = 2'd1;
-parameter WRITE = 2'd2;
-
+/*
 reg [1:0] sram_state;
 reg [1:0] next_sram_state;
 
@@ -105,36 +218,6 @@ begin
 	endcase
 end
 
-// SRAM interface
-reg [7:0] sram_to_ppu_data_reg;
-reg [7:0] sram_to_cpu_data_reg;
-reg [17:0] sram_addr_reg;
-reg [15:0] sram_dio_reg;
-reg sram_cen_reg;
-reg sram_oen_reg;
-reg sram_wen_reg;
-reg sram_lbn_reg;
-reg sram_hbn_reg;
-/* maybe a timer system for stable data
-reg [1:0] timer;
-reg stable_rdata;
-
-always @ (posedge clk)
-begin
-	case (sram_state)
-		IDLE: begin
-			timer <= 1'b1;
-		end
-		READ: begin
-			if (timer == 0)
-				stable_rdata <= 1'b1;
-			else
-				timer <= timer - 1;
-		end
-		WRITE:
-	endcase
-end
-*/
 // can be * too? pr posedge clk
 // ce enable always enabeled? 
 // hbn, lbn -> in read always
@@ -210,6 +293,7 @@ assign sram_oen = sram_oen_reg;
 assign sram_wen = sram_wen_reg;
 assign sram_lbn = sram_lbn_reg;
 assign sram_hbn = sram_hbn_reg;
+*/
 
 //*****************************************************************************
 //* Nametable mirroring and addr PPU side                                     *
