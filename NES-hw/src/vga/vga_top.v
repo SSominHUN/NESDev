@@ -49,25 +49,13 @@ module vga_top(
 wire [9:0] h_cnt;
 wire [9:0] v_cnt;
 
-wire hsync_reg;   //Horizontális szinkron pulzus.
-wire vsync_reg;   //Vertikális szinkron pulzus.
-wire blank;             //Kioltó jel.
+wire hsync;   //Horizontális szinkron pulzus.
+wire vsync;   //Vertikális szinkron pulzus.
+wire blank;   //Kioltó jel.
 
-reg blank_reg;
+wire vga_en;
 
-always @ (posedge pclk) begin
-   blank_reg <= blank;
-end
-
-reg vga_en = 1'b0;
-
-always @ (posedge pclk) 
-begin
-   if(rst)
-      vga_en <= 1'b0;
-   else if(startupcntr == START_OF_VGA_RENDERING)
-      vga_en <= 1'b1;
-end
+assign vga_en = (startupcntr == START_OF_VGA_RENDERING);
 
 parameter START_OF_VGA_RENDERING = 12'd3199;
 
@@ -81,24 +69,21 @@ begin
 		startupcntr <= startupcntr + 12'd1;
 end
 
-wire vga_en_wire;
-assign vga_en_wire = vga_en;
-
 vga_timing timing(
    .clk(pclk),
    .rst(rst),
-   .en(vga_en_wire),
+   .en(vga_en),
 
    .h_cnt(h_cnt),
    .v_cnt(v_cnt),
 
-   .h_sync(hsync_reg),
-   .v_sync(vsync_reg),
+   .h_sync(hsync),
+   .v_sync(vsync),
    .blank(blank)
 );
 
 //*****************************************************************************
-//* Receiving picture data from buffers.                                      *
+//* Generating controll signals for                                           *
 //*****************************************************************************
 reg [7:0] red_reg;
 reg [7:0] green_reg;
@@ -237,9 +222,9 @@ tmds_transmitter tmds_transmitter(
    .red_in(red_reg),                      //Red video signal.
    .green_in(green_reg),                  //Green video signal.
    .blue_in(blue_reg),                    //Blue video signal.
-   .blank_in(blank_reg),                  //Blanking signal.
-   .hsync_in(hsync_reg),                  //Horizontal sync signal.
-   .vsync_in(vsync_reg),                  //Vertical sync signal.
+   .blank_in(blank),                      //Blanking signal.
+   .hsync_in(hsync),                  //Horizontal sync signal.
+   .vsync_in(vsync),                  //Vertical sync signal.
    
    //Output TMDS signals.
    .tmds_data0_out_p(tmds_data0_out_p),   //TMDS DATA0 line.
