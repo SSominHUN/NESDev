@@ -19,34 +19,110 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module ppu_ri(
-    input  wire        clk,           // 25 MHz
-    input  wire        rst_in,        // reset signal
+    input  wire        clk,        // 25 MHz
+    input  wire        rst,        // reset signal
+    input  wire 	   ph1_rising,
+	input  wire		   ph1_falling,
+	input  wire		   ph2_rising,
+	input  wire		   ph2_falling,
 
-    input  wire        vblank_in,         // high during vertical blank
+    //input  wire        vblank_in,         // high during vertical blank
 
-    // PPU interface for memory acess
-	input  wire [ 7:0] ppu_d_in,
-    input  wire [13:0] ppu_addr, 
-	output wire [ 7:0] ppu_d_out,
-    output wire 	   write_request,
-	output wire 	   read_request,
+    // PPU interface for memory access
+	input  wire [ 7:0] ppu_mem_din,
+    input  wire [13:0] ppu_mem_addr, 
+	output wire [ 7:0] ppu_mem_dout,
+    output wire 	   ppu_mem_wr_req,
+	output wire 	   ppu_mem_rd_req,
 	
-    input  wire [ 7:0] spr_ram_d_in,      // sprite ram data (for 0x2004 reads)
-    input  wire        spr_overflow_in,   // more than 8 sprites hit on a scanline during last frame
-    input  wire        spr_pri_col_in,    // primary object collision in last frame
+    //input  wire [ 7:0] spr_ram_d_in,      // sprite ram data (for 0x2004 reads)
+    //input  wire        spr_overflow_in,   // more than 8 sprites hit on a scanline during last frame
+    //input  wire        spr_pri_col_in,    // primary object collision in last frame
 
     // register interface or interface to cpu
-	input  wire [ 2:0] sel_in,         // register interface reg select (#2000-#2007)
-	input  wire        ncs_in,         // register interface enable (#2000 - #3FFF just when it is active)
-	input  wire        r_nw_in,        // register interface cpu read not write
-	input  wire [ 7:0] cpu_d_in,       // register interface data in (cpu data lane)
-	output wire [ 7:0] cpu_d_out       // register interface data out (cpu data lane)
+	input  wire [ 2:0] slv_mem_addr,      // register interface reg select (#2000-#2007)
+	input  wire        slv_mem_ncs,       // register interface enable (#2000 - #3FFF just when it is active)
+	input  wire        slv_mem_rnw,       // register interface cpu read not write
+	input  wire [ 7:0] slv_mem_din,       // register interface data in (cpu data lane)
+	output wire [ 7:0] slv_mem_dout       // register interface data out (cpu data lane)
     );
 
+//*****************************************************************************
+//* Generating controll signals                                          	  *
+//*****************************************************************************
+wire control_wr     = ph2_falling & slv_mem_ncs & ~slv_mem_ncs & (slv_mem_addr == 3'b000); //CTRL register write #2000
+wire render_mask_wr = ph2_falling & slv_mem_ncs & ~slv_mem_ncs & (slv_mem_addr == 3'b001); //MASK register write #2001
+wire scrollin_wr;
+wire vram_addr_wr;
+
+wire status_rd      = slv_mem_ncs & slv_mem_rnw & (slv_mem_addr == 3'b010);
+//*****************************************************************************
+//* Second write of 16 bit registers   (scrolling, vram_addr)             	  *
+//*****************************************************************************
+reg second_write;
+
+always @ (posedge clk) 
+begin
+    if (rst || (status_rd && ph2_falling))
+        second_write <= 1'b0;
+    else
+        if (scrollin_wr || vram_addr_wr)
+            second_write <= ~second_write;
+end
 
 //*****************************************************************************
-//* Scroll Registers                                                          *
+//* Controll register write                                               	  *
 //*****************************************************************************
+reg [5:0] control_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        control_reg <= 5'b10000;
+    else
+        if (control_wr)
+            control_reg <= {slv_mem_din[7], slv_mem_din[5:2]};   
+end
+
+wire vram_address_inc_sel   = control_reg[0]; //  
+wire sprite_pattern_sel     = control_reg[1]; // Sprite pattern table address for 8x8 sprites
+wire background_pattern_sel = control_reg[2]; // Background pattern table address (0: $0000; 1: $1000)
+wire sprite_size            = control_reg[3]; // 0: 8x8 pixels; 1: 8x16 pixels
+wire vram_irq_enable        = control_reg[4]; // Generate an NMI at the start of the vertical blanking interval (0: off; 1: on)
+
+//*****************************************************************************
+//* PPU mask register/ controll reg 2                                      	  *
+//*****************************************************************************
+reg [7:0] render_mask_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        render_mask_wr <= 8'd0;
+    else
+        if (render_mask_wr)
+            render_mask_reg <= slv_mem_din;    
+end
+
+wire monochrome_mode     <= render_mask_reg[0]; // Greyscale (0: normal color, 1: produce a greyscale display)
+wire background_clipping <= render_mask_reg[1]; // 1: Show background in leftmost 8 pixels of screen, 0: Hide
+wire sprite_clipping     <= render_mask_reg[2]; // 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
+wire background_enabled <= render_mask_reg[3];
+wire sprite_enabled <= render_mask_reg[4];
+wire emphasize_r <= render_mask_reg[5];
+wire emphesize_g <= render_mask_reg[6];
+wire emphesize_b <= render_mask_reg[7];
+
+
+wire ppu_enable = background_enabled | sprite_enabled;
+
+//*****************************************************************************
+//* PPU status register read                                             	  *
+//*****************************************************************************
+
+
+
+/*
 reg [2:0] fv;   // fine vertical scroll latch
 reg [4:0] vt;   // vertical tile index latch
 reg [2:0] fh;   // fine horizontal scroll latch
@@ -59,9 +135,7 @@ reg       s;    // playfield pattern table selection latch
 reg [7:0] cpu_d_out;      // output data bus latch for 0x2007 reads
 reg       upd_cntrs_out;  // output latch for upd_cntrs_out
 
-//*****************************************************************************
-//* External State Registers                                                  *
-//*****************************************************************************
+
 reg nmi_en;            // 0x2000[7]: enables an NMI interrupt on vblank
 
 reg spr_size;          // 0x2000[5]: select 8/16 scanline high sprites
@@ -113,7 +187,9 @@ parameter OAMDATA = 3'd4;
 parameter PPUSCROLL = 3'd5;
 parameter PPUADDR = 3'd6;
 parameter PPUDATA = 3'd7;
+*/
 
+/*
 always @ (posedge clk)
 begin
     if (rst)
@@ -169,5 +245,5 @@ begin
         end
     end
 end
-
+*/
 endmodule

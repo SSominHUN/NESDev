@@ -32,8 +32,8 @@ module memory_manager_top #(
 	input	wire				ph2_falling,
 
 	//Output controll signals
-	output	wire				ready, //low -> cpu stops at reading cycles
-	output	wire				cpu_apu_rst,
+	//output	wire				ready, //low -> cpu stops at reading cycles
+	//output	wire				cpu_apu_rst,
 
 	// external SRAM interface
 	output 	wire 				sram_csn, 
@@ -50,40 +50,37 @@ module memory_manager_top #(
     // CPU interface for memory acess master
 	output 	wire 	[15:0] 		cpu_addr,
 	output 	wire 				cpu_rnw,
-	output 	wire 				cpu_ce,
+	//output 	wire 				cpu_ce, 
 	output 	wire 	[7:0] 		cpu_data_out,
 	input 	wire 	[7:0] 		cpu_data_in,
 
 	// Memory inerface slave
-	input 	wire 				ppu_mem_wr_req, //mem write request signal
-	input 	wire 				ppu_mem_rd_req, //mem read request signal
-	input 	wire 	[13:0] 		ppu_mem_addr,
-	input 	wire 	[7:0] 		ppu_mem_din,
-	output 	reg 	[7:0] 		ppu_mem_dout
+	input 	wire 				ppu_wr_req, 
+	input 	wire 				ppu_rd_req, 
+	input 	wire 	[13:0] 		ppu_addr,
+	input 	wire 	[7:0] 		ppu_din,
+	output 	reg 	[7:0] 		ppu_dout
 
 	);
-//CPU SRAM address
 //*****************************************************************************
 //* CPU SRAM address                                         				  *
 //*****************************************************************************
 wire [17:0] cpu_sram_address;
-wire		cpu_sram_sel = (cpu_addr[15:13] != 3'b000);
+wire		cpu_sram_sel = (cpu_addr[15:0] >= CPU_RAM_OFFSET);
 
 localparam CPU_WORK_RAM_OFFSET = 18'd2048;
+localparam CPU_RAM_OFFSET = 18'd16416; 
 
-assign cpu_sram_address = {2'd0,cpu_addr} - CPU_WORK_RAM_OFFSET;
+assign cpu_sram_address = {2'd0,cpu_addr} - CPU_RAM_OFFSET;
 
-//PPU SRAM address
 //*****************************************************************************
 //* PPU SRAM address	                                           			  *
 //*****************************************************************************
-wire		ppu_sram_sel = ~ppu_mem_addr[13]; // when the PPU acces the character rom
 wire [17:0] ppu_sram_address;
+wire		ppu_sram_sel = ~ppu_addr[13]; // when the PPU acces the character rom
 
-assign ppu_sram_address = {5'd0,ppu_mem_addr[12:0]} + SRAM_CH_ROM_OFFSET; //just 8kbyte 
+assign ppu_sram_address = {5'd0,ppu_addr[12:0]} + SRAM_CH_ROM_OFFSET; //just 8kbyte 
 
-//CPU address space ... 
-// 2 kbyte of work ram for 
 //*****************************************************************************
 //* 2 KByte on board CPU memory	                                   			  *
 //*****************************************************************************
@@ -113,8 +110,6 @@ begin
 	end
 end
 
-//PPU address space
-//2 kbyte of name & attribute table ram
 //*****************************************************************************
 //* 2 KByte on board PPU name table memory                       			  *
 //*	with the basic mirrorings and bases for future mappers					  *																		
@@ -126,13 +121,13 @@ always @ (*)
 begin
 	case (NT_MIRRORING)
 		// Horizontal Mirroring
-		2'b00: ppu_name_table_addr_h <= {1'b0, ppu_mem_addr[11]};
+		2'b00: ppu_name_table_addr_h <= {1'b0, ppu_addr[11]};
 		// Verical Mirroring
-		2'b01: ppu_name_table_addr_h <= {1'b0, ppu_mem_addr[10]};
+		2'b01: ppu_name_table_addr_h <= {1'b0, ppu_addr[10]};
 		// Mappers Mirroring
 		2'b10: ppu_name_table_addr_h <= mapper_mirroring;
 		// Four-screen mirroring 
-		2'b11: ppu_name_table_addr_h <= {ppu_mem_addr[11:10]};
+		2'b11: ppu_name_table_addr_h <= {ppu_addr[11:10]};
 	endcase
 end
 
@@ -141,22 +136,21 @@ reg  [7:0] 		name_table_ram [2047:0];
 reg  [7:0] 		name_table_ram_reg;
 reg  [7:0] 		name_table_ram_dout;
 wire [7:0]		ppu_name_table_dout;
-wire [11:0]		ppu_name_table_addr = {ppu_name_table_addr_h, ppu_mem_addr[9:0]};
-wire			ppu_name_table_sel = ppu_mem_addr[13]; //when the ppu would like to read NT or AT
+wire [11:0]		ppu_name_table_addr = {ppu_name_table_addr_h, ppu_addr[9:0]};
+wire			ppu_name_table_sel = ppu_addr[13]; //when the ppu would like to read NT or AT
 
 //2 kbyte name table memory
 always @(posedge clk)
 begin
 	if (ppu_name_table_sel) 
 	begin
-		if (ppu_mem_wr_req)
-			name_table_ram[ppu_name_table_addr[10:0]] <= ppu_mem_din;
+		if (ppu_wr_req)
+			name_table_ram[ppu_name_table_addr[10:0]] <= ppu_din;
 		name_table_ram_reg <= name_table_ram[ppu_name_table_addr[10:0]];
 		name_table_ram_dout <= name_table_ram_reg;
 	end
 end
 
-//Generating the SRAM access request and acknowledge signals
 //*****************************************************************************
 //* Generating the SRAM access request and acknowledge signals             	  *
 //*****************************************************************************
@@ -164,7 +158,7 @@ reg		cpu_sram_read_req;
 wire	cpu_sram_read	= ph2_rising & cpu_sram_sel & cpu_rnw; 
 wire	cpu_sram_rd_req	= cpu_sram_read | cpu_sram_read_req;
 wire	cpu_sram_wr_req	= ph2_falling & cpu_sram_sel & ~cpu_rnw;
-wire	ppu_sram_rd_req	= ppu_mem_rd_req & ppu_sram_sel;
+wire	ppu_sram_rd_req	= ppu_rd_req & ppu_sram_sel;
 
 always @(posedge clk) // if cpu and ppu request comes in the same time we wait give the sram to the ppu
 begin
@@ -191,7 +185,6 @@ begin
 			cpu_sram_rd_ack <= {cpu_sram_rd_ack[1:0], 1'b0}; //we sift if we dont read
 end	
 
-//driving the sram address bus and the byte enable signals
 //*****************************************************************************
 //* Driving the sram address bus and the byte enable signals    			  *
 //*****************************************************************************
@@ -264,7 +257,6 @@ end
 
 assign sram_data_out = sram_data_out_reg;
 
-//sram input data register
 //*****************************************************************************
 //* SRAM data input reg	                                           			  *
 //*****************************************************************************
@@ -283,7 +275,6 @@ end
 //we get the choosen data (the upper or lover 8 bit)
 assign sram_din = (sram_din_sel) ? sram_data_in_reg[15:8] : sram_data_in_reg[7:0];
 
-//generating sram controll siganls
 //*****************************************************************************
 //* SRAM interface	                                            			  *
 //*****************************************************************************
@@ -300,7 +291,7 @@ reg	sram_oen_reg = 1'b1;
 (* iob = "force" *)
 reg	sram_wen_reg = 1'b1;
 (* iob = "force" *)
-reg [15:0] sram_data_t_reg = 16'hFFFF; // t is type
+reg [15:0] sram_data_t_reg = 16'hFFFF; //type
 
 always @ (posedge clk)
 begin
@@ -315,7 +306,7 @@ begin
 	else
 		case (sram_state)
 			IDLE: 
-				if (cpu_sram_wr_req) //if we get a cpu request
+				if (cpu_sram_wr_req)
 					begin
 						sram_csn_reg <= 1'b0;
 						sram_oen_reg <= 1'b1;
@@ -389,7 +380,6 @@ assign sram_oen			=	sram_oen_reg;
 assign sram_wen			=	sram_wen_reg;
 assign sram_data_t		=	sram_data_t_reg;
 
-//driving the cpu read data bus
 //*****************************************************************************
 //* CPU databus driving			                                              *
 //*****************************************************************************
@@ -398,9 +388,10 @@ wire [1:0] cpu_mem_dout_sel;
 assign cpu_mem_dout_sel[0]	=	cpu_sram_sel;
 assign cpu_mem_dout_sel[1]	=	cpu_work_ram_sel;
 
-always @ (*) // van olyan amikor nem kell meghelytani?
+//we use cpu data out just when its necessary other wise byte of 0 
+always @ (*)
 begin
-	if (~cpu_sram_rd_ack[2] | ~cpu_work_ram_rd_ack)
+	if (~cpu_sram_rd_ack[2] || ~cpu_work_ram_rd_ack)
 		cpu_data_out <= 8'd0;
 	else
 	begin
@@ -412,7 +403,6 @@ begin
 	end
 end
 
-//driving the ppu read data bus
 //*****************************************************************************
 //* PPU databus driving			                                              *
 //*****************************************************************************
@@ -424,9 +414,9 @@ assign ppu_mem_dout_sel[1]	=	ppu_name_table_sel;
 always @ (*) 
 begin
 	case (ppu_mem_dout_sel)
-		2'b01:	 ppu_mem_dout <= sram_din;
-		2'b10: 	 ppu_mem_dout <= ppu_name_table_dout;
-		default: ppu_mem_dout <= 8'd0;
+		2'b01:	 ppu_dout <= sram_din;
+		2'b10: 	 ppu_dout <= ppu_name_table_dout;
+		default: ppu_dout <= 8'd0;
 	endcase	
 end
 //*****************************************************************************

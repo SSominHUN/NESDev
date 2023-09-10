@@ -85,9 +85,15 @@ vga_timing timing(
 //*****************************************************************************
 //* Generating controll signals for                                           *
 //*****************************************************************************
+/*
 reg [7:0] red_reg;
 reg [7:0] green_reg;
 reg [7:0] blue_reg;
+*/
+
+wire [7:0] red;
+wire [7:0] green;
+wire [7:0] blue;
 
 parameter END_OF_PPU_RENDERING = 11'd1599;
 parameter END_OF_VGA_RENDERING = 10'd799;
@@ -164,6 +170,8 @@ end
 reg [23:0] buff_dout_a = 24'd0;
 reg [23:0] buff_dout_b = 24'd0;
 
+reg [23:0] buff_dout = 24'd0;
+
 (*ram_style = "BLOCK"*)
 reg [23:0] buffer [2047:0];
 
@@ -173,7 +181,7 @@ begin
       if (x_ppucntr[0] == 1'b0)
          buffer[x_writecntr] <= {blue_din, green_din, red_din};
    else
-      buff_dout_a <= buffer[h_cnt];
+      buff_dout <= buffer[h_cnt];
 end
 
 always@(posedge pclk)
@@ -182,13 +190,18 @@ begin
       if (x_ppucntr[0] == 1'b0)
          buffer[x_writecntr + 1024] <= {blue_din, green_din, red_din};
    else
-      buff_dout_b <= buffer[h_cnt + 1024];
+      buff_dout <= buffer[h_cnt + 1024];
 end
 
+assign red = buff_dout[7:0];
+assign green = buff_dout[15:8];
+assign blue = buff_dout[23:16];
 
 //*****************************************************************************
 //* RGB REGISTERS                                                             *
 //*****************************************************************************
+
+/*
 
 always @ (posedge pclk)
 begin
@@ -206,6 +219,8 @@ begin
 	end
 end
 
+*/
+
 //*****************************************************************************
 //* Instantiating the TMDS transmitter module.                                *
 //*****************************************************************************
@@ -219,9 +234,9 @@ tmds_transmitter tmds_transmitter(
    .serdes_strobe(serdes_strobe),         //Serdes data capture signal from BUFPLL.
    
    //Input video data.
-   .red_in(red_reg),                      //Red video signal.
-   .green_in(green_reg),                  //Green video signal.
-   .blue_in(blue_reg),                    //Blue video signal.
+   .red_in(red),                      //Red video signal.
+   .green_in(green),                  //Green video signal.
+   .blue_in(blue),                    //Blue video signal.
    .blank_in(blank),                      //Blanking signal.
    .hsync_in(hsync),                  //Horizontal sync signal.
    .vsync_in(vsync),                  //Vertical sync signal.
