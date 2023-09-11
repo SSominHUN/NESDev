@@ -41,7 +41,7 @@ module ppu_ri(
 
     // register interface or interface to cpu
 	input  wire [ 2:0] slv_mem_addr,      // register interface reg select (#2000-#2007)
-	input  wire        slv_mem_ncs,       // register interface enable (#2000 - #3FFF just when it is active)
+	input  wire        slv_mem_cs,       // register interface enable (#2000 - #3FFF just when it is active)
 	input  wire        slv_mem_rnw,       // register interface cpu read not write
 	input  wire [ 7:0] slv_mem_din,       // register interface data in (cpu data lane)
 	output wire [ 7:0] slv_mem_dout       // register interface data out (cpu data lane)
@@ -50,12 +50,12 @@ module ppu_ri(
 //*****************************************************************************
 //* Generating controll signals                                          	  *
 //*****************************************************************************
-wire control_wr     = ph2_falling & slv_mem_ncs & ~slv_mem_ncs & (slv_mem_addr == 3'b000); //CTRL register write #2000
-wire render_mask_wr = ph2_falling & slv_mem_ncs & ~slv_mem_ncs & (slv_mem_addr == 3'b001); //MASK register write #2001
+wire control_wr     = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b000); //CTRL register write #2000
+wire render_mask_wr = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b001); //MASK register write #2001
 wire scrollin_wr;
 wire vram_addr_wr;
 
-wire status_rd      = slv_mem_ncs & slv_mem_rnw & (slv_mem_addr == 3'b010);
+wire status_rd      = slv_mem_cs & slv_mem_rnw & (slv_mem_addr == 3'b010);
 //*****************************************************************************
 //* Second write of 16 bit registers   (scrolling, vram_addr)             	  *
 //*****************************************************************************

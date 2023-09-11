@@ -181,7 +181,7 @@ begin
       if (x_ppucntr[0] == 1'b0)
          buffer[x_writecntr] <= {blue_din, green_din, red_din};
    else
-      buff_dout <= buffer[h_cnt];
+      buff_dout_a <= buffer[h_cnt];
 end
 
 always@(posedge pclk)
@@ -190,18 +190,20 @@ begin
       if (x_ppucntr[0] == 1'b0)
          buffer[x_writecntr + 1024] <= {blue_din, green_din, red_din};
    else
-      buff_dout <= buffer[h_cnt + 1024];
+      buff_dout_b <= buffer[h_cnt + 1024];
 end
 
+/*
 assign red = buff_dout[7:0];
 assign green = buff_dout[15:8];
 assign blue = buff_dout[23:16];
+*/
 
 //*****************************************************************************
 //* RGB REGISTERS                                                             *
 //*****************************************************************************
 
-/*
+
 
 always @ (posedge pclk)
 begin
@@ -219,7 +221,7 @@ begin
 	end
 end
 
-*/
+
 
 //*****************************************************************************
 //* Instantiating the TMDS transmitter module.                                *
