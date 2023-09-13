@@ -193,17 +193,17 @@ begin
       buff_dout_b <= buffer[h_cnt + 1024];
 end
 
-/*
-assign red = buff_dout[7:0];
-assign green = buff_dout[15:8];
-assign blue = buff_dout[23:16];
-*/
+
+assign red = (buff_we)   ? buff_dout_b[7:0]   : buff_dout_a[7:0];
+assign green = (buff_we) ? buff_dout_b[15:8]  : buff_dout_a[15:8];
+assign blue = (buff_we)  ? buff_dout_b[23:16] : buff_dout_a[23:16];
+
 
 //*****************************************************************************
 //* RGB REGISTERS                                                             *
 //*****************************************************************************
 
-
+/*
 
 always @ (posedge pclk)
 begin
@@ -221,7 +221,7 @@ begin
 	end
 end
 
-
+*/
 
 //*****************************************************************************
 //* Instantiating the TMDS transmitter module.                                *

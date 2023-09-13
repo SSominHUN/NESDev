@@ -50,12 +50,20 @@ module ppu_ri(
 //*****************************************************************************
 //* Generating controll signals                                          	  *
 //*****************************************************************************
+//register write enable signals
 wire control_wr     = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b000); //CTRL register write #2000
 wire render_mask_wr = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b001); //MASK register write #2001
-wire scrollin_wr;
-wire vram_addr_wr;
+wire oam_addr_wr    = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b011); //OAM read/write address #2003
+wire oam_data_wr    = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b100); //OAM data read/write #2004
+wire scrolling_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b101); //fine scroll position (two writes: X scroll, Y scroll) #2005
+wire vram_addr_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnv & (slv_mem_addr == 3'b110); //PPU read/write address (two writes: most significant byte, least significant byte) #2006
+wire vram_data_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnv & (slv_mem_addr == 3'b111); //PPU data read/write #2007
 
+//Register read enable signals
 wire status_rd      = slv_mem_cs & slv_mem_rnw & (slv_mem_addr == 3'b010);
+wire oam_data_rd    = slv_mem_cs & slv_mem_rnv & (slv_mem_addr == 3'b100);
+wire vram_data_rd   = slv_mem_cs & slv_mem_rnv & (slv_mem_addr == 3'b111);
+
 //*****************************************************************************
 //* Second write of 16 bit registers   (scrolling, vram_addr)             	  *
 //*****************************************************************************
@@ -66,7 +74,7 @@ begin
     if (rst || (status_rd && ph2_falling))
         second_write <= 1'b0;
     else
-        if (scrollin_wr || vram_addr_wr)
+        if (scrolling_wr || vram_addr_wr)
             second_write <= ~second_write;
 end
 
@@ -104,20 +112,214 @@ begin
             render_mask_reg <= slv_mem_din;    
 end
 
-wire monochrome_mode     <= render_mask_reg[0]; // Greyscale (0: normal color, 1: produce a greyscale display)
-wire background_clipping <= render_mask_reg[1]; // 1: Show background in leftmost 8 pixels of screen, 0: Hide
-wire sprite_clipping     <= render_mask_reg[2]; // 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
-wire background_enabled <= render_mask_reg[3];
-wire sprite_enabled <= render_mask_reg[4];
-wire emphasize_r <= render_mask_reg[5];
-wire emphesize_g <= render_mask_reg[6];
-wire emphesize_b <= render_mask_reg[7];
+wire monochrome_mode     = render_mask_reg[0]; // Greyscale (0: normal color, 1: produce a greyscale display)
+wire background_clipping = render_mask_reg[1]; // 1: Show background in leftmost 8 pixels of screen, 0: Hide
+wire sprite_clipping     = render_mask_reg[2]; // 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
+wire background_enabled  = render_mask_reg[3];
+wire sprite_enabled 	 = render_mask_reg[4];
+wire emphasize_r         = render_mask_reg[5];
+wire emphesize_g 		 = render_mask_reg[6];
+wire emphesize_b 		 = render_mask_reg[7];
 
 
 wire ppu_enable = background_enabled | sprite_enabled;
 
 //*****************************************************************************
 //* PPU status register read                                             	  *
+//*****************************************************************************
+//Vertical blank flag
+reg  [2:0] vblank;
+wire [2:0] vblank_set;
+wire       vblank_clr;
+
+always @(posedge clk) 
+begin
+    if (rst || vblank_clr || (status_rd && ph2_falling))
+        vblank <= 3'b000;
+    else
+        if (vblank_set[0])
+            vblank <= 3'b001;
+        else
+            if(vblank[1] || vblank_set[2])
+                vblank <= {vblank[1:0], 1'b0};
+end
+
+//Sprite 0 collision flag
+reg  sprite0_hit;
+wire sprite0_hit_set;
+
+always @ (posedge clk) 
+begin
+    if (rst || vblank_clr)
+        sprite0_hit <= 1'b0;
+    else
+        if (sprite0_hit_set && (sprite0_hit == 0))
+            sprite0_hit <= 1'b1;
+end
+
+//Lost sprite flag
+reg  lost_sprites;
+wire lost_sprites_set;
+
+always @ (posedge clk) 
+begin
+    if (rst || vblank_clr)
+        lost_sprites <= 1'b0;
+    else
+        if (lost_sprites_set && (lost_sprites == 0))
+            lost_sprites <= 1'b1;
+end
+
+//Value of the status register.
+wire [7:0] status_reg = {|vblank[2:1], sprite0_hit, lost_sprites, 5'd0};
+
+//Driving the interupt flag
+reg  interupt_flag;
+wire interupt_clr;
+
+always @ (posedge clk) 
+begin
+    if (rst || interupt_clr || (status_rd && ph2_falling))
+        interupt_flag <= 1'b0;
+    else
+        if (vblank_set[2] && vblank[1])
+            interupt_flag <= 1'b0;
+end
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        irq <= 1'b0;
+    else
+        irq <= interupt_flag & vblank_irq_enable; //irq is missing yet where is it??
+end
+
+//*****************************************************************************
+//* Fine horizontal scroll (FH) register                                   	  *
+//*****************************************************************************
+reg [2:0] fh_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        fh_reg <= 3'b000;
+    else
+        if (scrolling_wr && (second_write == 0))
+            fh_reg <= slv_mem_din[2:0];
+end
+
+//*****************************************************************************
+//* Horizontal tile index (HT) register                                 	  *
+//*****************************************************************************
+reg [4:0] ht_reg;
+
+always @(posedge clk) 
+begin
+    if (rst)
+        ht_reg <= 5'd0;
+    else
+        case ({second_write, vram_addr_wr, scrolling_wr})
+            3'b001: ht_reg <= slv_mem_din[7:3];
+            3'b110: ht_reg <= slv_mem_din[4:0];
+        endcase    
+end
+
+//*****************************************************************************
+//* Verical tile index (VT) register                                     	  *
+//*****************************************************************************
+reg  [2:0] vt_reg1;
+reg  [1:0] vt_reg2;
+wire [4:0] vt_reg = {vt_reg2, vt_reg1};
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        vt_reg1 <= 3'd0;
+    else
+        case ({second_write, vram_addr_wr, scrolling_wr})
+            3'b101: vt_reg1 <= slv_mem_din[5:3];
+            3'b110: vt_reg1 <= slv_mem_din[7:5];
+        endcase
+end
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        vt_reg2 <= 2'd0;
+    else
+        case ({second_write, vram_addr_wr, scrolling_wr})
+            3'b101: vt_reg2 <= slv_mem_din[7:6];
+            3'b010: vt_reg2 <= slv_mem_din[1:0];
+        endcase
+end
+
+//*****************************************************************************
+//* Horizontal name table select (H) register                              	  *
+//*****************************************************************************
+reg h_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        h_reg <= 0;
+    else
+        case ({second_write, vram_addr_wr, control_wr})
+            3'b001: h_reg <= slv_mem_din[0];
+            3'b101: h_reg <= slv_mem_din[0];
+            3'b010: h_reg <= slv_mem_din[2];
+        endcase    
+end
+
+//*****************************************************************************
+//* Verical name table select (V) register                              	  *
+//*****************************************************************************
+reg v_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        v_reg <= 1'b0;
+    else
+        case ({second_write, vram_addr_wr, control_wr})
+            3'b001: v_reg <= slv_mem_din[1];
+            3'b101: v_reg <= slv_mem_din[1];
+            3'b010: v_reg <= slv_mem_din[3];
+        endcase
+end
+
+//*****************************************************************************
+//* Fine vertical scroll (FV) register                                    	  *
+//*****************************************************************************
+reg [2:0] fv_reg;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        fv_reg <= 3'd0;
+    else
+        case ({second_write, vram_addr_wr, scrolling_wr})
+            3'b101: fv_reg <= slv_mem_din[2:0];
+            3'b010: fv_reg <= {1'b0, slv_mem_din[5:4]};
+        endcase
+end
+
+//*****************************************************************************
+//* Tile index register                                                 	  *
+//*****************************************************************************
+reg [7:0] tile_index_reg;
+wire      nametable_read;
+
+always @ (posedge clk) 
+begin
+    if (rst)
+        tile_index_reg <= 8'd0;
+    else
+        if (nametable_read)
+            tile_index_reg <= ppu_mem_din;
+end
+
+//*****************************************************************************
+//* Tile attribute (palette select) register                              	  *
 //*****************************************************************************
 
 
