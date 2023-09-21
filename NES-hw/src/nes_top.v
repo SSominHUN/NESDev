@@ -115,7 +115,7 @@ begin
       sync_shift_reg <= {sync_shift_reg[6:0], 1'b0};
 end
 
-wire rst = sync_shift_reg[7];// SZINKRONIZÁLT!!
+wire rst = ~sync_shift_reg[7];// SZINKRONIZÁLT!!
 
 //*****************************************************************************
 //* PPU                                                                       *
