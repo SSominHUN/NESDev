@@ -21,7 +21,7 @@
 module nes_top(
     input wire sys_clk, // 50MHz
 
-    input wire rst //Active-low reset input
+    input wire rstn_in //Active-low reset input
     );
 
 //*****************************************************************************
@@ -101,7 +101,21 @@ BUFPLL #(
 //*****************************************************************************
 //* Generating the vga reset signal.                                          *
 //*****************************************************************************
-wire vga_rst = ~rst | ~pll_locked;// SZINKRONIZÁLD
+reg [7:0] sync_shift_reg;
+
+initial	sync_shift_reg = 8'hFF; // 8 bites shift reg 7. bit az utolso 
+
+wire shr_rst = ~pll_locked | ~rstn_in;
+
+always @(posedge clk or posedge shr_rst) 
+begin
+   if (shr_rst)
+      sync_shift_reg <= 8'hFF;
+   else
+      sync_shift_reg <= {sync_shift_reg[6:0], 1'b0};
+end
+
+wire rst = sync_shift_reg[7];// SZINKRONIZÁLT!!
 
 //*****************************************************************************
 //* PPU                                                                       *
@@ -115,6 +129,7 @@ assign ppu_ri_din  = cpu_din;
 
 ppu_top ppu(
    .clk(clk),
+   .rst(rst),
    // register interface
    .ri_sel_in(ppu_ri_sel),
    .ri_cs_in(ppu_ri_cs),

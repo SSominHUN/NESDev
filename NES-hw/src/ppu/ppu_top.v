@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 module ppu_top(
 	input  wire        clk, // 25 MHz
-
+	input  wire		   rst,
 	// register interface
 	input  wire [ 2:0] ri_sel_in,     // register interface reg select (#2000-#2007)
 	input  wire        ri_cs_in,      // register interface enable (#2000 - #3FFF just when it is active)

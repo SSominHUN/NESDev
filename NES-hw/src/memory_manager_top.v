@@ -51,7 +51,7 @@ module memory_manager_top #(
 	output 	wire 	[15:0] 		cpu_addr,
 	output 	wire 				cpu_rnw,
 	//output 	wire 				cpu_ce, 
-	output 	wire 	[7:0] 		cpu_data_out,
+	output 	reg 	[7:0] 		cpu_data_out,
 	input 	wire 	[7:0] 		cpu_data_in,
 
 	// Memory inerface slave
@@ -66,12 +66,10 @@ module memory_manager_top #(
 //* CPU SRAM address                                         				  *
 //*****************************************************************************
 wire [17:0] cpu_sram_address;
-wire		cpu_sram_sel = (cpu_addr[15:0] >= CPU_RAM_OFFSET);
+wire		cpu_sram_sel = cpu_addr[15];
 
-localparam CPU_WORK_RAM_OFFSET = 18'd2048;
-localparam CPU_RAM_OFFSET = 18'd16416; 
-
-assign cpu_sram_address = {2'd0,cpu_addr} - CPU_RAM_OFFSET;
+assign cpu_sram_address = {3'd0,cpu_addr[14:0]}; // {2'd0,cpu_addr} - CPU_RAM_OFFSET 
+// kérdezd meg 32kbyte program rom elfér 15 biten cím szempontjából 32k
 
 //*****************************************************************************
 //* PPU SRAM address	                                           			  *
@@ -182,14 +180,14 @@ begin
 			else
 				cpu_sram_rd_ack <= 3'b010;
 		else
-			cpu_sram_rd_ack <= {cpu_sram_rd_ack[1:0], 1'b0}; //we sift if we dont read
+			cpu_sram_rd_ack <= {cpu_sram_rd_ack[1:0], 1'b0}; //we shift if we dont read
 end	
 
 //*****************************************************************************
 //* Driving the sram address bus and the byte enable signals    			  *
 //*****************************************************************************
 localparam ADDR_LSB = 1;
-localparam ADDR_MSB = 17; //18 addrwidth + addr_lsb - 1
+localparam ADDR_MSB = 17; 
 
 (* iob = "force" *)
 reg  [17:0] 		sram_address_reg;
@@ -219,7 +217,7 @@ reg  [1:0]	sram_din_sel_reg;
 
 always @ (posedge clk) 
 begin
-	casex (sram_addr_sel)
+	casex (sram_address_sel)
 		3'b1xx : sram_byte_mask_reg <= {~cpu_sram_address[0], cpu_sram_address[0]};
 		3'b01x : sram_byte_mask_reg <= {~ppu_sram_address[0], ppu_sram_address[0]};
 		3'b001 : sram_byte_mask_reg <= {~cpu_sram_address[0], cpu_sram_address[0]};
@@ -230,7 +228,7 @@ end
 //external SRAM input data lower/upper byte select
 always @ (posedge clk) 
 begin
-	casex (sram_addr_sel)
+	casex (sram_address_sel)
 		3'b1xx : sram_din_sel_reg[0] <= cpu_sram_address[0];
 		3'b01x : sram_din_sel_reg[0] <= ppu_sram_address[0];
 		3'b001 : sram_din_sel_reg[0] <= cpu_sram_address[0];
@@ -385,20 +383,19 @@ assign sram_data_t		=	sram_data_t_reg;
 //*****************************************************************************
 wire [1:0] cpu_mem_dout_sel;
 
-assign cpu_mem_dout_sel[0]	=	cpu_sram_sel;
-assign cpu_mem_dout_sel[1]	=	cpu_work_ram_sel;
+assign cpu_mem_dout_sel[0]	=	cpu_sram_rd_ack; // ack-ra kap értéket
+assign cpu_mem_dout_sel[1]	=	cpu_work_ram_rd_ack;
 
 //we use cpu data out just when its necessary other wise byte of 0 
-always @ (*)
+always @ (posedge clk)
 begin
-	if (~cpu_sram_rd_ack[2] || ~cpu_work_ram_rd_ack)
+	if (rst || ph2_falling) //~cpu_sram_rd_ack[2] || ~cpu_work_ram_rd_ack maybe good like this
 		cpu_data_out <= 8'd0;
 	else
 	begin
-		case (ppu_mem_dout_sel)
+		case (cpu_mem_dout_sel)
 			2'b01:	 cpu_data_out <= sram_din;
 			2'b10: 	 cpu_data_out <= cpu_work_ram_dout;
-			default: cpu_data_out <= 8'd0;
 		endcase	
 	end
 end

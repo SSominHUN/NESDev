@@ -30,10 +30,7 @@ module ppu_ri(
 
     // PPU interface for memory access
 	input  wire [ 7:0] ppu_mem_din,
-    input  wire [13:0] ppu_mem_addr, 
 	output wire [ 7:0] ppu_mem_dout,
-    output wire 	   ppu_mem_wr_req,
-	output wire 	   ppu_mem_rd_req,
 	
     //input  wire [ 7:0] spr_ram_d_in,      // sprite ram data (for 0x2004 reads)
     //input  wire        spr_overflow_in,   // more than 8 sprites hit on a scanline during last frame
@@ -66,6 +63,7 @@ wire vram_data_rd   = slv_mem_cs & slv_mem_rnv & (slv_mem_addr == 3'b111);
 
 //*****************************************************************************
 //* Second write of 16 bit registers   (scrolling, vram_addr)             	  *
+//* W first or second write toggle                                         	  *
 //*****************************************************************************
 reg second_write;
 
@@ -92,11 +90,13 @@ begin
             control_reg <= {slv_mem_din[7], slv_mem_din[5:2]};   
 end
 
-wire vram_address_inc_sel   = control_reg[0]; //  
+wire vram_address_inc_sel   = control_reg[0]; // VRAM address increment per CPU read/write of PPUDATA
+                                              // (0: add 1, going across; 1: add 32, going down)
 wire sprite_pattern_sel     = control_reg[1]; // Sprite pattern table address for 8x8 sprites
 wire background_pattern_sel = control_reg[2]; // Background pattern table address (0: $0000; 1: $1000)
 wire sprite_size            = control_reg[3]; // 0: 8x8 pixels; 1: 8x16 pixels
-wire vram_irq_enable        = control_reg[4]; // Generate an NMI at the start of the vertical blanking interval (0: off; 1: on)
+wire vram_irq_enable        = control_reg[4]; // Generate an NMI at the start of the vertical blanking interval 
+                                              // (0: off; 1: on)
 
 //*****************************************************************************
 //* PPU mask register/ controll reg 2                                      	  *
@@ -191,7 +191,7 @@ begin
     if (rst)
         irq <= 1'b0;
     else
-        irq <= interupt_flag & vblank_irq_enable; //irq is missing yet where is it??
+        irq <= interupt_flag & vblank_irq_enable; //cpu irq?
 end
 
 //*****************************************************************************
@@ -321,7 +321,23 @@ end
 //*****************************************************************************
 //* Tile attribute (palette select) register                              	  *
 //*****************************************************************************
+reg  [1:0] tile_attr_reg;
+wire       attribute_read;
+wire [1:0] attribute_sel;
 
+always @ (posedge clk) 
+begin
+    if (rst)
+        tile_attr_reg <= 2'b00;
+    else
+        if (attribute_read)
+            case (attribute_sel)
+                2'b00: tile_attr_reg <= ppu_mem_din[1:0];
+                2'b01: tile_attr_reg <= ppu_mem_din[3:2];
+                2'b10: tile_attr_reg <= ppu_mem_din[5:4];
+                2'b11: tile_attr_reg <= ppu_mem_din[7:6];
+            endcase     
+end
 
 
 /*

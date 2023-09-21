@@ -57,7 +57,7 @@ wire vga_en;
 
 assign vga_en = (startupcntr == START_OF_VGA_RENDERING);
 
-parameter START_OF_VGA_RENDERING = 12'd3199;
+parameter START_OF_VGA_RENDERING = 12'd3199; // a rendszernek lehet extra késleltetése ez csak a 2 sor 1599 + 1599
 
 reg [11:0] startupcntr = 12'd0;
 
@@ -85,11 +85,6 @@ vga_timing timing(
 //*****************************************************************************
 //* Generating controll signals for                                           *
 //*****************************************************************************
-/*
-reg [7:0] red_reg;
-reg [7:0] green_reg;
-reg [7:0] blue_reg;
-*/
 
 wire [7:0] red;
 wire [7:0] green;
@@ -108,15 +103,15 @@ begin
 		x_ppucntr <= x_ppucntr + 11'd1;
 end
 
-reg buff_we = 1'd0;
+reg buff_sel = 1'd0;
 
 //we change the written buffers
 always @ (posedge pclk) 
 begin
    if (rst)
-      buff_we <= 1'd0;
+      buff_sel <= 1'd0;
    else if (x_ppucntr == END_OF_PPU_RENDERING)
-      buff_we <= ~buff_we;
+      buff_sel <= ~buff_sel;
 end
 
 reg [9:0] x_writecntr = 10'd0;
@@ -143,7 +138,7 @@ reg [23:0] buffer_1 [1023:0];
 
 always@(posedge pclk)
 begin
-   if(buff_we)
+   if(buff_sel)
       if (x_ppucntr[0] == 1'b0)
          buffer_1[x_writecntr] <= {blue_din, green_din, red_din};
    else
@@ -155,7 +150,7 @@ reg [23:0] buffer_2 [1023:0];
 
 always@(posedge pclk)
 begin
-   if(~buff_we)
+   if(~buff_sel)
       if (x_ppucntr[0] == 1'b0)
          buffer_2[x_writecntr] <= {blue_din, green_din, red_din};
    else
@@ -167,6 +162,8 @@ end
 //* RGB in dual port BRAM                                                     *
 //*****************************************************************************
 
+//wire buff_we = (x_ppucntr[1:0] == 2'b10); // minden második órajelben vesszük el a pixelt így 1600 -> 800 lesz
+
 reg [23:0] buff_dout_a = 24'd0;
 reg [23:0] buff_dout_b = 24'd0;
 
@@ -175,28 +172,26 @@ reg [23:0] buff_dout = 24'd0;
 (*ram_style = "BLOCK"*)
 reg [23:0] buffer [2047:0];
 
+
+// we write every second pixel data into the buffer
 always@(posedge pclk)
 begin
-   if(buff_we)
-      if (x_ppucntr[0] == 1'b0)
-         buffer[x_writecntr] <= {blue_din, green_din, red_din};
-   else
-      buff_dout_a <= buffer[h_cnt];
+   if(buff_sel && (x_ppucntr[0] == 1'b0))
+      buffer[x_writecntr] <= {blue_din, green_din, red_din};
+   buff_dout_a <= buffer[h_cnt];
 end
 
 always@(posedge pclk)
 begin
-   if(~buff_we)
-      if (x_ppucntr[0] == 1'b0)
-         buffer[x_writecntr + 1024] <= {blue_din, green_din, red_din};
-   else
-      buff_dout_b <= buffer[h_cnt + 1024];
+   if(~buff_sel && (x_ppucntr[0] == 1'b0))
+      buffer[x_writecntr + 1024] <= {blue_din, green_din, red_din};
+   buff_dout_b <= buffer[h_cnt + 1024];
 end
 
 
-assign red = (buff_we)   ? buff_dout_b[7:0]   : buff_dout_a[7:0];
-assign green = (buff_we) ? buff_dout_b[15:8]  : buff_dout_a[15:8];
-assign blue = (buff_we)  ? buff_dout_b[23:16] : buff_dout_a[23:16];
+assign red = (buff_sel)   ? buff_dout_b[7:0]   : buff_dout_a[7:0];
+assign green = (buff_sel) ? buff_dout_b[15:8]  : buff_dout_a[15:8];
+assign blue = (buff_sel)  ? buff_dout_b[23:16] : buff_dout_a[23:16];
 
 
 //*****************************************************************************
@@ -207,7 +202,7 @@ assign blue = (buff_we)  ? buff_dout_b[23:16] : buff_dout_a[23:16];
 
 always @ (posedge pclk)
 begin
-   if (buff_we)
+   if (buff_sel)
 	begin
       red_reg <= buff_dout_b[7:0];
       green_reg <= buff_dout_b[15:8];

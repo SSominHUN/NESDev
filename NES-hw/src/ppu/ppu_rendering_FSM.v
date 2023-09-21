@@ -31,22 +31,24 @@ module ppu_rendering_FSM(
 	output	wire	ph2_falling,
 
 	// PPU registers inout wire can be used?
-	inout wire [14:0] 		v, // VRAM address
-	inout wire [14:0] 		t, // Temporary VRAM address
-	inout wire [2:0] 		x, // Fine x scroll
-	inout wire 				w, // first or second toggle
+	input wire [14:0] 		ppu_nt_addr, // nametable  address
+	input wire [11:0] 		ppu_at_addr, // nametable  address
+	output wire				nametable_read_req,
+	output wire				attribute_read_req,
+	output wire [1:0]		attribute_sel,
+	//inout wire [14:0] 		t, // Temporary VRAM address
+	//inout wire [2:0] 			x, // Fine x scroll
+	//inout wire 				w, // first or second toggle
 
-	// PPU interface for memory acess
-	output reg  [7:0] 		ppu_data_out, //output 
-	input  wire [7:0] 		ppu_data_in,
-	output wire [13:0] 		ppu_addr, 
-	output wire 			ppu_wr_request,
-	output wire 			ppu_read_request
+	// PPU interface for memory acces
+	output wire [17:0] 		ppu_mem_addr, 
+	output wire 			ppu_mem_wr_request,
+	output wire 			ppu_mem_read_request
     );
 
-parameter END_OF_RENDERING_LINE = 11'd1599;
-parameter PRERENDERING_ROW = 9'd261;
-parameter FIRST_RENDERING_ROW = 9'd0;
+localparam END_OF_RENDERING_LINE = 11'd1599;
+localparam PRERENDERING_ROW = 9'd261;		
+localparam FIRST_RENDERING_ROW = 9'd0;
 
 //ppu background rendering counters
 reg [10:0] x_rendercntr;
@@ -83,175 +85,177 @@ begin
 end
 
 //FSM for BG rendering
-parameter SLEEP  = 3'b000;
-parameter IDLE = 3'b001;
-parameter NT = 3'b010;
-parameter AT = 3'b011;
-parameter BG_LSB = 3'b100;
-parameter BG_MSB = 3'b101;
-parameter VBLANK = 3'b110;
+localparam SLEEP  = 3'b000;
+localparam IDLE 	 = 3'b001;
+localparam NT 	 = 3'b010;
+localparam AT 	 = 3'b011;
+localparam BG_LSB = 3'b100;
+localparam BG_MSB = 3'b101;
+localparam VBLANK = 3'b110;
 
-parameter FIRST_SCANLINE_PIXEL = 11'd127;
-parameter START_OF_LAST_NT = 11'd1482; 
-parameter END_OF_BG_RENDERING_LINE = 11'd1490;
-parameter BG_NEXT_STEP_CONDITION = 3'b011;
-parameter SRAM_READ_DIN = 3'b111;
+localparam FIRST_SCANLINE_PIXEL = 11'd127;   			//4*32 	- 1
+localparam START_OF_LAST_NT = 11'd1483; 					//(128 + 4*339) - 1 = 1483
+localparam END_OF_BG_RENDERING_LINE = 11'd1491;			//(128 + 4*341) - 1 = 1491 
+localparam BG_NEXT_STEP_CONDITION = 3'b011;
 
-parameter ODDFRAME_END_OF_FIRST_NT = 11'd131;
-parameter ODDFRAME_END_OF_BG_RENDERING_LINE = 11'd1486;
+localparam SRAM_READ_START = 3'b000;
+localparam SRAM_READ_CONTROLL_OFF = 3'b001;
+localparam SRAM_READ_TAKE = 3'b010;
 
-parameter END_OF_VISIBLE_FRAME_ROW = 9'd239;
-parameter END_OF_VBLANK_ROW = 9'd260;
+localparam ODDFRAME_END_OF_FIRST_NT = 11'd131;
+localparam ODDFRAME_END_OF_BG_RENDERING_LINE = 11'd1487; //(128 + 4*340) - 1 = 1487
 
-parameter START_OF_VBLANK_ROW = 9'd240; 
+localparam END_OF_VISIBLE_FRAME_ROW = 9'd239;
+localparam END_OF_VBLANK_ROW = 9'd260;
 
-// PPU integral registers the addr coming from ppu registers
-reg [14:0] 		v_reg; // VRAM address
-reg [14:0] 		t_reg; // Temporary VRAM address
-reg [2:0] 		x_reg; // Fine x scroll
-reg 			w_reg; // first or second toggle
-
-// PPU mem interface registers
-reg [7:0] 	ppu_mem_dout_reg;
-reg [7:0] 	ppu_mem_din_reg;
-reg [13:0] 	ppu_mem_addr_reg;
-reg 		ppu_mem_wr_req_reg;
-reg 		ppu_mem_read_req_reg;
-
-reg [7:0] 	ppu_name_table_reg;
-reg [7:0] 	ppu_attribute_table_reg;
-
+localparam START_OF_VBLANK_ROW = 9'd240; 
 
 reg [2:0] bgrender_state;
-reg [2:0] next_state;
 
-always@(posedge clk)
-begin
-	if(rst)
-		bgrender_state <= SLEEP;
-	else
-		bgrender_state <= next_state;
-end
 
+reg			nt_rd_req_reg;
+reg			at_rd_req_reg;
+reg	[17:0]	ppu_addr_reg;
+reg			nametable_read_reg;
+reg			attribute_read_reg;	
 //PPU BG rendering state machine with oddframe changes
-always @ (*)
+always @ (posedge clk)
 begin
-	case (bgrender_state)
-		SLEEP: begin
-			if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
-				&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && (y_renderingcntr != PRERENDERING_ROW)))
-				next_state <= VBLANK;
-			else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
-				begin
-				// commands get here for NT fetch
-				ppu_mem_addr_reg <= v_reg;
-				ppu_mem_read_req_reg <= 1'b1;
-				
-				next_state <= NT;
-				end
-			else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
-				next_state <= IDLE;
-			else
-				next_state <= SLEEP;
-		end
-		IDLE: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				begin
-				// commands get here for NT fetch
-				
-				next_state <= NT;
-				end
-			else
-				next_state <= IDLE;
-		end
-		NT: begin
-			if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
-			|| ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
-				next_state <= SLEEP;
-				// ODDFRAME_END_OF_FIRST_NT is good here because x_rendercntr will always be higher then this just in the first line 
-			else if ((x_rendercntr == ODDFRAME_END_OF_FIRST_NT) || (x_rendercntr == START_OF_LAST_NT))
-				begin
-				// commands get here for NT fetch
-
-
-				next_state <= NT;
-				end
-			else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				begin
-				// commands get here for AT fetch
-
-
-				next_state <= AT;
-				end
-			else
-				begin
-				// commands get here for NT Load
-				if (x_rendercntr[2:0] == SRAM_READ_DIN)
-					begin
-						ppu_name_table_reg <= ppu_data_in;
-						ppu_mem_read_req_reg <= 1'b0;
+	if (rst)
+		bgrender_state <= SLEEP;
+	else	
+		case (bgrender_state)
+			SLEEP: begin
+				if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
+					&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && (y_renderingcntr != PRERENDERING_ROW)))
+					bgrender_state <= VBLANK;
+				else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
+					begin	
+					bgrender_state <= NT;
 					end
+				else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
+					bgrender_state <= IDLE;
+				else
+					bgrender_state <= SLEEP;
+			end
+			IDLE: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					begin
+					bgrender_state <= NT;
+					end
+				else
+					bgrender_state <= IDLE;
+			end
+			NT: begin
+				if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
+				|| ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
+					begin
+					nametable_read_reg <= 1'b0;
 
-				next_state <= NT;
-				end
-		end
-		AT: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				begin
-				// commands get here for BG_LSB fetch
+					bgrender_state <= SLEEP;
+					end
+					// ODDFRAME_END_OF_FIRST_NT is good here because x_rendercntr will always be higher then this just in the first line 
+				else if ((x_rendercntr == ODDFRAME_END_OF_FIRST_NT) || (x_rendercntr == START_OF_LAST_NT))
+					begin
+					// commands get here for NT fetch
+					nametable_read_reg <= 1'b0;
 
-				next_state <= BG_LSB;
-				end
-			else
-				begin
-				// commands get here for AT Load
+					bgrender_state <= NT;
+					end
+				else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					begin
+					// commands get here for AT fetch
+					nametable_read_reg <= 1'b0;
+
+					bgrender_state <= AT;
+					end
+				else
+					begin
+					// commands get here for NT Load
+					if (x_rendercntr[2:0] == SRAM_READ_START)
+						begin
+							ppu_addr_reg <= {3'd0, ppu_nt_addr};
+							at_rd_req_reg <= 1'b1;
+						end
+					else if (x_rendercntr[2:0] == SRAM_READ_CONTROLL_OFF)
+						at_rd_req_reg <= 1'b0;
+					else if (x_rendercntr[2:0] == SRAM_READ_TAKE)
+						nametable_read_reg <= 1'b1;
+						
+					bgrender_state <= NT;
+					end
+			end
+			AT: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					begin
+					// commands get here for BG_LSB fetch
+					attribute_read_reg <= 1'b0;
+
+					bgrender_state <= BG_LSB;
+					end
+				else
+					begin
+					// commands get here for AT Load
+					if (x_rendercntr[2:0] == SRAM_READ_START)
+						begin
+							ppu_addr_reg <= {6'd0, ppu_at_addr};
+							nt_rd_req_reg <= 1'b1;
+						end
+					else if (x_rendercntr[2:0] == SRAM_READ_CONTROLL_OFF)
+						nt_rd_req_reg <= 1'b0;
+					else if (x_rendercntr[2:0] == SRAM_READ_TAKE)
+						begin
+							attribute_read_reg <= 1'b1;
+						end
+
+					bgrender_state <= AT;
+					end
+			end
+			BG_LSB: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					begin
+					// commands get here for BG_MSB fetch
 
 
-				next_state <= AT;
-				end
-		end
-		BG_LSB: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				begin
-				// commands get here for BG_MSB fetch
+					bgrender_state <= BG_MSB;
+					end
+				else
+					begin
+					// commands get here for BG_LSB load	
 
 
-				next_state <= BG_MSB;
-				end
-			else
-				begin
-				// commands get here for BG_LSB load	
+					bgrender_state <= BG_LSB;
+					end
+			end
+			BG_MSB: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					begin
+					// commands get here for NT fetch
 
 
-				next_state <= BG_LSB;
-				end
-		end
-		BG_MSB: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				begin
-				// commands get here for NT fetch
-
-
-				next_state <= NT;
-				end
-			else
-				next_state <= BG_MSB;
-		end
-		VBLANK: begin
-			if (x_rendercntr == END_OF_BG_RENDERING_LINE)
-				next_state <= SLEEP;
-			else
-				next_state <= VBLANK;
-		end
-		default:
-			next_state <= IDLE;
-	endcase
+					bgrender_state <= NT;
+					end
+				else
+					bgrender_state <= BG_MSB;
+			end
+			VBLANK: begin
+				if (x_rendercntr == END_OF_BG_RENDERING_LINE)
+					bgrender_state <= SLEEP;
+				else
+					bgrender_state <= VBLANK;
+			end
+			default:
+				bgrender_state <= IDLE;
+		endcase
 end
 
-// SLR for 
+assign attribute_sel = { ppu_nt_addr[6], ppu_nt_addr[1]};
 
-
-
+assign ppu_mem_read_request = nt_rd_req_reg | at_rd_req_reg; 
+assign nametable_read_req = nametable_read_reg;
+assign attribute_read_req = attribute_read_reg;
+assign ppu_mem_addr = ppu_addr_reg;
+// SLR
 
 //*****************************************************************************
 //* CPU clock generation			                                          *
@@ -295,57 +299,150 @@ begin
 	ph2_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd11);
 end
 
-/*
 // BG rendering without oddframe counting withou VBLANK
-always @ (*)
+always @ (posedge clk)
 begin
-	case (bgrender_state)
-		SLEEP: begin
-			if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
-			&& ((y_renderingcntr == PRERENDERING_ROW) || (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)))
-				next_state <= IDLE;
-			else
-				next_state <= SLEEP;
-		end
-		IDLE: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				next_state <= NT;
-			else
-				next_state <= IDLE;
-		end
-		NT: begin
-			if (x_rendercntr == END_OF_BG_RENDERING_LINE)
-				next_state <= SLEEP;
-			else if (x_rendercntr == START_OF_LAST_NT)
-				next_state <= NT;
-			else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				next_state <= AT;
-			else
-				next_state <= NT;
-		end
-		AT: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				next_state <= BG_LSB;
-			else
-				next_state <= AT;
-		end
-		BG_LSB: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				next_state <= BG_MSB;
-			else
-				next_state <= BG_LSB;
-		end
-		BG_MSB: begin
-			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-				next_state <= NT;
-			else
-				next_state <= BG_MSB;
-		end
-		default:
-			next_state <= 3'bxxx;
-	endcase
-end
-*/
+	if (rst)
+		bgrender_state <= SLEEP;
+	else
+		case (bgrender_state)
+			SLEEP: begin
+				if (x_rendercntr == FIRST_SCANLINE_PIXEL 
+				&& (x_rendercntr <= END_OF_VISIBLE_FRAME_ROW || x_rendercntr == PRERENDERING_ROW))
+					bgrender_state <= IDLE;
+				else
+					bgrender_state <= SLEEP;
+			end
+			IDLE: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					bgrender_state <= NT;
+				else
+					bgrender_state <= IDLE;
+			end
+			NT: begin
+				if (x_rendercntr == END_OF_BG_RENDERING_LINE)
+				begin
+					nametable_read_reg <= 1'b0;
 
+					bgrender_state <= SLEEP;
+				end
+				else if (x_rendercntr == START_OF_LAST_NT)
+				begin
+					nametable_read_reg <= 1'b0;
+
+					bgrender_state <= NT;
+				end
+				else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				begin
+					nametable_read_reg <= 1'b0;
+
+					bgrender_state <= AT;
+				end
+				else
+				begin
+					if (x_rendercntr[2:0] == SRAM_READ_START)
+						begin
+							ppu_addr_reg <= {3'd0, ppu_nt_addr};
+							nt_rd_req_reg <= 1'b1;
+						end
+					else if (x_rendercntr[2:0] == SRAM_READ_CONTROLL_OFF)
+						nt_rd_req_reg <= 1'b0;
+					else if (x_rendercntr[2:0] == SRAM_READ_TAKE)
+						nametable_read_reg <= 1'b1;
+
+					bgrender_state <= NT;
+				end
+			end
+			AT: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				begin
+					attribute_read_reg <= 1'b0;
+
+					bgrender_state <= BG_LSB;
+				end
+				else
+				begin
+					if (x_rendercntr[2:0] == SRAM_READ_START)
+						begin
+							ppu_addr_reg <= {6'd0, ppu_at_addr};
+							nt_rd_req_reg <= 1'b1;
+						end
+					else if (x_rendercntr[2:0] == SRAM_READ_CONTROLL_OFF)
+						nt_rd_req_reg <= 1'b0;
+					else if (x_rendercntr[2:0] == SRAM_READ_TAKE)
+						begin
+							attribute_read_reg <= 1'b1;
+						end
+
+					bgrender_state <= AT;
+				end
+			end
+			BG_LSB: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					bgrender_state <= BG_MSB;
+				else
+					bgrender_state <= BG_LSB;
+			end
+			BG_MSB: begin
+				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+					bgrender_state <= NT;
+				else
+					bgrender_state <= BG_MSB;
+			end
+			default:
+				bgrender_state <= IDLE;
+		endcase
+end
+
+reg ph1_rising;
+reg ph1_falling;
+reg ph2_rising;
+reg ph2_falling;
+
+reg  clkgen_cnt_en_clr;
+wire clkgen_cnt_en_set = (x_rendercntr == (ODDFRAME_END_OF_BG_RENDERING_LINE + 4));
+
+always @(*) 
+begin
+	if (background_enabled && odd_frame && (y_renderingcntr == PRERENDERING_ROW))
+		clkgen_cnt_en_clr <= (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE);
+	else
+		clkgen_cnt_en_clr <= 1'b0;	
+end
+
+// clock genereation enable
+reg		clkgen_cnt_en;
+
+always @ (posedge clk)
+begin
+	if (rst || (x_rendercntr == END_OF_BG_RENDERING_LINE) || clkgen_cnt_en_clr)
+		clkgen_cnt_en <= 1'b0;
+	else
+		if ((x_rendercntr == FIRST_SCANLINE_PIXEL) || clkgen_cnt_en_set)
+			clkgen_cnt_en <= 1'b1;
+end	
+
+//clock generation timer
+reg	[3:0]	clkgen_cnt;
+
+always @ (posedge clk)
+begin
+	if (rst)
+		clkgen_cnt <= 4'd0;
+	else
+		if (clkgen_cnt_en)
+			if (clkgen_clk == 4'd11)
+				clkgen_cnt <= 4'd0;
+			else
+				clkgen_cnt <= clkgen_cnt + 4'd1;
+end
+
+always @ (posedge clk)
+begin
+	ph1_rising	<= clkgen_cnt_en & (clkgen_cnt == 4'd0);
+	ph1_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd5);
+	ph2_rising	<= clkgen_cnt_en & (clkgen_cnt == 4'd6);
+	ph2_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd11);
+end
 
 endmodule
