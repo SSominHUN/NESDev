@@ -376,3 +376,5 @@ Thesis/./auto/*
 
 # glossaries
 *.glstex
+
+NES-hw/src/games/**

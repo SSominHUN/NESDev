@@ -133,7 +133,6 @@ end
 reg  [7:0] 		name_table_ram [2047:0];
 reg  [7:0] 		name_table_ram_reg;
 reg  [7:0] 		name_table_ram_dout;
-wire [7:0]		ppu_name_table_dout;
 wire [11:0]		ppu_name_table_addr = {ppu_name_table_addr_h, ppu_addr[9:0]};
 wire			ppu_name_table_sel = ppu_addr[13]; //when the ppu would like to read NT or AT
 
@@ -412,7 +411,7 @@ always @ (*)
 begin
 	case (ppu_mem_dout_sel)
 		2'b01:	 ppu_dout <= sram_din;
-		2'b10: 	 ppu_dout <= ppu_name_table_dout;
+		2'b10: 	 ppu_dout <= name_table_ram_dout;
 		default: ppu_dout <= 8'd0;
 	endcase	
 end
