@@ -46,13 +46,13 @@ wire render_mask_wr = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr ==
 wire oam_addr_wr    = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b011); //OAM read/write address #2003
 wire oam_data_wr    = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b100); //OAM data read/write #2004
 wire scrolling_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b101); //fine scroll position (two writes: X scroll, Y scroll) #2005
-wire vram_addr_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnv & (slv_mem_addr == 3'b110); //PPU read/write address (two writes: most significant byte, least significant byte) #2006
-wire vram_data_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnv & (slv_mem_addr == 3'b111); //PPU data read/write #2007
+wire vram_addr_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b110); //PPU read/write address (two writes: most significant byte, least significant byte) #2006
+wire vram_data_wr   = ph2_falling & slv_mem_cs & ~slv_mem_rnw & (slv_mem_addr == 3'b111); //PPU data read/write #2007
 
 //Register read enable signals
 wire status_rd      = slv_mem_cs & slv_mem_rnw & (slv_mem_addr == 3'b010);
-wire oam_data_rd    = slv_mem_cs & slv_mem_rnv & (slv_mem_addr == 3'b100);
-wire vram_data_rd   = slv_mem_cs & slv_mem_rnv & (slv_mem_addr == 3'b111);
+wire oam_data_rd    = slv_mem_cs & slv_mem_rnw & (slv_mem_addr == 3'b100);
+wire vram_data_rd   = slv_mem_cs & slv_mem_rnw & (slv_mem_addr == 3'b111);
 
 //*****************************************************************************
 //* Second write of 16 bit registers   (scrolling, vram_addr)             	  *
@@ -99,7 +99,7 @@ reg [7:0] render_mask_reg;
 always @ (posedge clk) 
 begin
     if (rst)
-        render_mask_wr <= 8'd0;
+        render_mask_reg <= 8'd0;
     else
         if (render_mask_wr)
             render_mask_reg <= slv_mem_din;    
@@ -178,6 +178,9 @@ begin
         if (vblank_set[2] && vblank[1])
             interupt_flag <= 1'b0;
 end
+
+reg irq; // find out the use of these!
+reg vblank_irq_enable;
 
 always @ (posedge clk) 
 begin
@@ -351,6 +354,9 @@ end
 //*****************************************************************************
 //* Back ground most significant byte                                    	  *
 //*****************************************************************************
+localparam START_OF_SHIFT = 11'd131;			//(128 + 4*1) - 1 = 131 (dot 1)
+localparam END_OF_SHIFT = 11'd1475;			//(128 + 4*337) - 1 = 1475 (dot 257)
+
 reg [7:0] bg_msb_reg;
 wire      bg_msb_read;
 
@@ -361,6 +367,9 @@ begin
     else
         if (bg_msb_read)
             bg_msb_reg <= ppu_mem_din;
+		else if ((x_rendercntr[1:0] == 2'b11) 
+				&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK))
+					bg_msb_reg <= {bg_msb_reg[6:0], bg_msb_reg[7]};
 end
 
 //*****************************************************************************
@@ -451,7 +460,7 @@ begin
 		case (bgrender_state)
 			SLEEP: begin
 				if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
-					&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && (y_renderingcntr != PRERENDERING_ROW)))
+					&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && ~(y_renderingcntr == PRERENDERING_ROW)))
 					bgrender_state <= VBLANK;
 				else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 					begin
@@ -461,17 +470,20 @@ begin
 					bgrender_state <= NT;
 					end
 				else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
+					begin
+					ppu_bg_addr_fetch <= {bg_lsb_addr};
+
 					bgrender_state <= IDLE;
+					end
 				else
 					bgrender_state <= SLEEP;
 			end
 			IDLE: begin
 				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
-					begin
 					bgrender_state <= NT;
-					end
 				else
 					bgrender_state <= IDLE;
+
 			end
 			NT: begin
 				if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
@@ -613,17 +625,6 @@ assign bg_msb_read = bg_msb_read_reg;
 //*****************************************************************************
 //* Back ground active pixel out		                                   	  *
 //*****************************************************************************
-reg [3:0] out_sel_cntr;
-
-always @(posedge clk) 
-begin
-	if (rst)
-		out_sel_cntr <= 3'd0;
-	else if((x_rendercntr[1:0] == 2'b11) 
-			&& (bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP))
-				out_sel_cntr <= out_sel_cntr + 1;	
-end
-
 reg [7:0] bg_lsb_buff_reg;
 
 always @ (posedge clk) 
@@ -632,30 +633,31 @@ begin
         bg_lsb_buff_reg <= 8'd0;
     else
         if (bg_msb_read)
-            bg_lsb_buff_reg <= bg_lsb_reg;
+            bg_lsb_buff_reg <= bg_lsb_reg; // shift reg
+		else if ((x_rendercntr[1:0] == 2'b11) 
+				&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK))
+					bg_lsb_buff_reg <= {bg_lsb_buff_reg[6:0], bg_lsb_buff_reg[7]};
 end
 
-(* slr_style =  "register" *)
 reg [7:0] shr_lsb_render = 8'd0;
 wire	  lsb_out;  
 
 always @(posedge clk) 
 if ((x_rendercntr[1:0] == 2'b11) 
-	&& (bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP))
-		shr_lsb_render <= {shr_lsb_render[6:0], bg_lsb_buff_reg[out_sel_cntr]};
+	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK)) //(bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP)
+		shr_lsb_render <= {shr_lsb_render[6:0], bg_lsb_buff_reg[7]};
 
-assign lsb_out = shr_lsb_render[fv_cntr];
+assign lsb_out = shr_lsb_render[~fh_reg];
 
-(* slr_style =  "register" *)
 reg [7:0] shr_msbrender = 8'd0;
 wire	  msb_out;  
 
 always @(posedge clk) 
 if ((x_rendercntr[1:0] == 2'b11) 
-	&& (bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP))
-		shr_msbrender <= {shr_msbrender[6:0], bg_msb_reg[out_sel_cntr]};
+	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK))
+		shr_msbrender <= {shr_msbrender[6:0], bg_msb_reg[7]};
 
-assign msb_out = shr_msbrender[fv_cntr];
+assign msb_out = shr_msbrender[~fh_reg];
 
 //*****************************************************************************
 //* Addr make										                     	  *
@@ -675,11 +677,12 @@ begin
 	if (rst)
 		ht_cntr <= 5'd0;
 	else
-		if ((second_write && vram_addr_wr) 
-			|| ((bgrender_state != VBLANK) && (x_rendercntr == H_COPY)))
-				ht_cntr <= slv_mem_din[4:0];
+		if (second_write && vram_addr_wr) 
+			ht_cntr <= slv_mem_din[4:0];
+		else if (~(bgrender_state == VBLANK) && (x_rendercntr == H_COPY))
+			ht_cntr <= ht_reg;
 		else if (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)) 
-					|| ((vram_addr_wr || vram_data_rd ) && (bgrender_state != VBLANK) && (background_enabled || sprite_enabled)))
+					|| ((vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && (background_enabled || sprite_enabled)))
 						ht_cntr <= ht_cntr + 1;
 end
 
@@ -689,16 +692,17 @@ reg  [1:0] vt_cntr2;
 wire [4:0] vt_cntr = {vt_cntr2, vt_cntr1};
 
 localparam START_OF_V_COPY = 11'd1251;	//(128 + 4*281) - 1 = 1251 (dot 280)
-localparam END_OF_V_COPY = 11'd1343;	//(128 + 4*304) - 1 = 1343 (dot 304)
+localparam END_OF_V_COPY = 11'd1347;	//(128 + 4*305) - 1 = 1347 (dot 304)
 
 always @(posedge clk) 
 begin
 	if (rst)
 		vt_cntr1 <= 3'd0;
 	else
-		if ((second_write && vram_addr_wr)
-			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && (background_enabled || sprite_enabled)))
+		if (second_write && vram_addr_wr)
 			vt_cntr1 <= slv_mem_din[7:5];
+		else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && (background_enabled || sprite_enabled))
+			vt_cntr1 <= vt_reg1;
 		else if ((fv_cntr == 3'b111)
 				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (vram_address_inc_sel)))
 					vt_cntr1 <= vt_cntr1 + 1;
@@ -711,7 +715,7 @@ begin
 	else
 		if ((second_write && vram_addr_wr)
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && (background_enabled || sprite_enabled)))
-				vt_cntr2 <= vt_reg1; // hopefully good with timing
+				vt_cntr2 <= vt_reg2; // hopefully good with timing
 		else if (vt_cntr1 == 3'b111)
 			vt_cntr2 <= vt_cntr2 + 1;
 end
@@ -725,7 +729,7 @@ begin
 		h_sel_cntr <= 1'd0;
 	else
 		if ((second_write && vram_addr_wr)
-			|| ((bgrender_state != VBLANK) && (x_rendercntr == H_COPY)))
+			|| (~(bgrender_state == VBLANK) && (x_rendercntr == H_COPY)))
 					h_sel_cntr <= h_reg; // hopefully good with timing
 		else if (ht_cntr == 5'd31)
 			h_sel_cntr <= ~h_sel_cntr;
@@ -760,7 +764,7 @@ begin
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && (background_enabled || sprite_enabled)))
 				fv_cntr <= fv_reg; 
 		else if (((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP))
-				|| (( vram_addr_wr || vram_data_rd ) && (bgrender_state != VBLANK) && (background_enabled || sprite_enabled))
+				|| (( vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && (background_enabled || sprite_enabled))
 				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (~vram_address_inc_sel)))
 					fv_cntr <= fv_cntr + 1;
 end
@@ -769,7 +773,7 @@ end
 assign ppu_nt_addr = {fv_cntr, v_sel_cntr, h_sel_cntr, vt_cntr, ht_cntr};
 assign ppu_at_addr = {3'b000, v_sel_cntr, h_sel_cntr, 4'b1111, vt_cntr[4:2], ht_cntr[4:2]}; // 3 zero for the same address size
 assign bg_lsb_addr = {2'b00, background_pattern_sel, tile_index_reg, 1'b0, fv_cntr}; //one extra 0 for tha same address size
-assign bg_msb_addr = {2'b00, background_pattern_sel, tile_index, 1'b1, fv_cntr}; //one extra 0 for tha same address size
+assign bg_msb_addr = {2'b00, background_pattern_sel, tile_index_reg, 1'b1, fv_cntr}; //one extra 0 for tha same address size
 
 //*****************************************************************************
 //* CPU clock generation			                                          *
@@ -799,7 +803,7 @@ begin
 		clkgen_cnt <= 4'd0;
 	else
 		if (clkgen_cnt_en)
-			if (clkgen_clk == 4'd11)
+			if (clkgen_cnt == 4'd11)
 				clkgen_cnt <= 4'd0;
 			else
 				clkgen_cnt <= clkgen_cnt + 4'd1;

@@ -30,8 +30,8 @@ module memory_manager_v2_top #(
 	input	wire				ph2_falling,
 
     // CPU interface for memory acess master
-	output 	wire 	[15:0] 		cpu_addr,
-	output 	wire 				cpu_rnw, 
+	input 	wire 	[15:0] 		cpu_addr,
+	input 	wire 				cpu_rnw, 
 	output 	reg 	[7:0] 		cpu_data_out,
 	input 	wire 	[7:0] 		cpu_data_in,
 
@@ -96,12 +96,12 @@ end
 
 always @ (posedge clk)
 begin
-	if (cpu_prog_rom_sel) 
-	begin
-		if (ph2_falling && (cpu_rnw == 0))
-			cpu_prog_rom[{1'd0, cpu_prog_rom_addr}] <= cpu_data_in;
+	//if (cpu_prog_rom_sel) 
+	//begin
+		//if (ph2_falling && (cpu_rnw == 0))
+		//	cpu_prog_rom[{1'd0, cpu_prog_rom_addr}] <= cpu_data_in;
 		cpu_prog_rom_dout <= cpu_prog_rom[{1'd0, cpu_prog_rom_addr}];
-	end
+	//end
 end
 
 //*****************************************************************************
@@ -167,15 +167,15 @@ wire			ppu_ch_rom_sel = ~ppu_addr[13]; // when the PPU acces the character rom
 //2 kbyte name table memory
 always @(posedge clk)
 begin
-	if (ppu_ch_rom_sel) 
-	begin
+	//if (ppu_ch_rom_sel) 
+	//begin
 		ch_rom_reg <= ch_rom[ppu_ch_rom_address];
-	end
+	//end
 end
 
 always @(posedge clk) 
 begin
-	if (ppu_ch_rom_sel) 
+	//if (ppu_ch_rom_sel) 
 		ch_rom_dout <= ch_rom_reg;
 end
 
