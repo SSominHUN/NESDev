@@ -38,7 +38,7 @@ module memory_manager_v2_top #(
 	// Memory inerface slave
 	input 	wire 				ppu_wr_req, 
 	input 	wire 				ppu_rd_req, 
-	input 	wire 	[14:0] 		ppu_addr,
+	input 	wire 	[13:0] 		ppu_addr,
 	input 	wire 	[7:0] 		ppu_din,
 	output 	reg 	[7:0] 		ppu_dout
 
