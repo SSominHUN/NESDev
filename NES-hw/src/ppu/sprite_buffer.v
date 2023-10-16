@@ -59,7 +59,7 @@ begin
         sprite_lsb_reg <= 8'd0;
     else
         if (pattern0_ld)
-            sprite_lsb_reg <= ppu_mem_din;
+            sprite_lsb_reg <= pattern_in;
 end
 
 reg [7:0] sprite_lsb_buff_reg;
@@ -70,8 +70,8 @@ begin
         sprite_lsb_buff_reg <= 8'd0;
     else
         if (pattern1_ld)
-            sprite_lsb_buff_reg <= bg_lsb_reg;
-		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_coord) && (pixel_cnt <= sprite_x_coord + 8))
+            sprite_lsb_buff_reg <= sprite_lsb_reg;
+		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8))
                 if(sprite_attr_in[3])
 					sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[6:0], sprite_lsb_buff_reg[7]};
                 else
@@ -86,17 +86,18 @@ begin
         sprite_msb_reg <= 8'd0;
     else
         if (pattern1_ld)
-            sprite_msb_reg <= ppu_mem_din;
-		else if (next_pixel && bground_read (pixel_cnt >= sprite_x_coord) && (pixel_cnt <= sprite_x_coord + 8))
+            sprite_msb_reg <= pattern_in;
+		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8))
                 if (sprite_attr_in[3])
 					sprite_msb_reg <= {sprite_msb_reg[6:0], sprite_msb_reg[7]};
                 else
                     sprite_msb_reg <= {sprite_msb_reg[0], sprite_msb_reg[7:1]};
 end
 
+//valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8)
 assign sprite_pixel = (valid_sprite) ? ((sprite_attr_in[3]) ? ({sprite_attr_in[1:0], sprite_msb_reg[7], sprite_lsb_buff_reg[7]}) : ({sprite_attr_in[1:0], sprite_msb_reg[0], sprite_lsb_buff_reg[0]})) 
                         : (4'b0000);
 
-assign sprite_priority = sprite_attr_in[2] && valid_sprite; // if sprite does not exist it cant hurt you
+assign sprite_priority = sprite_attr_in[2] && valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8); // if sprite does not exist it cant hurt you
 
 endmodule
