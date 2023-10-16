@@ -249,6 +249,7 @@ end
 //* Register that stores the sprite line index                                *
 //* The vertical inversion is applied here                                    *
 //*****************************************************************************
+// this is the range where we are in a one tile rendering
 reg  [3:0]  y_diff_reg2;
 wire        y_diff_reg2_wr = sec_oam_rd & (sec_oam_addr_cnt[1:0] == 2'b00);
 

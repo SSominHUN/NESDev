@@ -854,7 +854,7 @@ sprite_rendering sprite_fsm(
 	//Signals related to the OAM access
     .oam_addr_wr(oam_addr_wr),
     .oam_data_wr(oam_data_wr),
-    .oam_dout(),
+    .oam_dout(oam_read_data), //not 100% sure
 
 	//Input control signals
 	.bground_enabled(background_enabled), 
