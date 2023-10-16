@@ -30,8 +30,8 @@ module sprite_buffer(
     input wire pattern1_ld,
 
     //Data input
-    input wire valid_sprite,
-    input wire [3:0] sprite_attr_in,
+    input wire valid_sprite, // if sprite is invalid then 00 invisible sprite
+    input wire [3:0] sprite_attr_in, // 3 - horizontal flip, 2 - Priority (0: in front of background; 1: behind background), 1-0 attribute
     input wire [7:0] sprite_x_in,
     input wire [7:0] pattern_in,
 
@@ -40,44 +40,63 @@ module sprite_buffer(
     output wire       sprite_priority
     );
 
-reg [7:0] bg_lsb_reg;
+reg [7:0] pixel_cnt = 8'd0;
+
+always @(posedge clk) 
+begin
+    if (rst)
+        pixel_cnt <= 8'd0;
+    else
+        if (next_pixel && bground_read) // we count only when we are in bg read to get the realy pixel cnt
+            pixel_cnt <= pixel_cnt + 1;
+end
+
+reg [7:0] sprite_lsb_reg;
 
 always @ (posedge clk) 
 begin
     if (rst)
-        bg_lsb_reg <= 8'd0;
+        sprite_lsb_reg <= 8'd0;
     else
         if (pattern0_ld)
-            bg_lsb_reg <= ppu_mem_din;
+            sprite_lsb_reg <= ppu_mem_din;
 end
 
-reg [7:0] bg_lsb_buff_reg;
+reg [7:0] sprite_lsb_buff_reg;
 
 always @ (posedge clk) 
 begin
     if (rst)
-        bg_lsb_buff_reg <= 8'd0;
+        sprite_lsb_buff_reg <= 8'd0;
     else
         if (pattern1_ld)
-            bg_lsb_buff_reg <= bg_lsb_reg; // shift reg
-		else if (next_pixel)
-					bg_lsb_buff_reg <= {bg_lsb_buff_reg[6:0], bg_lsb_buff_reg[7]};
+            sprite_lsb_buff_reg <= bg_lsb_reg;
+		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_coord) && (pixel_cnt <= sprite_x_coord + 8))
+                if(sprite_attr_in[3])
+					sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[6:0], sprite_lsb_buff_reg[7]};
+                else
+                    sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[0], sprite_lsb_buff_reg[7:1]};
 end
 
-reg [7:0] bg_msb_reg;
+reg [7:0] sprite_msb_reg;
 
 always @ (posedge clk) 
 begin
     if (rst)
-        bg_msb_reg <= 8'd0;
+        sprite_msb_reg <= 8'd0;
     else
         if (pattern1_ld)
-            bg_msb_reg <= ppu_mem_din;
-		else if (next_pixel)
-					bg_msb_reg <= {bg_msb_reg[6:0], bg_msb_reg[7]};
+            sprite_msb_reg <= ppu_mem_din;
+		else if (next_pixel && bground_read (pixel_cnt >= sprite_x_coord) && (pixel_cnt <= sprite_x_coord + 8))
+                if (sprite_attr_in[3])
+					sprite_msb_reg <= {sprite_msb_reg[6:0], sprite_msb_reg[7]};
+                else
+                    sprite_msb_reg <= {sprite_msb_reg[0], sprite_msb_reg[7:1]};
 end
 
+assign sprite_pixel = (valid_sprite) ? ((sprite_attr_in[3]) ? ({sprite_attr_in[1:0], sprite_msb_reg[7], sprite_lsb_buff_reg[7]}) : ({sprite_attr_in[1:0], sprite_msb_reg[0], sprite_lsb_buff_reg[0]})) 
+                        : (4'b0000);
 
-
+assign sprite_priority = sprite_attr_in[2] && valid_sprite; // if sprite does not exist it cant hurt you
 
 endmodule

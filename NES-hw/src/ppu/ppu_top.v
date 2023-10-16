@@ -353,7 +353,7 @@ end
 //*****************************************************************************
 //* Back ground most significant byte                                    	  *
 //*****************************************************************************
-localparam START_OF_SHIFT = 11'd131;			//(128 + 4*1) - 1 = 131 (dot 1)
+localparam START_OF_SHIFT = 11'd131;			//(128 + 4*1) - 1 = 131 (dot 1) shift is maybe bad because >= we need >
 localparam END_OF_SHIFT = 11'd1475;				//(128 + 4*337) - 1 = 1475 (dot 257)
 
 reg [7:0] bg_msb_reg;
@@ -835,6 +835,7 @@ end
 //*****************************************************************************
 localparam H_FIRST_COLUMN_END = 11'd163;			//(128 + 4*9) - 1 = 163 (dot 8) not 100%
 
+//think over once again START_OF_SHIF and END_OF_SHIFT, <=, >=
 wire next_pixel = ((x_rendercntr[1:0] == 2'b11) && (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK));
 
 wire palette_ram_access;
@@ -867,8 +868,8 @@ sprite_rendering sprite_fsm(
     .bgnd_read_end(x_rendercntr == FINE_VERTICAL_CNT_UP),   // this is actually (dot 256) dot 257
     .pattern0_read(bg_lsb_read_reg),   //helyes adat
     .pattern1_read(bg_msb_read_reg),   
-    .bground_read(),    
-    .sprite_read(),   
+    .bground_read((x_rendercntr <= FINE_VERTICAL_CNT_UP)),  // this is 1 in all bgread  
+    .sprite_read((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH)),   // this is 1 in all sprite read
     .sprite_read_end(), // ~(bgrender_state == VBLANK) && (x_rendercntr[2:0] == FINE_VERTICAL_CNT_UP)
     .nes_scanline_end((x_rendercntr == END_OF_BG_RENDERING_LINE)), // 2 NT fetch after
     .rendering_end((y_renderingcntr == 9'd239) && (x_rendercntr == END_OF_RENDERING_LINE)), // this is the VBLANK start

@@ -45,7 +45,7 @@ module sprite_rendering(
     input wire        pattern0_read,   // Video memory read: pattern table byte 0 
     input wire        pattern1_read,   // Video memory read: pattern table byte 1
     input wire        bground_read,    // Background data read signal 
-    input wire        sprite_read,     // Sprite data read signal
+    input wire        sprite_read,     // Sprite data read signal 
     input wire        sprite_read_end, 
     input wire        nes_scanline_end,
     input wire        rendering_end,
@@ -354,7 +354,7 @@ begin
                             oam_state <= OAM_IDLE;
             // waiting for the beginning of the NES scanline        
             OAM_SCANLINE_WAIT:  if (scanline_begin)
-                                    oam_state <= OAM_IDLE;
+                                    oam_state <= OAM_INITIALIZE;
                                 else
                                     if (rendering_end)
                                         oam_state <= OAM_IDLE;
@@ -587,6 +587,7 @@ end
 //*****************************************************************************
 reg [1:0] sprite0_in_range;
 // sprite0_visible set 
+assign sprite0_visible = sprite0_in_range[1] | sprite0_in_range[0]; // not fully sure 
 
 always @(posedge clk) 
 begin
@@ -603,7 +604,8 @@ end
 //*****************************************************************************
 //* Registers that stores the validity of the sprites                         *
 //*****************************************************************************
-reg [7:0] valid_sprite; // fill up when we find a valid sprite
+reg [7:0] valid_sprite; // fill up when we find a valid sprite 
+// it is important if not all the 8 sprite was found the other sprites are invisible
 
 always @(posedge clk) 
 begin
@@ -650,6 +652,9 @@ generate
     end
 endgenerate
 
+//*****************************************************************************
+//* Sprite priority mux                                                       *
+//*****************************************************************************
 
 
 endmodule
