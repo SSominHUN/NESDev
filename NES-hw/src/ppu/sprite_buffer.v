@@ -44,11 +44,11 @@ reg [7:0] pixel_cnt = 8'd0;
 
 always @(posedge clk) 
 begin
-    if (rst)
+    if (rst || ~bground_read) // reset
         pixel_cnt <= 8'd0;
     else
-        if (next_pixel && bground_read) // we count only when we are in bg read to get the realy pixel cnt
-            pixel_cnt <= pixel_cnt + 1;
+        if (next_pixel) // we count only when we are in bg read to get the realy pixel cnt
+            pixel_cnt <= pixel_cnt + 8'd1;
 end
 
 reg [7:0] sprite_lsb_reg;
@@ -64,6 +64,8 @@ end
 
 reg [7:0] sprite_lsb_buff_reg;
 
+
+ // reset buffers in hblank after rendering line
 always @ (posedge clk) 
 begin
     if (rst)
@@ -71,11 +73,11 @@ begin
     else
         if (pattern1_ld)
             sprite_lsb_buff_reg <= sprite_lsb_reg;
-		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8))
+		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= (sprite_x_in + 8)))
                 if(sprite_attr_in[3])
-					sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[6:0], sprite_lsb_buff_reg[7]};
+					sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[6:0], 1'b0};
                 else
-                    sprite_lsb_buff_reg <= {sprite_lsb_buff_reg[0], sprite_lsb_buff_reg[7:1]};
+                    sprite_lsb_buff_reg <= {1'b0, sprite_lsb_buff_reg[7:1]};
 end
 
 reg [7:0] sprite_msb_reg;
@@ -87,17 +89,20 @@ begin
     else
         if (pattern1_ld)
             sprite_msb_reg <= pattern_in;
-		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8))
+		else if (next_pixel && bground_read && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= (sprite_x_in + 8)))
                 if (sprite_attr_in[3])
-					sprite_msb_reg <= {sprite_msb_reg[6:0], sprite_msb_reg[7]};
+					sprite_msb_reg <= {sprite_msb_reg[6:0], 1'b0};
                 else
-                    sprite_msb_reg <= {sprite_msb_reg[0], sprite_msb_reg[7:1]};
+                    sprite_msb_reg <= {1'b0, sprite_msb_reg[7:1]};
 end
 
 //valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8)
-assign sprite_pixel = (valid_sprite) ? ((sprite_attr_in[3]) ? ({sprite_attr_in[1:0], sprite_msb_reg[7], sprite_lsb_buff_reg[7]}) : ({sprite_attr_in[1:0], sprite_msb_reg[0], sprite_lsb_buff_reg[0]})) 
+assign sprite_pixel = (valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= (sprite_x_in + 8))) 
+                        ? ((sprite_attr_in[3]) ? ({sprite_attr_in[1:0], sprite_msb_reg[7], sprite_lsb_buff_reg[7]}) 
+                        : ({sprite_attr_in[1:0], sprite_msb_reg[0], sprite_lsb_buff_reg[0]})) 
                         : (4'b0000);
 
-assign sprite_priority = sprite_attr_in[2] && valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8); // if sprite does not exist it cant hurt you
+// && valid_sprite && (pixel_cnt >= sprite_x_in) && (pixel_cnt <= sprite_x_in + 8)
+assign sprite_priority = sprite_attr_in[2]; // if sprite does not exist it cant hurt you
 
 endmodule

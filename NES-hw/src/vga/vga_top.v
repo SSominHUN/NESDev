@@ -57,7 +57,7 @@ wire vga_en;
 
 assign vga_en = (startupcntr == START_OF_VGA_RENDERING);
 
-parameter START_OF_VGA_RENDERING = 12'd3199; // a rendszernek lehet extra késleltetése ez csak a 2 sor 1599 + 1599
+parameter START_OF_VGA_RENDERING = 12'd3199; // a rendszernek lehet extra késleltetése ez csak a 2 sor (1600 + 1600) - 1
 
 reg [11:0] startupcntr = 12'd0;
 
@@ -129,7 +129,7 @@ end
 //* RGB in one BRAM                                                           *
 //*****************************************************************************
 
-/*
+
 reg [23:0] buff1_dout = 24'd0;
 reg [23:0] buff2_dout = 24'd0;
 
@@ -156,14 +156,17 @@ begin
    else
       buff2_dout <= buffer_2[h_cnt];
 end
-*/
+
+assign red = (buff_sel)   ? buff2_dout[7:0]   : buff1_dout[7:0];
+assign green = (buff_sel) ? buff2_dout[15:8]  : buff1_dout[15:8];
+assign blue = (buff_sel)  ? buff2_dout[23:16] : buff1_dout[23:16];
 
 //*****************************************************************************
 //* RGB in dual port BRAM                                                     *
 //*****************************************************************************
 
 //wire buff_we = (x_ppucntr[1:0] == 2'b10); // minden második órajelben vesszük el a pixelt így 1600 -> 800 lesz
-
+/*
 reg [23:0] buff_dout_a = 24'd0;
 reg [23:0] buff_dout_b = 24'd0;
 
@@ -188,11 +191,10 @@ begin
    buff_dout_b <= buffer[h_cnt + 1024];
 end
 
-
 assign red = (buff_sel)   ? buff_dout_b[7:0]   : buff_dout_a[7:0];
 assign green = (buff_sel) ? buff_dout_b[15:8]  : buff_dout_a[15:8];
 assign blue = (buff_sel)  ? buff_dout_b[23:16] : buff_dout_a[23:16];
-
+*/
 
 //*****************************************************************************
 //* RGB REGISTERS                                                             *

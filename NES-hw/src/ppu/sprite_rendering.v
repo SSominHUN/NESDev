@@ -57,7 +57,7 @@ module sprite_rendering(
     //Output sprite data
     output reg  [7:0] sprite_tile_index,//sprite tile index
     output reg  [3:0] sprite_range,     //Sprite line index
-    output wire [4:0] sprite_pixel,     //Sprite pixel color (palette index) 
+    output wire [3:0] sprite_pixel,     //Sprite pixel color (palette index) 
     output wire       sprite_priority   //Sprite priority
     );
 
@@ -233,7 +233,7 @@ end
 //*****************************************************************************
 //* Secondary Object Attribute Memory                                         *
 //*****************************************************************************
-(* memory_style = "distributed" *)
+(* ram_style = "distributed" *)
 reg  [7:0]  sec_oam [31:0];
 wire [7:0]  sec_oam_dout = sec_oam[sec_oam_addr_cnt];
 reg         sec_oam_wr;
@@ -656,6 +656,31 @@ endgenerate
 //*****************************************************************************
 //* Sprite priority mux                                                       *
 //*****************************************************************************
+sprite_mux sprite_mux(
+    //Clk input
+    .clk(clk),
+    .rst(rst),
 
+    //Input controll signals
+    .sprite_enabled(sprite_enabled),
+    .no_sprite_clip(no_sprite_clip),
+    .first_column(first_column), //first background
+
+    //Data input
+    //.sprite_buff_pixel(sprite_buff_pixel),
+    .sprite_pixel_0(sprite_buff_pixel[0]),
+    .sprite_pixel_1(sprite_buff_pixel[1]),
+    .sprite_pixel_2(sprite_buff_pixel[2]),
+    .sprite_pixel_3(sprite_buff_pixel[3]),
+    .sprite_pixel_4(sprite_buff_pixel[4]),
+    .sprite_pixel_5(sprite_buff_pixel[5]),
+    .sprite_pixel_6(sprite_buff_pixel[6]),
+    .sprite_pixel_7(sprite_buff_pixel[7]),
+    .sprite_priority_buff(sprite_buff_priority),
+
+    //Data out
+    .sprite_pixel(sprite_pixel),
+    .sprite_priority(sprite_priority)
+);
 
 endmodule

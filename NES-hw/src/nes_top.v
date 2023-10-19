@@ -120,28 +120,45 @@ wire rst = ~sync_shift_reg[7];// SZINKRONIZÁLT!!
 //*****************************************************************************
 //* PPU                                                                       *
 //*****************************************************************************
-wire [ 7:0] ppu_ri_dout;
-
-assign ppu_ri_sel  = cpu_addr[2:0];
-assign ppu_ri_cs  = (cpu_addr[15:13] == 3'b001); // 0x2000-0x2007 every 8 bytes mirrored through 0x3FFF
-assign ppu_ri_r_nw = cpu_r_nw;
-assign ppu_ri_din  = cpu_din;
-
 ppu_top ppu(
-   .clk(clk),
-   .rst(rst),
-   // register interface
-   .ri_sel_in(ppu_ri_sel),
-   .ri_cs_in(ppu_ri_cs),
-   .ri_r_nw_in(ppu_ri_r_nw),
-   .ri_d_in(ppu_ri_din),
-   .ri_d_out(ppu_ri_dout),
-   // PPU interface
-   .data_in(), 
-	.data_out(),
-	.addr(),
-	.write_request(),
-	.read_request()
+   .clk(clk), // 25 MHz
+	.rst(rst),
+	.clk_2x(clk_2x), // 50 MHz clock signal
+   .clk_10x(clk_10x), // 250 MHz
+	.bufpll_locked(bufpll_locked),
+   .serdes_strobe(serdes_strobe),
+
+   // Clk En outputs for peripheral	
+	.ph1_rising_outw(),
+	.ph1_falling_outw(),
+	.ph2_rising_outw(),
+	.ph2_falling_outw(),
+
+    // register interface or interface to cpu
+	.slv_mem_addr(cpu_addr[2:0]),      // register interface reg select (#2000-#2007)
+	.slv_mem_cs((cpu_addr[15:13] == 3'b001)),       // register interface enable (#2000 - #3FFF just when it is active)
+	.slv_mem_rnw(),       // register interface cpu read not write
+	.slv_mem_din(),       // register interface data in (cpu data lane)
+	.slv_mem_dout(),       // register interface data out (cpu data lane)
+
+	.irq(),
+
+	// PPU interface for memory access
+	.ppu_mem_din(),
+	.ppu_mem_dout(),
+	.ppu_mem_addr(),
+	.ppu_mem_wr_request(),
+	.ppu_mem_read_request(),
+
+	//Output TMDS signals.
+   .tmds_data0_out_p(),    //TMDS DATA0 line.
+   .tmds_data0_out_n(),
+   .tmds_data1_out_p(),    //TMDS DATA1 line.
+   .tmds_data1_out_n(),
+   .tmds_data2_out_p(),    //TMDS DATA2 line.
+   .tmds_data2_out_n(),
+   .tmds_clock_out_p(),    //TMDS CLOCK signal.
+   .tmds_clock_out_n() 
 );
 
 endmodule

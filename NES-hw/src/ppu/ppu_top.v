@@ -21,6 +21,15 @@
 module ppu_top(
 	input  wire        clk, // 25 MHz
 	input  wire		   rst,
+	input  wire        clk_2x, // 50 MHz clock signal
+   	input  wire        clk_10x, // 250 MHz
+	input  wire		   bufpll_locked,
+   	input  wire        serdes_strobe,
+		
+	output wire ph1_rising_outw,
+	output wire ph1_falling_outw,
+	output wire ph2_rising_outw,
+	output wire ph2_falling_outw,
 
     // register interface or interface to cpu
 	input  wire [ 2:0] slv_mem_addr,      // register interface reg select (#2000-#2007)
@@ -34,9 +43,19 @@ module ppu_top(
 	// PPU interface for memory access
 	input  wire [ 7:0] ppu_mem_din,
 	output reg  [ 7:0] ppu_mem_dout,
-	output wire [13:0] ppu_mem_addr, // maybe reg
+	output wire [13:0] ppu_mem_addr,
 	output wire 	   ppu_mem_wr_request,
-	output wire 	   ppu_mem_read_request
+	output wire 	   ppu_mem_read_request,
+
+	//Output TMDS signals.
+   	output wire tmds_data0_out_p,    //TMDS DATA0 line.
+   	output wire tmds_data0_out_n,
+   	output wire tmds_data1_out_p,    //TMDS DATA1 line.
+   	output wire tmds_data1_out_n,
+   	output wire tmds_data2_out_p,    //TMDS DATA2 line.
+   	output wire tmds_data2_out_n,
+   	output wire tmds_clock_out_p,    //TMDS CLOCK signal.
+   	output wire tmds_clock_out_n
 	);
 
 //*****************************************************************************
@@ -113,8 +132,8 @@ wire sprite_clipping     = render_mask_reg[2]; // 1: Show sprites in leftmost 8 
 wire background_enabled  = render_mask_reg[3];
 wire sprite_enabled 	 = render_mask_reg[4];
 wire emphasize_r         = render_mask_reg[5];
-wire emphesize_g 		 = render_mask_reg[6];
-wire emphesize_b 		 = render_mask_reg[7];
+wire emphasize_g 		 = render_mask_reg[6];
+wire emphasize_b 		 = render_mask_reg[7];
 
 
 wire ppu_enable = background_enabled | sprite_enabled;
@@ -399,7 +418,7 @@ begin
 		if (y_renderingcntr == PRERENDERING_ROW)
 			y_renderingcntr <= 9'd0;
 		else 
-			y_renderingcntr <= y_renderingcntr + 11'd1;
+			y_renderingcntr <= y_renderingcntr + 9'd1;
 end
 
 reg oddframe;
@@ -445,7 +464,7 @@ reg [2:0] bgrender_state;
 
 reg			rd_req_reg;
 
-reg	[14:0]	ppu_bg_addr_fetch;
+reg	[13:0]	ppu_addr_fetch;
 
 reg			nametable_read_reg;
 reg			attribute_read_reg;
@@ -464,14 +483,14 @@ begin
 					bgrender_state <= VBLANK;
 				else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 					begin
-					ppu_bg_addr_fetch <= {ppu_nt_addr};
+					ppu_addr_fetch <= ppu_nt_addr;
 					rd_req_reg <= 1'b1;
 
 					bgrender_state <= NT;
 					end
 				else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
 					begin
-					ppu_bg_addr_fetch <= {bg_lsb_addr};
+					ppu_addr_fetch <= bg_lsb_addr;
 
 					bgrender_state <= IDLE;
 					end
@@ -513,7 +532,7 @@ begin
 					// commands get here for NT Load
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
-							ppu_bg_addr_fetch <= {ppu_nt_addr};
+							ppu_addr_fetch <= ppu_nt_addr;
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
@@ -537,7 +556,7 @@ begin
 					// commands get here for AT Load
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
-							ppu_bg_addr_fetch <= {ppu_at_addr};
+							ppu_addr_fetch <= ppu_at_addr;
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
@@ -563,7 +582,10 @@ begin
 					// commands get here for BG_LSB load	
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
-							ppu_bg_addr_fetch <= {bg_lsb_addr};
+							if (sprite_read)
+								ppu_addr_fetch <= sprite_lsb_addr;
+							else
+								ppu_addr_fetch <= bg_lsb_addr;
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
@@ -590,7 +612,10 @@ begin
 					// commands get here for BG_MSB load	
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
-							ppu_bg_addr_fetch <= {bg_msb_addr}; 
+							if (sprite_read)
+								ppu_addr_fetch <= sprite_msb_addr;
+							else
+								ppu_addr_fetch <= bg_msb_addr; 
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
@@ -616,7 +641,7 @@ end
 
 //localparam VBLANK_CLR_SET = 11'd135;			(128 + 4*2) - 1 = 135
 
-assign attribute_sel = { ppu_nt_addr[6], ppu_nt_addr[1]};
+assign attribute_sel = {ppu_nt_addr[6], ppu_nt_addr[1]};
 //assign vblank_clr = ((bgrender_state == PRERENDERING_ROW) && (x_rendercntr == VBLANK_CLR_SET));
 
 // vblank set signals
@@ -628,6 +653,7 @@ assign vblank_set[2] = (x_rendercntr == (FIRST_SCANLINE_PIXEL + 12)) & (y_render
 assign vblank_clr    = (x_rendercntr == FIRST_SCANLINE_PIXEL +  4) & (y_renderingcntr == PRERENDERING_ROW);
 assign interrupt_clr = (x_rendercntr == FIRST_SCANLINE_PIXEL + 12) & (y_renderingcntr == PRERENDERING_ROW);
 
+assign ppu_mem_addr = ppu_addr_fetch;
 assign ppu_mem_read_request = rd_req_reg; 
 assign nametable_read = nametable_read_reg;
 assign attribute_read = attribute_read_reg;
@@ -652,24 +678,24 @@ begin
 end
 
 reg [7:0] shr_lsb_render = 8'd0;
-wire	  lsb_out;  
+wire	  bg_lsb_out;  
 
 always @(posedge clk) 
 if ((x_rendercntr[1:0] == 2'b11) 
 	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK)) //(bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP)
 		shr_lsb_render <= {shr_lsb_render[6:0], bg_lsb_buff_reg[7]};
 
-assign lsb_out = shr_lsb_render[~fh_reg];
+assign bg_lsb_out = shr_lsb_render[~fh_reg];
 
 reg [7:0] shr_msbrender = 8'd0;
-wire	  msb_out;  
+wire	  bg_msb_out;  
 
 always @(posedge clk) 
 if ((x_rendercntr[1:0] == 2'b11) 
 	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK))
 		shr_msbrender <= {shr_msbrender[6:0], bg_msb_reg[7]};
 
-assign msb_out = shr_msbrender[~fh_reg];
+assign bg_msb_out = shr_msbrender[~fh_reg];
 
 //*****************************************************************************
 //* Addr make										                     	  *
@@ -696,9 +722,9 @@ begin
 		else if (~(bgrender_state == VBLANK) && (x_rendercntr == H_COPY))
 			ht_cntr <= ht_reg;
 		// changing the cnt up range we dont do cnt up in the reagion between 257 and 320
-		else if (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION) && (x_rendercntr <= FINE_VERTICAL_CNT_UP) && (x_rendercntr >= START_OF_LAST_TWO_FETCH)) 
+		else if (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION) && (x_rendercntr <= FINE_VERTICAL_CNT_UP) && (x_rendercntr > START_OF_LAST_TWO_FETCH)) 
 					|| ((vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && ppu_enable))
-						ht_cntr <= ht_cntr + 1;
+						ht_cntr <= ht_cntr + 5'd1;
 end
 
 // Verical tile index (VT) counter
@@ -720,7 +746,7 @@ begin
 			vt_cntr1 <= vt_reg1;
 		else if ((fv_cntr == 3'b111)
 				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (vram_address_inc_sel)))
-					vt_cntr1 <= vt_cntr1 + 1;
+					vt_cntr1 <= vt_cntr1 + 3'd1;
 end
 
 always @(posedge clk) 
@@ -732,7 +758,7 @@ begin
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && ppu_enable))
 				vt_cntr2 <= vt_reg2; // hopefully good with timing
 		else if (vt_cntr1 == 3'b111)
-			vt_cntr2 <= vt_cntr2 + 1;
+			vt_cntr2 <= vt_cntr2 + 2'd1;
 end
 
 // Horizontal name table select (H) counter 
@@ -779,7 +805,7 @@ begin
 		else if (((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP))
 				|| (( vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && ppu_enable)
 				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (~vram_address_inc_sel)))
-					fv_cntr <= fv_cntr + 1;
+					fv_cntr <= fv_cntr + 3'd1;
 end
 
 // name_table addr
@@ -830,17 +856,31 @@ begin
 	ph2_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd11);
 end
 
+assign ph1_rising_outw = ph1_rising;
+assign ph1_falling_outw = ph1_falling;
+assign ph2_rising_outw = ph2_rising;
+assign ph2_falling_outw = ph2_falling;
+
 //*****************************************************************************
 //* sprite rendering part									                  *
 //*****************************************************************************
 localparam H_FIRST_COLUMN_END = 11'd163;			//(128 + 4*9) - 1 = 163 (dot 8) not 100%
 
-//think over once again START_OF_SHIF and END_OF_SHIFT, <=, >=
-wire next_pixel = ((x_rendercntr[1:0] == 2'b11) && (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK));
+//think over once again START_OF_SHIF and END_OF_SHIFT, <=, >= !!
+//FINE_VERTICAL_CNT_UP insted of END_OF_SHIFT
+wire next_pixel = ((x_rendercntr[1:0] == 2'b11) && (x_rendercntr > START_OF_SHIFT) 
+					&& (x_rendercntr < END_OF_SHIFT) && ~(bgrender_state == VBLANK));
 
-wire palette_ram_access;
-wire [7:0] oam_read_data;
-wire [4:0] palette_data0;
+wire sprite_read = ((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH));
+
+wire first_column = ((x_rendercntr >= FIRST_SCANLINE_PIXEL) && (x_rendercntr <= H_FIRST_COLUMN_END));
+
+wire [7:0] 	oam_read_data;
+
+wire [7:0]  sprite_tile_index;
+wire [3:0]  sprite_range;
+wire [3:0] 	sprite_pixel;
+wire 		sprite_priority;
 
 sprite_rendering sprite_fsm(
    	//Clock and reset
@@ -860,49 +900,145 @@ sprite_rendering sprite_fsm(
 	.bground_enabled(background_enabled), 
     .sprite_enabled(sprite_enabled),  
     .no_sprite_clip(sprite_clipping), 
-    .first_column((x_rendercntr >= FIRST_SCANLINE_PIXEL) && (x_rendercntr <= H_FIRST_COLUMN_END)), // hole first column 1 is now include the idle too
+    .first_column(first_column), // hole first column 1 is now include the idle too
     .sprite_size(sprite_size),     
-    .next_pixel(next_pixel),      
+    .next_pixel(next_pixel), // az idle is bele számolódik?  
     .start_rendering((y_renderingcntr == END_OF_VBLANK_ROW) && (x_rendercntr == END_OF_RENDERING_LINE)), // utolsó pixel a vga  1599, 260 sor
     .scanline_begin(x_rendercntr == FIRST_SCANLINE_PIXEL),  // 127 idle cycle
     .bgnd_read_end(x_rendercntr == FINE_VERTICAL_CNT_UP),   // this is actually (dot 256) dot 257
     .pattern0_read(bg_lsb_read_reg),   //helyes adat
     .pattern1_read(bg_msb_read_reg),   
-    .bground_read((x_rendercntr <= FINE_VERTICAL_CNT_UP)),  // this is 1 in all bgread  
-    .sprite_read((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH)),   // this is 1 in all sprite read
-    .sprite_read_end(), // ~(bgrender_state == VBLANK) && (x_rendercntr[2:0] == FINE_VERTICAL_CNT_UP)
+    .bground_read((x_rendercntr <= FINE_VERTICAL_CNT_UP)),  // just the 0-256 reagion is sprite read
+    .sprite_read(sprite_read),   // this is 1 in all sprite read
+    .sprite_read_end(x_rendercntr == START_OF_LAST_TWO_FETCH), // ~(bgrender_state == VBLANK) && (x_rendercntr[2:0] == FINE_VERTICAL_CNT_UP)
     .nes_scanline_end((x_rendercntr == END_OF_BG_RENDERING_LINE)), // 2 NT fetch after
-    .rendering_end((y_renderingcntr == 9'd239) && (x_rendercntr == END_OF_RENDERING_LINE)), // this is the VBLANK start
+    .rendering_end((y_renderingcntr == END_OF_VISIBLE_FRAME_ROW) && (x_rendercntr == END_OF_RENDERING_LINE)), // this is the VBLANK start
 
     //Output control signals
     .lost_sprite_set(lost_sprites_set),
     .sprite0_visible(sprite0_hit_set), //sprite 0 pixel is visible
 
     //Output sprite data
-    .sprite_tile_index(),//sprite tile index
-    .sprite_range(),     //Sprite line index
-    .sprite_pixel(),     //Sprite pixel color (palette index) 
-    .sprite_priority()   //Sprite priority
+    .sprite_tile_index(sprite_tile_index),	//sprite tile index
+    .sprite_range(sprite_range),     		//Sprite line index
+    .sprite_pixel(sprite_pixel),     		//Sprite pixel color (palette index) 
+    .sprite_priority(sprite_priority)   	//Priority (0: in front of background; 1: behind background)
 );
 
+wire [13:0] sprite_lsb_addr;
+wire [13:0] sprite_msb_addr;
+
+//sprite address with sprite size
+assign sprite_lsb_addr = (~sprite_size) ? 
+						({1'b0, sprite_pattern_sel, sprite_tile_index, 1'b0, sprite_range[2:0]})
+						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], 1'b0, sprite_range});
+assign sprite_msb_addr = (~sprite_size) ? 
+						({1'b0, sprite_pattern_sel, sprite_tile_index, 1'b1, sprite_range[2:0]}) 
+						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], 1'b1, sprite_range});
 
 //*****************************************************************************
 //* pixel mux a sprite and bg 												  *
 //*****************************************************************************
+wire [4:0] palette_addr;
+
+// (~background_clipping && first_column) // in this region we draw 0000 or black
+
+wire visible_bg_pixel = (bg_msb_out | bg_lsb_out);
+
+// visible bg pixel maybe over kill
+assign palette_addr = 	(sprite_priority && visible_bg_pixel) ?
+					 	({1'b0, tile_attr_reg, bg_msb_out, bg_lsb_out}) //back ground color
+					 	: ({1'b1, sprite_pixel}); //sprite color palette					 	
 
 //*****************************************************************************
-//* color block ram														  *
+//* color block ram														 	  *
 //*****************************************************************************
+wire palette_ram_access = (ppu_nt_addr[13:8] == 6'h3F);
+
+// maybe we need to turn it of during rendering
+//wire [4:0] palette_ram_addr = (palette_ram_access) ? (ppu_nt_addr[4:0]) : (palette_addr); 
+
+wire [4:0] palette_ram_nt_addr_mirrored = 	((ppu_nt_addr[4:0] == 5'h10) 
+										|| (ppu_nt_addr[4:0] == 5'h14)
+										|| (ppu_nt_addr[4:0] == 5'h18)
+										|| (ppu_nt_addr[4:0] == 5'h1C)) ? 
+										({1'b0, ppu_nt_addr[3:0]}) 
+										: (ppu_nt_addr[4:0]);
+
+wire [4:0] palette_ram_addr_mirrored = 	((palette_addr[4:0] == 5'h10) 
+										|| (palette_addr[4:0] == 5'h14)
+										|| (palette_addr[4:0] == 5'h18)
+										|| (palette_addr[4:0] == 5'h1C)) ? 
+										({1'b0, palette_addr[3:0]}) 
+										: (palette_addr);
+
+(* ram_style = "distributed" *)
+reg  [5:0] 	palette_ram [31:0];
+
+// adat kinullázása monocrome esetben alsó 4 bit csak a paletta data 0?
+wire [5:0]  palette_data0 = palette_ram[palette_ram_nt_addr_mirrored]; 
+wire [5:0]  palette_nt_with_monocrom = (monochrome_mode) ? ({palette_data0[5:4], 4'd0}) : (palette_data0);
+
+wire [5:0]  palette_data1 = palette_ram[palette_ram_addr_mirrored];
+wire [5:0]  palette_with_monocrom = (monochrome_mode) ? ({palette_data1[5:4], 4'd0}) : (palette_data1);
+
+always @(posedge clk) 
+begin
+    if (ppu_enable && palette_ram_access)
+        palette_ram[palette_ram_nt_addr_mirrored] <= slv_mem_din[5:0];  
+end
+
+// (~ppu_enable &&paletta_ram_acces) akkor a cím a cím számlálókból jön megjelnítéshez is
+wire [5:0]  palette_data = 	(~ppu_enable && palette_ram_access) 
+							? (palette_nt_with_monocrom) : (palette_with_monocrom);
+
+// rgb data to render vga 
+(* ram_style = "block" *)
+reg  [23:0] 	palette_rgb_rom [511:0];
+initial begin
+	$readmemh( "src/ppu/rgb_rom/rgb_rom_888_24bit.txt" , palette_rgb_rom); 
+end
+reg  [23:0] 	palette_rgb_rom_dout;
+
+// MASK for blank black value
+// 0-256 x_rendercnt
+wire [8:0] 		palette_rgb_rom_address = 	((x_rendercntr > START_OF_SHIFT) 
+											&& (x_rendercntr <= FINE_VERTICAL_CNT_UP)
+											&& (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)
+											&& ~(~background_clipping && first_column)) ? 
+											({emphasize_b, emphasize_g, emphasize_r, palette_data}) 
+											: (9'd13); //9'd13 is black
+
+always @(posedge clk)
+begin
+	palette_rgb_rom_dout <= palette_rgb_rom[palette_rgb_rom_address];
+end
 
 //*****************************************************************************
-//* addr mux												                  *
+//* vga_top 												                  *
 //*****************************************************************************
-//we need to do this
-//assign ppu_mem_addr = ppu_bg_addr_fetch;
+vga_top vga_top(
+   	.pclk(clk), // 25 MHz clock signal 
+   	.pclk_2x(clk_2x), // 50 MHz clock signal
+   	.pclk_10x(clk_10x), // 250 MHz
+	.bufpll_locked(bufpll_locked),
+   	.serdes_strobe(serdes_strobe),
+   	.rst(rst),
 
-//*****************************************************************************
-//* vga_top maybe											                  *
-//*****************************************************************************
+   	.blue_din(palette_rgb_rom_dout[23:16]),     // Blue data in
+   	.green_din(palette_rgb_rom_dout[15:8]),     // Green data in
+   	.red_din(palette_rgb_rom_dout[7:0]),        // Red data in
+
+   	//Output TMDS signals.
+   	.tmds_data0_out_p(tmds_data0_out_p),    //TMDS DATA0 line.
+   	.tmds_data0_out_n(tmds_data0_out_n),
+   	.tmds_data1_out_p(tmds_data1_out_p),    //TMDS DATA1 line.
+   	.tmds_data1_out_n(tmds_data1_out_n),
+   	.tmds_data2_out_p(tmds_data2_out_p),    //TMDS DATA2 line.
+   	.tmds_data2_out_n(tmds_data2_out_n),
+   	.tmds_clock_out_p(tmds_clock_out_p),    //TMDS CLOCK signal.
+   	.tmds_clock_out_n(tmds_clock_out_n)
+   	);
 
 //*****************************************************************************
 //* Driving the ouzput data bus of the video memory interface                 *
@@ -954,9 +1090,9 @@ begin
 		if (read_enable)
 		 casex (read_sel)
 			4'bx001: slv_mem_dout <= status_reg;
-			4'bx010: slv_mem_dout <= oam_read_data; // we dont have yet
+			4'bx010: slv_mem_dout <= oam_read_data; // oam data out
 			4'b0100: slv_mem_dout <= vram_read_reg;
-			4'b1100: slv_mem_dout <= {2'b00, palette_data0}; // we need palette access and data too 
+			4'b1100: slv_mem_dout <= {2'b00, palette_nt_with_monocrom}; // we need palette access and data too 
 			default: slv_mem_dout <= 8'd0;
 		 endcase
 end

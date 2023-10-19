@@ -78,12 +78,11 @@ begin
     if (rst)
         v_cnt <= 10'd0;
     else
-        if (h_cnt == H_BLANK_END)
+        if ((h_cnt == H_BLANK_END) && en)
             if (v_cnt == V_BLANK_END)
                 v_cnt <= 10'd0;
             else
-                if(en)
-                    v_cnt <= v_cnt + 10'd1;
+                v_cnt <= v_cnt + 10'd1;
 end
 
 //******************************************************************************
