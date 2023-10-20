@@ -373,7 +373,7 @@ end
 //* Back ground most significant byte                                    	  *
 //*****************************************************************************
 localparam START_OF_SHIFT = 11'd131;			//(128 + 4*1) - 1 = 131 (dot 1) shift is maybe bad because >= we need >
-localparam END_OF_SHIFT = 11'd1475;				//(128 + 4*337) - 1 = 1475 (dot 257)
+localparam END_OF_SHIFT = 11'd1475;				//(128 + 4*337) - 1 = 1475 (dot 336)
 
 reg [7:0] bg_msb_reg;
 wire      bg_msb_read;
@@ -988,7 +988,7 @@ begin
         palette_ram[palette_ram_nt_addr_mirrored] <= slv_mem_din[5:0];  
 end
 
-// (~ppu_enable &&paletta_ram_acces) akkor a cím a cím számlálókból jön megjelnítéshez is
+// (~ppu_enable && palette_ram_access) akkor a cím a cím számlálókból jön megjelnítéshez is
 wire [5:0]  palette_data = 	(~ppu_enable && palette_ram_access) 
 							? (palette_nt_with_monocrom) : (palette_with_monocrom);
 

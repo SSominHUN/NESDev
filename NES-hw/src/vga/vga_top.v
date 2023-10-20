@@ -57,7 +57,7 @@ wire vga_en;
 
 assign vga_en = (startupcntr == START_OF_VGA_RENDERING);
 
-parameter START_OF_VGA_RENDERING = 12'd3199; // a rendszernek lehet extra késleltetése ez csak a 2 sor (1600 + 1600) - 1
+parameter START_OF_VGA_RENDERING = 12'd3203; // a rendszernek lehet extra késleltetése ez csak a 2 sor (1600 + 1600 + 4) - 1
 
 reg [11:0] startupcntr = 12'd0;
 
@@ -97,7 +97,7 @@ reg [10:0] x_ppucntr = 11'd0;
 
 always @ (posedge pclk)
 begin
-	if (rst || (x_ppucntr == END_OF_PPU_RENDERING))
+	if (rst || (x_ppucntr == END_OF_PPU_RENDERING) || (startupcntr == 12'd3))
 		x_ppucntr <= 11'd0;
 	else
 		x_ppucntr <= x_ppucntr + 11'd1;
@@ -117,9 +117,10 @@ end
 reg [9:0] x_writecntr = 10'd0;
 
 //cntr for writing the two buffers
+//
 always @ (posedge pclk)
 begin
-	if (rst || (x_writecntr == END_OF_VGA_RENDERING))
+	if (rst || (x_writecntr == END_OF_VGA_RENDERING) || (startupcntr == 12'd3))
 		x_writecntr <= 10'd0;
 	else if(x_ppucntr[0] == 1'b0)
 		x_writecntr <= x_writecntr + 10'd1;
