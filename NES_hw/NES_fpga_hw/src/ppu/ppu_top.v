@@ -45,7 +45,7 @@ module ppu_top(
 	output reg  [ 7:0] ppu_mem_dout,
 	output wire [13:0] ppu_mem_addr,
 	output wire 	   ppu_mem_wr_request,
-	output wire 	   ppu_mem_read_request,
+	//output wire 	   ppu_mem_read_request,
 
 	//Output TMDS signals.
    	output wire tmds_data0_out_p,    //TMDS DATA0 line.
@@ -93,7 +93,7 @@ end
 //*****************************************************************************
 //* Controll register write                                               	  *
 //*****************************************************************************
-reg [5:0] control_reg;
+reg [4:0] control_reg;
 
 always @ (posedge clk) 
 begin
@@ -653,8 +653,11 @@ assign vblank_set[2] = (x_rendercntr == (FIRST_SCANLINE_PIXEL + 12)) & (y_render
 assign vblank_clr    = (x_rendercntr == FIRST_SCANLINE_PIXEL +  4) & (y_renderingcntr == PRERENDERING_ROW);
 assign interrupt_clr = (x_rendercntr == FIRST_SCANLINE_PIXEL + 12) & (y_renderingcntr == PRERENDERING_ROW);
 
-assign ppu_mem_addr = ppu_addr_fetch;
-assign ppu_mem_read_request = rd_req_reg; 
+//(x_rendercntr <= FINE_VERTICAL_CNT_UP) && (x_rendercntr > START_OF_LAST_TWO_FETCH) 
+assign ppu_mem_addr = (((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) 
+						? (ppu_addr_fetch) : (ppu_nt_addr); // not good yet
+
+//assign ppu_mem_read_request = rd_req_reg; 
 assign nametable_read = nametable_read_reg;
 assign attribute_read = attribute_read_reg;
 assign bg_lsb_read = bg_lsb_read_reg;
@@ -984,7 +987,7 @@ wire [5:0]  palette_with_monocrom = (monochrome_mode) ? ({palette_data1[5:4], 4'
 
 always @(posedge clk) 
 begin
-    if (ppu_enable && palette_ram_access)
+    if (ppu_enable && palette_ram_access) // 
         palette_ram[palette_ram_nt_addr_mirrored] <= slv_mem_din[5:0];  
 end
 
@@ -1002,12 +1005,16 @@ reg  [23:0] 	palette_rgb_rom_dout;
 
 // MASK for blank black value
 // 0-256 x_rendercnt
+
 wire [8:0] 		palette_rgb_rom_address = 	((x_rendercntr > START_OF_SHIFT) 
-											&& (x_rendercntr <= FINE_VERTICAL_CNT_UP)
+											&& (x_rendercntr <= FINE_VERTICAL_CNT_UP) 
 											&& (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW)
 											&& ~(~background_clipping && first_column)) ? 
-											({emphasize_b, emphasize_g, emphasize_r, palette_data}) 
-											: (9'd13); //9'd13 is black
+											({emphasize_b, emphasize_g, emphasize_r, palette_data}) : (9'd13); 
+											
+//9'd13 is black //&& (x_rendercntr <= FINE_VERTICAL_CNT_UP) && (y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) && ~(~background_clipping && first_column)
+
+//wire [8:0] 		palette_rgb_rom_address = 9'd13;
 
 always @(posedge clk)
 begin
@@ -1018,9 +1025,9 @@ end
 //* vga_top 												                  *
 //*****************************************************************************
 vga_top vga_top(
-   	.pclk(clk), // 25 MHz clock signal 
-   	.pclk_2x(clk_2x), // 50 MHz clock signal
-   	.pclk_10x(clk_10x), // 250 MHz
+   	.clk(clk), // 25 MHz clock signal 
+   	.clk_2x(clk_2x), // 50 MHz clock signal
+   	.clk_10x(clk_10x), // 250 MHz
 	.bufpll_locked(bufpll_locked),
    	.serdes_strobe(serdes_strobe),
    	.rst(rst),
@@ -1048,9 +1055,28 @@ begin
 	if (rst)
 		ppu_mem_dout <= 8'd0;
 	else
-		if (vram_addr_wr)
+		if (vram_data_wr)
 			ppu_mem_dout <= slv_mem_din;	
 end
+
+
+reg	ppu_mem_wr_request_reg;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		ppu_mem_wr_request_reg <= 1'b0;	
+	else
+		if (vram_data_wr)
+			ppu_mem_wr_request_reg <= 1'b1;
+		else
+			ppu_mem_wr_request_reg <= 1'b0;	
+end
+
+assign ppu_mem_wr_request = ppu_mem_wr_request_reg;
+
+
+//assign ppu_mem_wr_request = vram_data_wr;
 
 //*****************************************************************************
 //* Driving the output data bus of slave bus interface                        *

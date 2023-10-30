@@ -19,9 +19,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module sprite_mux(
-    input wire clk,
-    input wire rst,
-
     //input controll signals
     input wire sprite_enabled,
     input wire no_sprite_clip, // 1 we see the pixels

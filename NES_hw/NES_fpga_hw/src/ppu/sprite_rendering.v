@@ -170,7 +170,7 @@ always @(*)
 begin
     case (pri_oam_addr_sel)
         2'b01:   pri_oam_addr <= {n_cnt, m_cnt};
-        2'b11:   pri_oam_addr <= {pri_oam_addr[7:3], n_cnt[0], m_cnt}; // i dont exatcly know this
+        2'b11:   pri_oam_addr <= {pri_oam_addr_cnt[7:3], n_cnt[0], m_cnt}; 
         default: pri_oam_addr <= pri_oam_addr_cnt; 
     endcase    
 end
@@ -657,10 +657,6 @@ endgenerate
 //* Sprite priority mux                                                       *
 //*****************************************************************************
 sprite_mux sprite_mux(
-    //Clk input
-    .clk(clk),
-    .rst(rst),
-
     //Input controll signals
     .sprite_enabled(sprite_enabled),
     .no_sprite_clip(no_sprite_clip),

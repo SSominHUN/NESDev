@@ -19,9 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module memory_manager_v2_top #(
-	parameter NT_MIRRORING = 2'b01,
-	parameter SRAM_CH_ROM_OFFSET = 18'h8000, //32 Kbyte program RAM h4000 16kbyte
-	parameter SRAM_PROGRAM_START = 18'd0
+	parameter NT_MIRRORING = 2'b01
 )(
 	//clock and rst signals
 	input 	wire 				clk,
@@ -37,7 +35,7 @@ module memory_manager_v2_top #(
 
 	// Memory inerface slave
 	input 	wire 				ppu_wr_req, 
-	input 	wire 				ppu_rd_req, 
+	//input 	wire 				ppu_rd_req, 
 	input 	wire 	[13:0] 		ppu_addr,
 	input 	wire 	[7:0] 		ppu_din,
 	output 	reg 	[7:0] 		ppu_dout
@@ -49,7 +47,7 @@ module memory_manager_v2_top #(
 (* ram_style = "block" *)
 reg	 [7:0]	cpu_work_ram [2047:0];
 reg	 [7:0]	cpu_work_ram_dout;
-wire [10:0]	cpu_work_ram_addr = cpu_addr [10:0];			 //cpu inner memory access
+wire [10:0]	cpu_work_ram_addr = cpu_addr[10:0];			 //cpu inner memory access
 wire		cpu_work_ram_sel  = (cpu_addr[15:13] == 3'b000); //0x0000-0x07FF and the mirrors until 0x1FFF
 reg			cpu_work_ram_rd_ack;
 
@@ -76,13 +74,13 @@ end
 //* 32 KByte NES cartridge program memory	                         		  *
 //*****************************************************************************
 (* ram_style = "block" *)
-reg	 [7:0]	cpu_prog_rom [32767:0]; // 32 kbyte
+reg	 [7:0]	cpu_prog_rom [32767:0]; // 32 kbyte 32767
 initial begin
-	$readmemb( "src/games/Super_Mario_Bros_prg_rom.txt" , cpu_prog_rom); 
+	$readmemh( "src/games/Super_Mario_Bros_prg_rom_hex.txt" , cpu_prog_rom); //Super_Mario_Bros_prg_rom.txt
 end
 reg	 [7:0]	cpu_prog_rom_dout;
-wire [14:0]	cpu_prog_rom_addr = cpu_addr [14:0];			 
-wire		cpu_prog_rom_sel  = cpu_addr [15]; 
+wire [14:0]	cpu_prog_rom_addr = cpu_addr[14:0];			 
+wire		cpu_prog_rom_sel  = cpu_addr[15]; 
 reg			cpu_prog_rom_rd_ack;
 
 always @ (posedge clk) 
@@ -156,7 +154,7 @@ end
 (* ram_style = "block" *)
 reg  [7:0] 		ch_rom [8191:0];
 initial begin
-	$readmemb( "src/games/Super_Mario_Bros_chr_rom.txt" , ch_rom); 
+	$readmemh( "src/games/Super_Mario_Bros_chr_rom_hex.txt" , ch_rom); //Super_Mario_Bros_chr_rom.txt
 end
 reg  [7:0] 		ch_rom_reg;
 reg  [7:0] 		ch_rom_dout;
@@ -212,7 +210,7 @@ assign ppu_mem_dout_sel[1]	=	ppu_name_table_sel;
 always @ (*) 
 begin
 	case (ppu_mem_dout_sel)
-		2'b01:	 ppu_dout <= ch_rom_dout;
+		2'b01:	 ppu_dout <= ch_rom_dout; //pattern rom
 		2'b10: 	 ppu_dout <= name_table_ram_dout;
 		default: ppu_dout <= 8'd0;
 	endcase	

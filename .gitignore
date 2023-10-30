@@ -44,28 +44,28 @@
 *_xst.xrpt
 
 # iMPACT generated files
-NES-hw/_impactbatch.log
-NES-hw/impact.xsl
-NES-hw/impact_impact.xwbt
-NES-hw/ise_impact.cmd
-NES-hw/webtalk_impact.xml
+NES_hw/NES_fpga_hw/_impactbatch.log
+NES_hw/NES_fpga_hw/impact.xsl
+NES_hw/NES_fpga_hw/impact_impact.xwbt
+NES_hw/NES_fpga_hw/ise_impact.cmd
+NES_hw/NES_fpga_hw/webtalk_impact.xml
 
 # Core Generator generated files
-NES-hw/xaw2verilog.log
+NES_hw/NES_fpga_hw/xaw2verilog.log
 
 # project-wide generated files
 *.gise
-NES-hw/par_usage_statistics.html
-NES-hw/usage_statistics_webtalk.html
-NES-hw/webtalk.log
-NES-hw/webtalk_pn.xml
+NES_hw/NES_fpga_hw/par_usage_statistics.html
+NES_hw/NES_fpga_hw/usage_statistics_webtalk.html
+NES_hw/NES_fpga_hw/webtalk.log
+NES_hw/NES_fpga_hw/webtalk_pn.xml
 
 # generated folders
-NES-hw/iseconfig/
-NES-hw/xlnx_auto_0_xdb/
-NES-hw/xst/
-NES-hw/_ngo/
-NES-hw/_xmsgs/
+NES_hw/NES_fpga_hw/iseconfig/
+NES_hw/NES_fpga_hw/xlnx_auto_0_xdb/
+NES_hw/NES_fpga_hw/xst/
+NES_hw/NES_fpga_hw/_ngo/
+NES_hw/NES_fpga_hw/_xmsgs/
 
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
@@ -377,4 +377,4 @@ Thesis/./auto/*
 # glossaries
 *.glstex
 
-NES-hw/src/games/**
+NES_hw/NES_fpga_hw/src/games/**
