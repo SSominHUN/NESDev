@@ -1,0 +1,1357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/NESDev/NES_hw/NES_fpga_hw/nes_top_test_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="nes_top_test" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="301" />
+   <wvobject fp_name="/nes_top_test/ctrl1_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl1_clk</obj_property>
+      <obj_property name="ObjectShortName">ctrl1_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ctrl2_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl2_clk</obj_property>
+      <obj_property name="ObjectShortName">ctrl2_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ctrl1_latch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl1_latch</obj_property>
+      <obj_property name="ObjectShortName">ctrl1_latch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ctrl2_latch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl2_latch</obj_property>
+      <obj_property name="ObjectShortName">ctrl2_latch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data0_out_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data0_out_p</obj_property>
+      <obj_property name="ObjectShortName">tmds_data0_out_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data0_out_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data0_out_n</obj_property>
+      <obj_property name="ObjectShortName">tmds_data0_out_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data1_out_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data1_out_p</obj_property>
+      <obj_property name="ObjectShortName">tmds_data1_out_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data1_out_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data1_out_n</obj_property>
+      <obj_property name="ObjectShortName">tmds_data1_out_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data2_out_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data2_out_p</obj_property>
+      <obj_property name="ObjectShortName">tmds_data2_out_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_data2_out_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_data2_out_n</obj_property>
+      <obj_property name="ObjectShortName">tmds_data2_out_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_clock_out_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_clock_out_p</obj_property>
+      <obj_property name="ObjectShortName">tmds_clock_out_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tmds_clock_out_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tmds_clock_out_n</obj_property>
+      <obj_property name="ObjectShortName">tmds_clock_out_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/slv_mem_cs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">slv_mem_cs</obj_property>
+      <obj_property name="ObjectShortName">slv_mem_cs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/slv_mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slv_mem_addr[2:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_mem_addr[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/rnw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rnw</obj_property>
+      <obj_property name="ObjectShortName">rnw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/slv_mem_rnw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">slv_mem_rnw</obj_property>
+      <obj_property name="ObjectShortName">slv_mem_rnw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/cpu_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cpu_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/slv_mem_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slv_mem_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_mem_din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_to_cpu_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_to_cpu_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_to_cpu_din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/nmi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nmi</obj_property>
+      <obj_property name="ObjectShortName">nmi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_mem_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_mem_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_mem_din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_mem_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_mem_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_mem_wr_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_mem_wr_request</obj_property>
+      <obj_property name="ObjectShortName">ppu_mem_wr_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/control_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">control_wr</obj_property>
+      <obj_property name="ObjectShortName">control_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/render_mask_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">render_mask_wr</obj_property>
+      <obj_property name="ObjectShortName">render_mask_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_addr_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_addr_wr</obj_property>
+      <obj_property name="ObjectShortName">oam_addr_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_data_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_data_wr</obj_property>
+      <obj_property name="ObjectShortName">oam_data_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/scrolling_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">scrolling_wr</obj_property>
+      <obj_property name="ObjectShortName">scrolling_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_addr_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_addr_wr</obj_property>
+      <obj_property name="ObjectShortName">vram_addr_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_data_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_data_wr</obj_property>
+      <obj_property name="ObjectShortName">vram_data_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/status_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">status_rd</obj_property>
+      <obj_property name="ObjectShortName">status_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_data_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_data_rd</obj_property>
+      <obj_property name="ObjectShortName">oam_data_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_data_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_data_rd</obj_property>
+      <obj_property name="ObjectShortName">vram_data_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_address_inc_sel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_address_inc_sel</obj_property>
+      <obj_property name="ObjectShortName">vram_address_inc_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_pattern_sel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_pattern_sel</obj_property>
+      <obj_property name="ObjectShortName">sprite_pattern_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/background_pattern_sel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">background_pattern_sel</obj_property>
+      <obj_property name="ObjectShortName">background_pattern_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_size" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_size</obj_property>
+      <obj_property name="ObjectShortName">sprite_size</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vblank_irq_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vblank_irq_enable</obj_property>
+      <obj_property name="ObjectShortName">vblank_irq_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/monochrome_mode" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">monochrome_mode</obj_property>
+      <obj_property name="ObjectShortName">monochrome_mode</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/background_clipping" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">background_clipping</obj_property>
+      <obj_property name="ObjectShortName">background_clipping</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_clipping" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_clipping</obj_property>
+      <obj_property name="ObjectShortName">sprite_clipping</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/background_enabled" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">background_enabled</obj_property>
+      <obj_property name="ObjectShortName">background_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_enabled" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_enabled</obj_property>
+      <obj_property name="ObjectShortName">sprite_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/emphasize_r" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">emphasize_r</obj_property>
+      <obj_property name="ObjectShortName">emphasize_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/emphasize_g" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">emphasize_g</obj_property>
+      <obj_property name="ObjectShortName">emphasize_g</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/emphasize_b" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">emphasize_b</obj_property>
+      <obj_property name="ObjectShortName">emphasize_b</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_enable</obj_property>
+      <obj_property name="ObjectShortName">ppu_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vblank_set" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vblank_set[2:0]</obj_property>
+      <obj_property name="ObjectShortName">vblank_set[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vblank_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vblank_clr</obj_property>
+      <obj_property name="ObjectShortName">vblank_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite0_hit_set" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite0_hit_set</obj_property>
+      <obj_property name="ObjectShortName">sprite0_hit_set</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/lost_sprites_set" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lost_sprites_set</obj_property>
+      <obj_property name="ObjectShortName">lost_sprites_set</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/status_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">status_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">status_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/interrupt_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">interrupt_clr</obj_property>
+      <obj_property name="ObjectShortName">interrupt_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vt_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vt_reg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">vt_reg[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/nametable_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nametable_read</obj_property>
+      <obj_property name="ObjectShortName">nametable_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/attribute_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">attribute_read</obj_property>
+      <obj_property name="ObjectShortName">attribute_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/attribute_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">attribute_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">attribute_sel[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_read</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_msb_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_msb_read</obj_property>
+      <obj_property name="ObjectShortName">bg_msb_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_out</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_msb_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_msb_out</obj_property>
+      <obj_property name="ObjectShortName">bg_msb_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/x_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">x_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">x_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">y_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">y_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/x_cnt_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">x_cnt_ld</obj_property>
+      <obj_property name="ObjectShortName">x_cnt_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/counters_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">counters_ld</obj_property>
+      <obj_property name="ObjectShortName">counters_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_read</obj_property>
+      <obj_property name="ObjectShortName">vram_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_write" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_write</obj_property>
+      <obj_property name="ObjectShortName">vram_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ht_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ht_cnt[4:0]</obj_property>
+      <obj_property name="ObjectShortName">ht_cnt[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vt_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vt_cnt[4:0]</obj_property>
+      <obj_property name="ObjectShortName">vt_cnt[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/h_cnt" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">h_cnt</obj_property>
+      <obj_property name="ObjectShortName">h_cnt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/v_cnt" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">v_cnt</obj_property>
+      <obj_property name="ObjectShortName">v_cnt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/fv_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fv_cnt[2:0]</obj_property>
+      <obj_property name="ObjectShortName">fv_cnt[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_addr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_addr_cnt[14:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_addr_cnt[14:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/new_vram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">new_vram_addr[14:0]</obj_property>
+      <obj_property name="ObjectShortName">new_vram_addr[14:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_addr_inc" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_addr_inc</obj_property>
+      <obj_property name="ObjectShortName">vram_addr_inc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/haddr_cnt_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">haddr_cnt_ld</obj_property>
+      <obj_property name="ObjectShortName">haddr_cnt_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/haddr_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">haddr_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">haddr_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vaddr_cnt_ld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vaddr_cnt_ld</obj_property>
+      <obj_property name="ObjectShortName">vaddr_cnt_ld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vaddr_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vaddr_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">vaddr_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_ram_access" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_ram_access</obj_property>
+      <obj_property name="ObjectShortName">palette_ram_access</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_nt_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_nt_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_nt_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_at_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_at_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_at_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_msb_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_msb_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_msb_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/clkgen_cnt_en_set" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkgen_cnt_en_set</obj_property>
+      <obj_property name="ObjectShortName">clkgen_cnt_en_set</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/next_pixel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">next_pixel</obj_property>
+      <obj_property name="ObjectShortName">next_pixel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_read</obj_property>
+      <obj_property name="ObjectShortName">sprite_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/first_column" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">first_column</obj_property>
+      <obj_property name="ObjectShortName">first_column</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_read_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">oam_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bground_enabled" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bground_enabled</obj_property>
+      <obj_property name="ObjectShortName">bground_enabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/no_sprite_clip" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">no_sprite_clip</obj_property>
+      <obj_property name="ObjectShortName">no_sprite_clip</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/start_rendering" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">start_rendering</obj_property>
+      <obj_property name="ObjectShortName">start_rendering</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/scanline_begin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">scanline_begin</obj_property>
+      <obj_property name="ObjectShortName">scanline_begin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bgnd_read_end" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bgnd_read_end</obj_property>
+      <obj_property name="ObjectShortName">bgnd_read_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pattern0_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pattern0_read</obj_property>
+      <obj_property name="ObjectShortName">pattern0_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pattern1_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pattern1_read</obj_property>
+      <obj_property name="ObjectShortName">pattern1_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bground_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bground_read</obj_property>
+      <obj_property name="ObjectShortName">bground_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_read_end" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_read_end</obj_property>
+      <obj_property name="ObjectShortName">sprite_read_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/nes_scanline_end" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nes_scanline_end</obj_property>
+      <obj_property name="ObjectShortName">nes_scanline_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/rendering_end" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rendering_end</obj_property>
+      <obj_property name="ObjectShortName">rendering_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pixel_cnt_overflow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pixel_cnt_overflow</obj_property>
+      <obj_property name="ObjectShortName">pixel_cnt_overflow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/even_phase_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">even_phase_en</obj_property>
+      <obj_property name="ObjectShortName">even_phase_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/odd_phase_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">odd_phase_en</obj_property>
+      <obj_property name="ObjectShortName">odd_phase_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/odd_phase" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">odd_phase</obj_property>
+      <obj_property name="ObjectShortName">odd_phase</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/m_cnt_overflow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">m_cnt_overflow</obj_property>
+      <obj_property name="ObjectShortName">m_cnt_overflow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/m_cnt_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">m_cnt_clr</obj_property>
+      <obj_property name="ObjectShortName">m_cnt_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/n_cnt_overflow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_cnt_overflow</obj_property>
+      <obj_property name="ObjectShortName">n_cnt_overflow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pri_oam_addr_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pri_oam_addr_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">pri_oam_addr_sel[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pri_oam_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pri_oam_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pri_oam_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_temp_reg_set" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_temp_reg_set</obj_property>
+      <obj_property name="ObjectShortName">oam_temp_reg_set</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_in_range" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_in_range</obj_property>
+      <obj_property name="ObjectShortName">sprite_in_range</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_addr_cnt_overflow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_addr_cnt_overflow</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_addr_cnt_overflow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_rd</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y_diff_reg2_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">y_diff_reg2_wr</obj_property>
+      <obj_property name="ObjectShortName">y_diff_reg2_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_range_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_range_wr</obj_property>
+      <obj_property name="ObjectShortName">sprite_range_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/v_inversion" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">v_inversion</obj_property>
+      <obj_property name="ObjectShortName">v_inversion</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_tile_index_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_tile_index_wr</obj_property>
+      <obj_property name="ObjectShortName">sprite_tile_index_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_attribute_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_attribute_wr</obj_property>
+      <obj_property name="ObjectShortName">sprite_attribute_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_x_coord_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_x_coord_wr</obj_property>
+      <obj_property name="ObjectShortName">sprite_x_coord_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_dout_sel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_dout_sel</obj_property>
+      <obj_property name="ObjectShortName">oam_dout_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_buff_pixel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_buff_pixel[7:0,3:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_buff_pixel[7:0,3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_buff_priority" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_buff_priority[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_buff_priority[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[0].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[0].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[0].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[0].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[0].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[0].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[1].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[1].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[1].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[1].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[1].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[1].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[2].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[2].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[2].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[2].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[2].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[2].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[3].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[3].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[3].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[3].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[3].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[3].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[4].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[4].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[4].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[4].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[4].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[4].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[5].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[5].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[5].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[5].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[5].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[5].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[6].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[6].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[6].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[6].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[6].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[6].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[7].pattern0_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[7].pattern0_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[7].pattern0_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/\sprite_buffer_load[7].pattern1_ld " type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">\sprite_buffer_load[7].pattern1_ld </obj_property>
+      <obj_property name="ObjectShortName">\sprite_buffer_load[7].pattern1_ld </obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_lsb_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_lsb_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_lsb_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_msb_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_msb_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_msb_addr[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/visible_bg_pixel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">visible_bg_pixel</obj_property>
+      <obj_property name="ObjectShortName">visible_bg_pixel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_ram_nt_addr_mirrored" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_ram_nt_addr_mirrored[4:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_ram_nt_addr_mirrored[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_ram_addr_mirrored" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_ram_addr_mirrored[4:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_ram_addr_mirrored[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_data0" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_data0[5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_data0[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_nt_with_monocrom" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_nt_with_monocrom[5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_nt_with_monocrom[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_data1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_data1[5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_data1[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_with_monocrom" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_with_monocrom[5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_with_monocrom[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_data[5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_data[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_rgb_rom_address" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_rgb_rom_address[8:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_rgb_rom_address[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/read_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">read_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">read_sel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/cpu_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cpu_din[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ag6502_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ag6502_addr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ag6502_addr[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ag6502_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ag6502_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ag6502_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ag6502_rnw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ag6502_rnw</obj_property>
+      <obj_property name="ObjectShortName">ag6502_rnw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/dma_cpu_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cpu_addr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_cpu_addr[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/dma_cpu_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cpu_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_cpu_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/dma_cpu_avalid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cpu_avalid</obj_property>
+      <obj_property name="ObjectShortName">dma_cpu_avalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/dma_cpu_rnw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cpu_rnw</obj_property>
+      <obj_property name="ObjectShortName">dma_cpu_rnw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/cpu_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_addr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">cpu_addr[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/memory_manager_cpu_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">memory_manager_cpu_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">memory_manager_cpu_din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/controller_cpu_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">controller_cpu_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">controller_cpu_din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/controller_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">controller_clk</obj_property>
+      <obj_property name="ObjectShortName">controller_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/controller_latch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">controller_latch</obj_property>
+      <obj_property name="ObjectShortName">controller_latch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/lost_sprite_set" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lost_sprite_set</obj_property>
+      <obj_property name="ObjectShortName">lost_sprite_set</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite0_visible" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite0_visible</obj_property>
+      <obj_property name="ObjectShortName">sprite0_visible</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ctrl1_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl1_data</obj_property>
+      <obj_property name="ObjectShortName">ctrl1_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ctrl2_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctrl2_data</obj_property>
+      <obj_property name="ObjectShortName">ctrl2_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/slv_mem_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slv_mem_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_mem_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/irq" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">irq</obj_property>
+      <obj_property name="ObjectShortName">irq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_mem_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_mem_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_mem_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/second_write" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">second_write</obj_property>
+      <obj_property name="ObjectShortName">second_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/control_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">control_reg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">control_reg[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/render_mask_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">render_mask_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">render_mask_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vblank" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vblank[2:0]</obj_property>
+      <obj_property name="ObjectShortName">vblank[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite0_hit" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite0_hit</obj_property>
+      <obj_property name="ObjectShortName">sprite0_hit</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/lost_sprites" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lost_sprites</obj_property>
+      <obj_property name="ObjectShortName">lost_sprites</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/interrupt_flag" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">interrupt_flag</obj_property>
+      <obj_property name="ObjectShortName">interrupt_flag</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/fh_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fh_reg[2:0]</obj_property>
+      <obj_property name="ObjectShortName">fh_reg[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ht_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ht_reg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">ht_reg[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vt_reg1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vt_reg1[2:0]</obj_property>
+      <obj_property name="ObjectShortName">vt_reg1[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vt_reg2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vt_reg2[1:0]</obj_property>
+      <obj_property name="ObjectShortName">vt_reg2[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/h_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">h_reg</obj_property>
+      <obj_property name="ObjectShortName">h_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/v_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">v_reg</obj_property>
+      <obj_property name="ObjectShortName">v_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/fv_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fv_reg[2:0]</obj_property>
+      <obj_property name="ObjectShortName">fv_reg[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tile_index_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tile_index_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_index_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/tile_attr_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tile_attr_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_attr_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_msb_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_msb_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_msb_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/x_rendercntr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">x_rendercntr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">x_rendercntr[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y_renderingcntr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">y_renderingcntr[8:0]</obj_property>
+      <obj_property name="ObjectShortName">y_renderingcntr[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oddframe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oddframe</obj_property>
+      <obj_property name="ObjectShortName">oddframe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bgrender_state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bgrender_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">bgrender_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/rd_req_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rd_req_reg</obj_property>
+      <obj_property name="ObjectShortName">rd_req_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_addr_fetch" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_addr_fetch[13:0]</obj_property>
+      <obj_property name="ObjectShortName">ppu_addr_fetch[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/nametable_read_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nametable_read_reg</obj_property>
+      <obj_property name="ObjectShortName">nametable_read_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/attribute_read_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">attribute_read_reg</obj_property>
+      <obj_property name="ObjectShortName">attribute_read_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_read_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_read_reg</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_read_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_msb_read_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_msb_read_reg</obj_property>
+      <obj_property name="ObjectShortName">bg_msb_read_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/bg_lsb_buff_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bg_lsb_buff_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_lsb_buff_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/shr_lsb_render" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shr_lsb_render[7:0]</obj_property>
+      <obj_property name="ObjectShortName">shr_lsb_render[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/shr_msbrender" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shr_msbrender[7:0]</obj_property>
+      <obj_property name="ObjectShortName">shr_msbrender[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_addr_second_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_addr_second_wr</obj_property>
+      <obj_property name="ObjectShortName">vram_addr_second_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_haddr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_haddr_cnt[5:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_haddr_cnt[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_vaddr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_vaddr_cnt[8:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_vaddr_cnt[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/new_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">new_haddr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">new_haddr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/new_vaddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">new_vaddr[8:0]</obj_property>
+      <obj_property name="ObjectShortName">new_vaddr[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_addr_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_addr_reg[13:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_addr_reg[13:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ph1_rising" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ph1_rising</obj_property>
+      <obj_property name="ObjectShortName">ph1_rising</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ph1_falling" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ph1_falling</obj_property>
+      <obj_property name="ObjectShortName">ph1_falling</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ph2_rising" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ph2_rising</obj_property>
+      <obj_property name="ObjectShortName">ph2_rising</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ph2_falling" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ph2_falling</obj_property>
+      <obj_property name="ObjectShortName">ph2_falling</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/clkgen_cnt_en_clr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkgen_cnt_en_clr</obj_property>
+      <obj_property name="ObjectShortName">clkgen_cnt_en_clr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/clkgen_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkgen_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">clkgen_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/clkgen_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">clkgen_cnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">clkgen_cnt[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_tile_index" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_tile_index[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_tile_index[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_range" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_range[3:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_range[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_pixel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_pixel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_pixel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_priority" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_priority</obj_property>
+      <obj_property name="ObjectShortName">sprite_priority</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">oam_dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/scanline_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">scanline_cnt[8:0]</obj_property>
+      <obj_property name="ObjectShortName">scanline_cnt[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pixel_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pixel_cnt[2:0]</obj_property>
+      <obj_property name="ObjectShortName">pixel_cnt[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pri_oam_addr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pri_oam_addr_cnt[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pri_oam_addr_cnt[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/m_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">m_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">m_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/m_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">m_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">m_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/n_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">n_cnt[5:0]</obj_property>
+      <obj_property name="ObjectShortName">n_cnt[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/n_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">n_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/n_cnt_max_reached" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">n_cnt_max_reached</obj_property>
+      <obj_property name="ObjectShortName">n_cnt_max_reached</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pri_oam" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pri_oam[255:0,7:0]</obj_property>
+      <obj_property name="ObjectShortName">pri_oam[255:0,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/pri_oam_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pri_oam_addr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pri_oam_addr[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_temp_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_temp_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">oam_temp_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_temp_reg_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_temp_reg_wr</obj_property>
+      <obj_property name="ObjectShortName">oam_temp_reg_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y_diff_reg1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">y_diff_reg1[8:0]</obj_property>
+      <obj_property name="ObjectShortName">y_diff_reg1[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_addr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_addr_cnt[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_addr_cnt[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_addr_cnt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_addr_cnt_en</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_addr_cnt_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam[31:0,7:0]</obj_property>
+      <obj_property name="ObjectShortName">sec_oam[31:0,7:0]</obj_property>
+      <wvobject fp_name="/nes_top_test/sec_oam[31]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[31,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[31,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[30]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[30,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[30,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[29]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[29,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[29,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[28]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[28,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[28,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[27]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[27,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[27,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[26]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[26,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[26,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[25]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[25,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[25,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[24]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[24,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[24,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[23]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[23,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[23,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[22]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[22,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[22,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[21]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[21,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[21,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[20]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[20,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[20,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[19]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[19,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[19,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[18]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[18,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[18,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[17]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[17,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[17,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[16]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[16,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[16,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[15]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[15,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[15,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[14]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[14,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[14,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[13]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[13,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[13,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[12]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[12,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[12,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[11]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[11,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[11,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[10]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[10,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[10,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[9]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[9,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[9,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[8]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[8,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[8,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[7]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[7,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[7,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[6]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[6,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[6,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[5]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[5,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[5,7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[4]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[4,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[4,7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[3]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[3,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[3,7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[2]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[2,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[2,7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[1]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[1,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[1,7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/nes_top_test/sec_oam[0]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[0,7:0]</obj_property>
+         <obj_property name="ObjectShortName">sec_oam[0,7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_x_coord" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_x_coord[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_x_coord[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sec_oam_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sec_oam_wr</obj_property>
+      <obj_property name="ObjectShortName">sec_oam_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y_diff_reg2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">y_diff_reg2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">y_diff_reg2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite_attributes" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite_attributes[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite_attributes[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/oam_state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">oam_state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">oam_state[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/sprite0_in_range" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sprite0_in_range[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sprite0_in_range[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/valid_sprite" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">valid_sprite[7:0]</obj_property>
+      <obj_property name="ObjectShortName">valid_sprite[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_ram" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_ram[31:0,5:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_ram[31:0,5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/y" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">y[31:0]</obj_property>
+      <obj_property name="ObjectShortName">y[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_rgb_rom" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_rgb_rom[511:0,23:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_rgb_rom[511:0,23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/palette_rgb_rom_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">palette_rgb_rom_dout[23:0]</obj_property>
+      <obj_property name="ObjectShortName">palette_rgb_rom_dout[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ppu_mem_wr_request_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ppu_mem_wr_request_reg</obj_property>
+      <obj_property name="ObjectShortName">ppu_mem_wr_request_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/vram_read_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vram_read_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">vram_read_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/read_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">read_enable</obj_property>
+      <obj_property name="ObjectShortName">read_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/even_cycle" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">even_cycle</obj_property>
+      <obj_property name="ObjectShortName">even_cycle</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/START_OF_SHIFT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">START_OF_SHIFT[10:0]</obj_property>
+      <obj_property name="ObjectShortName">START_OF_SHIFT[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_SHIFT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_SHIFT[10:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_SHIFT[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_RENDERING_LINE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_RENDERING_LINE[10:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_RENDERING_LINE[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/PRERENDERING_ROW" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">PRERENDERING_ROW[8:0]</obj_property>
+      <obj_property name="ObjectShortName">PRERENDERING_ROW[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/FIRST_RENDERING_ROW" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">FIRST_RENDERING_ROW[8:0]</obj_property>
+      <obj_property name="ObjectShortName">FIRST_RENDERING_ROW[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/SLEEP" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">SLEEP[2:0]</obj_property>
+      <obj_property name="ObjectShortName">SLEEP[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/IDLE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">IDLE[2:0]</obj_property>
+      <obj_property name="ObjectShortName">IDLE[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/NT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">NT[2:0]</obj_property>
+      <obj_property name="ObjectShortName">NT[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/AT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">AT[2:0]</obj_property>
+      <obj_property name="ObjectShortName">AT[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/BG_LSB" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">BG_LSB[2:0]</obj_property>
+      <obj_property name="ObjectShortName">BG_LSB[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/BG_MSB" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">BG_MSB[2:0]</obj_property>
+      <obj_property name="ObjectShortName">BG_MSB[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/VBLANK" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">VBLANK[2:0]</obj_property>
+      <obj_property name="ObjectShortName">VBLANK[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/FIRST_SCANLINE_PIXEL" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">FIRST_SCANLINE_PIXEL[10:0]</obj_property>
+      <obj_property name="ObjectShortName">FIRST_SCANLINE_PIXEL[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/START_OF_LAST_NT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">START_OF_LAST_NT[10:0]</obj_property>
+      <obj_property name="ObjectShortName">START_OF_LAST_NT[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_BG_RENDERING_LINE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_BG_RENDERING_LINE[10:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_BG_RENDERING_LINE[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/BG_NEXT_STEP_CONDITION" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">BG_NEXT_STEP_CONDITION[2:0]</obj_property>
+      <obj_property name="ObjectShortName">BG_NEXT_STEP_CONDITION[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/MEM_READ_START" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">MEM_READ_START[2:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_READ_START[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/MEM_READ_CONTROLL_OFF" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">MEM_READ_CONTROLL_OFF[2:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_READ_CONTROLL_OFF[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/MEM_READ_TAKE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">MEM_READ_TAKE[2:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_READ_TAKE[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ODDFRAME_END_OF_FIRST_NT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ODDFRAME_END_OF_FIRST_NT[10:0]</obj_property>
+      <obj_property name="ObjectShortName">ODDFRAME_END_OF_FIRST_NT[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/ODDFRAME_END_OF_BG_RENDERING_LINE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ODDFRAME_END_OF_BG_RENDERING_LINE[10:0]</obj_property>
+      <obj_property name="ObjectShortName">ODDFRAME_END_OF_BG_RENDERING_LINE[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_VISIBLE_FRAME_ROW" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_VISIBLE_FRAME_ROW[8:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_VISIBLE_FRAME_ROW[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_VBLANK_ROW" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_VBLANK_ROW[8:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_VBLANK_ROW[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/START_OF_VBLANK_ROW" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">START_OF_VBLANK_ROW[8:0]</obj_property>
+      <obj_property name="ObjectShortName">START_OF_VBLANK_ROW[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/V_BLANK_BEGIN" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">V_BLANK_BEGIN[8:0]</obj_property>
+      <obj_property name="ObjectShortName">V_BLANK_BEGIN[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/H_COPY" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">H_COPY[10:0]</obj_property>
+      <obj_property name="ObjectShortName">H_COPY[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/FINE_VERTICAL_CNT_UP" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">FINE_VERTICAL_CNT_UP[10:0]</obj_property>
+      <obj_property name="ObjectShortName">FINE_VERTICAL_CNT_UP[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/START_OF_LAST_TWO_FETCH" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">START_OF_LAST_TWO_FETCH[10:0]</obj_property>
+      <obj_property name="ObjectShortName">START_OF_LAST_TWO_FETCH[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/START_OF_V_COPY" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">START_OF_V_COPY[10:0]</obj_property>
+      <obj_property name="ObjectShortName">START_OF_V_COPY[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/END_OF_V_COPY" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">END_OF_V_COPY[10:0]</obj_property>
+      <obj_property name="ObjectShortName">END_OF_V_COPY[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/H_FIRST_COLUMN_END" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">H_FIRST_COLUMN_END[10:0]</obj_property>
+      <obj_property name="ObjectShortName">H_FIRST_COLUMN_END[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_IDLE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_IDLE[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_IDLE[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SCANLINE_WAIT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SCANLINE_WAIT[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SCANLINE_WAIT[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_INITIALIZE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_INITIALIZE[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_INITIALIZE[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_COPY_Y_COORD" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_COPY_Y_COORD[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_COPY_Y_COORD[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_COPY_TILE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_COPY_TILE[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_COPY_TILE[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_COPY_ATTRIB" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_COPY_ATTRIB[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_COPY_ATTRIB[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_COPY_X_COORD" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_COPY_X_COORD[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_COPY_X_COORD[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_OVERFLOW1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_OVERFLOW1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_OVERFLOW1[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_OVERFLOW2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_OVERFLOW2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_OVERFLOW2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_OVERFLOW3" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_OVERFLOW3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_OVERFLOW3[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_OVERFLOW4" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_OVERFLOW4[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_OVERFLOW4[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_HBLANK_WAIT" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_HBLANK_WAIT[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_HBLANK_WAIT[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_DATA_RD1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_DATA_RD1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_DATA_RD1[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_DATA_RD2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_DATA_RD2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_DATA_RD2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/nes_top_test/OAM_SPR_DATA_RD3" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">OAM_SPR_DATA_RD3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">OAM_SPR_DATA_RD3[3:0]</obj_property>
+   </wvobject>
+</wave_config>

@@ -64,12 +64,12 @@ module sprite_rendering(
 //*****************************************************************************
 //* counting all the verical rows from pre rendering up to VBLANK             *
 //*****************************************************************************
-reg [8:0] scanline_cnt = 9'd511;
+reg [8:0] scanline_cnt = 9'b1_1111_1111;
 
 always @(posedge clk) 
 begin
     if (rst || start_rendering)
-        scanline_cnt <= 9'd511;
+        scanline_cnt <= 9'b1_1111_1111;
     else
         if (sprite_read_end)
             scanline_cnt <= scanline_cnt + 9'd1;
@@ -488,15 +488,15 @@ assign m_cnt_clr = odd_phase_en & (oam_state == OAM_SPR_OVERFLOW1) & ~sprite_in_
 always @(*) 
 begin
     case (oam_state)
-        OAM_COPY_Y_COORD: m_cnt_en <= odd_phase_en & sprite_in_range;
-        OAM_COPY_TILE: m_cnt_en <= odd_phase_en;
-        OAM_COPY_ATTRIB: m_cnt_en <= odd_phase_en;
-        OAM_COPY_X_COORD: m_cnt_en <= odd_phase_en;
-        OAM_SPR_OVERFLOW1: m_cnt_en <= odd_phase_en;
-        OAM_SPR_OVERFLOW2: m_cnt_en <= odd_phase_en;
-        OAM_SPR_OVERFLOW3: m_cnt_en <= odd_phase_en;
-        OAM_SPR_OVERFLOW4: m_cnt_en <= odd_phase_en;
-        default: m_cnt_en <= 1'b0;
+        OAM_COPY_Y_COORD:   m_cnt_en <= odd_phase_en & sprite_in_range;
+        OAM_COPY_TILE:      m_cnt_en <= odd_phase_en;
+        OAM_COPY_ATTRIB:    m_cnt_en <= odd_phase_en;
+        OAM_COPY_X_COORD:   m_cnt_en <= odd_phase_en;
+        OAM_SPR_OVERFLOW1:  m_cnt_en <= odd_phase_en;
+        OAM_SPR_OVERFLOW2:  m_cnt_en <= odd_phase_en;
+        OAM_SPR_OVERFLOW3:  m_cnt_en <= odd_phase_en;
+        OAM_SPR_OVERFLOW4:  m_cnt_en <= odd_phase_en;
+        default:            m_cnt_en <= 1'b0;
     endcase    
 end
 
@@ -504,14 +504,14 @@ end
 always @(*) 
 begin
     case (oam_state)
-        OAM_COPY_Y_COORD: n_cnt_en <= odd_phase_en & ~sprite_in_range;
-        OAM_COPY_X_COORD: n_cnt_en <= odd_phase_en;
-        OAM_SPR_OVERFLOW1: n_cnt_en <= odd_phase_en & (~sprite_in_range | m_cnt_overflow);
-        OAM_SPR_OVERFLOW2: n_cnt_en <= odd_phase_en & m_cnt_overflow;
-        OAM_SPR_OVERFLOW3: n_cnt_en <= odd_phase_en & m_cnt_overflow;
-        OAM_SPR_OVERFLOW4: n_cnt_en <= odd_phase_en & m_cnt_overflow;
-        OAM_HBLANK_WAIT: n_cnt_en <= odd_phase_en;
-        default: n_cnt_en <= 1'b0;
+        OAM_COPY_Y_COORD:   n_cnt_en <= odd_phase_en & ~sprite_in_range;
+        OAM_COPY_X_COORD:   n_cnt_en <= odd_phase_en;
+        OAM_SPR_OVERFLOW1:  n_cnt_en <= odd_phase_en & (~sprite_in_range | m_cnt_overflow);
+        OAM_SPR_OVERFLOW2:  n_cnt_en <= odd_phase_en & m_cnt_overflow;
+        OAM_SPR_OVERFLOW3:  n_cnt_en <= odd_phase_en & m_cnt_overflow;
+        OAM_SPR_OVERFLOW4:  n_cnt_en <= odd_phase_en & m_cnt_overflow;
+        OAM_HBLANK_WAIT:    n_cnt_en <= odd_phase_en;
+        default:            n_cnt_en <= 1'b0;
     endcase    
 end
 
@@ -522,17 +522,17 @@ assign oam_temp_reg_set = scanline_begin | bgnd_read_end;
 always @(*) 
 begin
     case (oam_state)
-        OAM_COPY_Y_COORD: oam_temp_reg_wr <= even_phase_en;
-        OAM_COPY_TILE: oam_temp_reg_wr <= even_phase_en;
-        OAM_COPY_ATTRIB: oam_temp_reg_wr <= even_phase_en;
-        OAM_COPY_X_COORD: oam_temp_reg_wr <= even_phase_en;
-        OAM_SPR_OVERFLOW1: oam_temp_reg_wr <= even_phase_en;
-        OAM_SPR_OVERFLOW2: oam_temp_reg_wr <= even_phase_en;
-        OAM_SPR_OVERFLOW3: oam_temp_reg_wr <= even_phase_en;
-        OAM_SPR_OVERFLOW4: oam_temp_reg_wr <= even_phase_en;
-        OAM_HBLANK_WAIT: oam_temp_reg_wr <= even_phase_en;
-        OAM_SPR_DATA_RD2: oam_temp_reg_wr <= sprite_read_end;
-        default: oam_temp_reg_wr <= 1'b0;
+        OAM_COPY_Y_COORD:   oam_temp_reg_wr <= even_phase_en;
+        OAM_COPY_TILE:      oam_temp_reg_wr <= even_phase_en;
+        OAM_COPY_ATTRIB:    oam_temp_reg_wr <= even_phase_en;
+        OAM_COPY_X_COORD:   oam_temp_reg_wr <= even_phase_en;
+        OAM_SPR_OVERFLOW1:  oam_temp_reg_wr <= even_phase_en;
+        OAM_SPR_OVERFLOW2:  oam_temp_reg_wr <= even_phase_en;
+        OAM_SPR_OVERFLOW3:  oam_temp_reg_wr <= even_phase_en;
+        OAM_SPR_OVERFLOW4:  oam_temp_reg_wr <= even_phase_en;
+        OAM_HBLANK_WAIT:    oam_temp_reg_wr <= even_phase_en;
+        OAM_SPR_DATA_RD2:   oam_temp_reg_wr <= sprite_read_end;
+        default:            oam_temp_reg_wr <= 1'b0;
     endcase 
 end
 
@@ -540,14 +540,14 @@ end
 always @(*) 
 begin
     case (oam_state)
-        OAM_INITIALIZE: sec_oam_addr_cnt_en <= odd_phase;
-        OAM_COPY_Y_COORD: sec_oam_addr_cnt_en <= odd_phase_en & sprite_in_range;
-        OAM_COPY_TILE: sec_oam_addr_cnt_en <= odd_phase_en;
-        OAM_COPY_ATTRIB: sec_oam_addr_cnt_en <= odd_phase_en;
-        OAM_COPY_X_COORD: sec_oam_addr_cnt_en <= odd_phase_en;
-        OAM_SPR_DATA_RD1: sec_oam_addr_cnt_en <= next_pixel & (sec_oam_addr_cnt[1:0] != 2'd3); // only count in RD1 this is the read from secondary oam
-        OAM_SPR_DATA_RD2: sec_oam_addr_cnt_en <= next_pixel & pixel_cnt_overflow;
-        default: sec_oam_addr_cnt_en <= 1'b0;
+        OAM_INITIALIZE:     sec_oam_addr_cnt_en <= odd_phase;
+        OAM_COPY_Y_COORD:   sec_oam_addr_cnt_en <= odd_phase_en & sprite_in_range;
+        OAM_COPY_TILE:      sec_oam_addr_cnt_en <= odd_phase_en;
+        OAM_COPY_ATTRIB:    sec_oam_addr_cnt_en <= odd_phase_en;
+        OAM_COPY_X_COORD:   sec_oam_addr_cnt_en <= odd_phase_en;
+        OAM_SPR_DATA_RD1:   sec_oam_addr_cnt_en <= next_pixel & (sec_oam_addr_cnt[1:0] != 2'd3); // only count in RD1 this is the read from secondary oam
+        OAM_SPR_DATA_RD2:   sec_oam_addr_cnt_en <= next_pixel & pixel_cnt_overflow;
+        default:            sec_oam_addr_cnt_en <= 1'b0;
     endcase    
 end
 
@@ -555,12 +555,12 @@ end
 always @(*) 
 begin
     case (oam_state)
-        OAM_INITIALIZE: sec_oam_wr <= odd_phase;
-        OAM_COPY_Y_COORD: sec_oam_wr <= odd_phase_en;
-        OAM_COPY_TILE: sec_oam_wr <= odd_phase_en;
-        OAM_COPY_ATTRIB: sec_oam_wr <= odd_phase_en;
-        OAM_COPY_X_COORD: sec_oam_wr <= odd_phase_en;
-        default: sec_oam_wr <= 1'b0;
+        OAM_INITIALIZE:     sec_oam_wr <= odd_phase;
+        OAM_COPY_Y_COORD:   sec_oam_wr <= odd_phase_en;
+        OAM_COPY_TILE:      sec_oam_wr <= odd_phase_en;
+        OAM_COPY_ATTRIB:    sec_oam_wr <= odd_phase_en;
+        OAM_COPY_X_COORD:   sec_oam_wr <= odd_phase_en;
+        default:            sec_oam_wr <= 1'b0;
     endcase
 end
 
@@ -588,7 +588,8 @@ end
 //*****************************************************************************
 reg [1:0] sprite0_in_range;
 // sprite0_visible set 
-assign sprite0_visible = sprite0_in_range[1] | sprite0_in_range[0]; // not fully sure 
+assign sprite0_visible = sprite0_in_range[1] & sprite_enabled & |sprite_pixel[1:0]; // not fully sure & |sprite_pixel[1:0]
+//assign sprite0_visible = sprite0_in_range[1] | sprite0_in_range[0];
 
 always @(posedge clk) 
 begin
@@ -657,6 +658,8 @@ endgenerate
 //* Sprite priority mux                                                       *
 //*****************************************************************************
 sprite_mux sprite_mux(
+    .clk(clk),
+    .rst(rst),
     //Input controll signals
     .sprite_enabled(sprite_enabled),
     .no_sprite_clip(no_sprite_clip),

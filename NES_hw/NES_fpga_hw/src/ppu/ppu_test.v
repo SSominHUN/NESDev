@@ -1027,11 +1027,6 @@ end
  	end
 
 	initial begin
-		clk_2x = 0;
-		clk_10x = 0;
-		bufpll_locked = 0;
-		serdes_strobe = 0;
-		slv_mem_rnw = 0;
 		slv_mem_din = 8'b0;
 		ppu_mem_din  = 8'b0;
 		rst = 1;

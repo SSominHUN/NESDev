@@ -19,6 +19,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module sprite_mux(
+    //Clock and reset
+    input wire clk,
+    input wire rst,
+
     //input controll signals
     input wire sprite_enabled,
     input wire no_sprite_clip, // 1 we see the pixels
@@ -40,7 +44,7 @@ module sprite_mux(
     output reg [3:0] sprite_pixel,
     output reg       sprite_priority
     );
-
+/*
 wire [7:0] sprite_sel = {(|sprite_pixel_7[1:0]), 
                          (|sprite_pixel_6[1:0]),
                          (|sprite_pixel_5[1:0]),
@@ -49,41 +53,56 @@ wire [7:0] sprite_sel = {(|sprite_pixel_7[1:0]),
                          (|sprite_pixel_2[1:0]),
                          (|sprite_pixel_1[1:0]),
                          (|sprite_pixel_0[1:0])};
+*/
+wire [7:0] sprite_sel = {(sprite_pixel_7[0] | sprite_pixel_7[1]), 
+                         (sprite_pixel_6[0] | sprite_pixel_6[1]),
+                         (sprite_pixel_5[0] | sprite_pixel_5[1]),
+                         (sprite_pixel_4[0] | sprite_pixel_4[1]),
+                         (sprite_pixel_3[0] | sprite_pixel_3[1]),
+                         (sprite_pixel_2[0] | sprite_pixel_2[1]),
+                         (sprite_pixel_1[0] | sprite_pixel_1[1]),
+                         (sprite_pixel_0[0] | sprite_pixel_0[1])};
 
 always @(*) 
 begin
-    if (~sprite_enabled | (~no_sprite_clip && first_column))
-        sprite_pixel <= 4'b0000;
-    else
-        casex (sprite_sel)
-            8'bxxxxxxx1: sprite_pixel <= sprite_pixel_0;
-            8'bxxxxxx10: sprite_pixel <= sprite_pixel_1;
-            8'bxxxxx100: sprite_pixel <= sprite_pixel_2;
-            8'bxxxx1000: sprite_pixel <= sprite_pixel_3;
-            8'bxxx10000: sprite_pixel <= sprite_pixel_4;
-            8'bxx100000: sprite_pixel <= sprite_pixel_5;
-            8'bx1000000: sprite_pixel <= sprite_pixel_6;
-            8'b10000000: sprite_pixel <= sprite_pixel_7; 
-            default: sprite_pixel <= 4'b0000;
-        endcase    
+    //if (rst)
+    //    sprite_pixel <= 4'b0000;
+    //else
+        if (~sprite_enabled | (~no_sprite_clip && first_column) )
+            sprite_pixel <= 4'b0000;
+        else
+            casex (sprite_sel)
+                8'bxxxxxxx1: sprite_pixel <= sprite_pixel_0;
+                8'bxxxxxx10: sprite_pixel <= sprite_pixel_1;
+                8'bxxxxx100: sprite_pixel <= sprite_pixel_2;
+                8'bxxxx1000: sprite_pixel <= sprite_pixel_3;
+                8'bxxx10000: sprite_pixel <= sprite_pixel_4;
+                8'bxx100000: sprite_pixel <= sprite_pixel_5;
+                8'bx1000000: sprite_pixel <= sprite_pixel_6;
+                8'b10000000: sprite_pixel <= sprite_pixel_7; 
+                default: sprite_pixel <= 4'b0000;
+            endcase    
 end
 
 always @(*) 
 begin
-    if (~sprite_enabled | (~no_sprite_clip && first_column))
-        sprite_priority <= 1'b1;
-    else
-        casex (sprite_sel)
-            8'bxxxxxxx1: sprite_priority <= sprite_priority_buff[0];
-            8'bxxxxxx10: sprite_priority <= sprite_priority_buff[1];
-            8'bxxxxx100: sprite_priority <= sprite_priority_buff[2];
-            8'bxxxx1000: sprite_priority <= sprite_priority_buff[3];
-            8'bxxx10000: sprite_priority <= sprite_priority_buff[4];
-            8'bxx100000: sprite_priority <= sprite_priority_buff[5];
-            8'bx1000000: sprite_priority <= sprite_priority_buff[6];
-            8'b10000000: sprite_priority <= sprite_priority_buff[7]; 
-            default: sprite_priority <= 1'b1; // back ground is rendered in the front
-        endcase
+    //if (rst)
+    //    sprite_priority <= 1'b1;
+    //else
+        if (~sprite_enabled | (~no_sprite_clip && first_column) )
+            sprite_priority <= 1'b1;
+        else
+            casex (sprite_sel)
+                8'bxxxxxxx1: sprite_priority <= sprite_priority_buff[0];
+                8'bxxxxxx10: sprite_priority <= sprite_priority_buff[1];
+                8'bxxxxx100: sprite_priority <= sprite_priority_buff[2];
+                8'bxxxx1000: sprite_priority <= sprite_priority_buff[3];
+                8'bxxx10000: sprite_priority <= sprite_priority_buff[4];
+                8'bxx100000: sprite_priority <= sprite_priority_buff[5];
+                8'bx1000000: sprite_priority <= sprite_priority_buff[6];
+                8'b10000000: sprite_priority <= sprite_priority_buff[7]; 
+                default: sprite_priority <= 1'b1; // back ground is rendered in the front
+            endcase
 end
 
 endmodule

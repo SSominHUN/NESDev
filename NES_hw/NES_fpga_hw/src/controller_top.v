@@ -47,8 +47,8 @@ localparam [15:0] CONTROLLER2_ADDR = 16'h4017;
 //register write enable signals
 wire shift_register_strobe_wr = ph2_falling & ~cpu_rnw & (cpu_addr == CONTROLLER1_ADDR);
 
-wire controller1_rd = cpu_rnw & (cpu_addr == CONTROLLER1_ADDR);
-wire controller2_rd = cpu_rnw & (cpu_addr == CONTROLLER2_ADDR);
+wire controller1_rd = cpu_rnw && (cpu_addr == CONTROLLER1_ADDR);
+wire controller2_rd = cpu_rnw && (cpu_addr == CONTROLLER2_ADDR);
 
 //*****************************************************************************
 //* controller latch register write                                           *

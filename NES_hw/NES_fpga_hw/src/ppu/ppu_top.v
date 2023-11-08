@@ -26,10 +26,10 @@ module ppu_top(
 	input  wire		   bufpll_locked,
    	input  wire        serdes_strobe,
 		
-	output wire ph1_rising_outw,
-	output wire ph1_falling_outw,
-	output wire ph2_rising_outw,
-	output wire ph2_falling_outw,
+	output reg ph1_rising,
+	output reg ph1_falling,
+	output reg ph2_rising,
+	output reg ph2_falling,
 
     // register interface or interface to cpu
 	input  wire [ 2:0] slv_mem_addr,      // register interface reg select (#2000-#2007)
@@ -469,7 +469,12 @@ reg	[13:0]	ppu_addr_fetch;
 reg			nametable_read_reg;
 reg			attribute_read_reg;
 reg         bg_lsb_read_reg;
-reg      	bg_msb_read_reg;	
+reg      	bg_msb_read_reg;
+
+reg			nametable_rd_sel;
+reg			attribute_rd_sel;
+reg         bg_lsb_rd_sel;
+reg      	bg_msb_rd_sel;
 //PPU BG rendering state machine with oddframe changes
 always @ (posedge clk)
 begin
@@ -484,6 +489,7 @@ begin
 				else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
 					begin
 					ppu_addr_fetch <= ppu_nt_addr;
+					nametable_rd_sel <= 1'b1;
 					rd_req_reg <= 1'b1;
 
 					bgrender_state <= NT;
@@ -501,8 +507,10 @@ begin
 				if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
 					bgrender_state <= NT;
 				else
+				begin
+					ppu_addr_fetch <= vram_addr_reg;
 					bgrender_state <= IDLE;
-
+				end
 			end
 			NT: begin
 				if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
@@ -533,13 +541,18 @@ begin
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
 							ppu_addr_fetch <= ppu_nt_addr;
+							nametable_rd_sel <= 1'b1;
 							rd_req_reg <= 1'b1;
 						end
-					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF) 
+					begin
+						nametable_rd_sel <= 1'b0;
 						rd_req_reg <= 1'b0;
+					end
 					else if (x_rendercntr[2:0] == MEM_READ_TAKE)
 						nametable_read_reg <= 1'b1;
 
+					
 					bgrender_state <= NT;
 					end
 			end
@@ -557,15 +570,20 @@ begin
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
 							ppu_addr_fetch <= ppu_at_addr;
+							attribute_rd_sel <= 1'b1;
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+						begin
+						attribute_rd_sel <= 1'b1;
 						rd_req_reg <= 1'b0;
+						end
 					else if (x_rendercntr[2:0] == MEM_READ_TAKE)
 						begin
 							attribute_read_reg <= 1'b1;
 						end
 
+					
 					bgrender_state <= AT;
 					end
 			end
@@ -582,20 +600,24 @@ begin
 					// commands get here for BG_LSB load	
 					if (x_rendercntr[2:0] == MEM_READ_START)
 						begin
-							if (sprite_read)
-								ppu_addr_fetch <= sprite_lsb_addr;
-							else
-								ppu_addr_fetch <= bg_lsb_addr;
+						if (sprite_read)
+							ppu_addr_fetch <= sprite_lsb_addr;
+						else
+							ppu_addr_fetch <= bg_lsb_addr;
+							bg_lsb_rd_sel <= 1'b1;
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+						begin
+						bg_lsb_rd_sel <= 1'b0;
 						rd_req_reg <= 1'b0;
+						end
 					else if (x_rendercntr[2:0] == MEM_READ_TAKE)
 						begin
 							bg_lsb_read_reg <= 1'b1;
 						end
 
-
+					
 					bgrender_state <= BG_LSB;
 					end
 			end
@@ -615,11 +637,15 @@ begin
 							if (sprite_read)
 								ppu_addr_fetch <= sprite_msb_addr;
 							else
-								ppu_addr_fetch <= bg_msb_addr; 
+								ppu_addr_fetch <= bg_msb_addr;
+							bg_msb_rd_sel <= 1'b1; 
 							rd_req_reg <= 1'b1;
 						end
 					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+						begin
+						bg_msb_rd_sel <= 1'b0;
 						rd_req_reg <= 1'b0;
+						end
 					else if (x_rendercntr[2:0] == MEM_READ_TAKE)
 						begin
 							bg_msb_read_reg <= 1'b1;
@@ -633,6 +659,7 @@ begin
 					bgrender_state <= SLEEP;
 				else
 					bgrender_state <= VBLANK;
+				//ppu_addr_fetch <= vram_addr_reg;//vram_addr_reg
 			end
 			default:
 				bgrender_state <= IDLE;
@@ -641,7 +668,7 @@ end
 
 //localparam VBLANK_CLR_SET = 11'd135;			(128 + 4*2) - 1 = 135
 
-assign attribute_sel = {ppu_nt_addr[6], ppu_nt_addr[1]};
+//assign attribute_sel = {ppu_nt_addr[6], ppu_nt_addr[1]};
 //assign vblank_clr = ((bgrender_state == PRERENDERING_ROW) && (x_rendercntr == VBLANK_CLR_SET));
 
 // vblank set signals
@@ -654,8 +681,9 @@ assign vblank_clr    = (x_rendercntr == FIRST_SCANLINE_PIXEL +  4) & (y_renderin
 assign interrupt_clr = (x_rendercntr == FIRST_SCANLINE_PIXEL + 12) & (y_renderingcntr == PRERENDERING_ROW);
 
 //(x_rendercntr <= FINE_VERTICAL_CNT_UP) && (x_rendercntr > START_OF_LAST_TWO_FETCH) 
-assign ppu_mem_addr = (((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) 
-						? (ppu_addr_fetch) : (ppu_nt_addr); // not good yet
+assign ppu_mem_addr = (((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) 
+						&& ppu_enable) ? (ppu_addr_fetch) : (vram_addr_reg); // not good yet
+//assign ppu_mem_addr = ppu_addr_fetch;
 
 //assign ppu_mem_read_request = rd_req_reg; 
 assign nametable_read = nametable_read_reg;
@@ -703,6 +731,7 @@ assign bg_msb_out = shr_msbrender[~fh_reg];
 //*****************************************************************************
 //* Addr make										                     	  *
 //*****************************************************************************
+/*
 wire [13:0] ppu_nt_addr;
 wire [13:0] ppu_at_addr;
 wire [13:0] bg_lsb_addr;
@@ -722,11 +751,12 @@ begin
 	else
 		if (second_write && vram_addr_wr) 
 			ht_cntr <= slv_mem_din[4:0];
-		else if (~(bgrender_state == VBLANK) && (x_rendercntr == H_COPY))
+		else if ((x_rendercntr == H_COPY) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)))
 			ht_cntr <= ht_reg;
 		// changing the cnt up range we dont do cnt up in the reagion between 257 and 320
-		else if (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION) && (x_rendercntr <= FINE_VERTICAL_CNT_UP) && (x_rendercntr > START_OF_LAST_TWO_FETCH)) 
-					|| ((vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && ppu_enable))
+		else if (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION) && ((x_rendercntr <= FINE_VERTICAL_CNT_UP) || (x_rendercntr > START_OF_LAST_TWO_FETCH)) && ~(bgrender_state == VBLANK)  && ppu_enable) 
+					|| ((vram_addr_wr || (vram_data_rd & ph2_falling)) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable)					
+					|| ((vram_addr_wr || (vram_data_rd & ph2_falling)) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (~vram_address_inc_sel)))
 						ht_cntr <= ht_cntr + 5'd1;
 end
 
@@ -747,8 +777,10 @@ begin
 			vt_cntr1 <= slv_mem_din[7:5];
 		else if ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && ppu_enable)
 			vt_cntr1 <= vt_reg1;
-		else if ((fv_cntr == 3'b111)
-				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (vram_address_inc_sel)))
+		else if (((fv_cntr == 3'b111) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && ((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP)))
+				|| ((fv_cntr == 3'b111) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && (vram_addr_wr || (vram_data_rd & ph2_falling)))
+				|| ((ht_cntr == 5'd31) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && (~vram_address_inc_sel))
+				|| ((vram_addr_wr || (vram_data_rd & ph2_falling)) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && vram_address_inc_sel))
 					vt_cntr1 <= vt_cntr1 + 3'd1;
 end
 
@@ -760,8 +792,11 @@ begin
 		if ((second_write && vram_addr_wr)
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && ppu_enable))
 				vt_cntr2 <= vt_reg2; // hopefully good with timing
-		else if (vt_cntr1 == 3'b111)
-			vt_cntr2 <= vt_cntr2 + 2'd1;
+		else if ((vt_cntr1 == 3'b111) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && ((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP))
+				|| ((vt_cntr1 == 3'b111) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && (vram_addr_wr || (vram_data_rd & ph2_falling)))
+				|| ((vt_cntr1 == 3'b111) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && (~vram_address_inc_sel))
+				|| ((vt_cntr1 == 3'b111) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && vram_address_inc_sel))
+					vt_cntr2 <= vt_cntr2 + 2'd1;
 end
 
 // Horizontal name table select (H) counter 
@@ -773,10 +808,13 @@ begin
 		h_sel_cntr <= 1'd0;
 	else
 		if ((second_write && vram_addr_wr)
-			|| (~(bgrender_state == VBLANK) && (x_rendercntr == H_COPY)))
+			|| (((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && (x_rendercntr == H_COPY)))
 					h_sel_cntr <= h_reg; // hopefully good with timing
-		else if (ht_cntr == 5'd31)
-			h_sel_cntr <= ~h_sel_cntr;
+		else if (((ht_cntr == 5'd31) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && ((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION) && ((x_rendercntr <= FINE_VERTICAL_CNT_UP) || (x_rendercntr > START_OF_LAST_TWO_FETCH))))
+				|| ((ht_cntr == 5'd31) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && (vram_addr_wr || (vram_data_rd & ph2_falling)))
+				|| ((vt_cntr2 == 2'b11) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && (~vram_address_inc_sel))
+				|| ((vt_cntr2 == 2'b11) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && vram_address_inc_sel))
+					h_sel_cntr <= ~h_sel_cntr;
 end
 
 // Verical name table select (V) counter 
@@ -790,8 +828,11 @@ begin
 		if ((second_write && vram_addr_wr)
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && ppu_enable))
 				v_sel_cntr <= v_reg; // hopefully good with timing
-		else if (vt_cntr2 == 2'b11)
-			v_sel_cntr <= ~v_sel_cntr;
+		else if (((vt_cntr2 == 2'b11) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && ((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP)))
+				|| ((vt_cntr2 == 2'b11) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable && (vram_addr_wr || (vram_data_rd & ph2_falling)))
+				|| ((h_sel_cntr == 1'b1) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && (~vram_address_inc_sel))
+				|| ((h_sel_cntr == 1'b1) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && vram_address_inc_sel))
+				v_sel_cntr <= ~v_sel_cntr;
 end
 
 //Fine vertical scroll (FV) counter
@@ -805,21 +846,189 @@ begin
 		if ((second_write && vram_addr_wr)
 			|| ((y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY) && ppu_enable))
 				fv_cntr <= fv_reg; 
-		else if (((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP))
-				|| (( vram_addr_wr || vram_data_rd ) && ~(bgrender_state == VBLANK) && ppu_enable)
-				|| ((vram_addr_wr || vram_data_rd) && (bgrender_state == VBLANK) && (~vram_address_inc_sel)))
+		else if (((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable) 
+				|| ((vram_addr_wr || (vram_data_rd & ph2_falling)) && ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) && ppu_enable)
+				|| ((v_sel_cntr == 1'b1) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && (~vram_address_inc_sel))
+				|| ((v_sel_cntr == 1'b1) && ~(((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW))) && (vram_addr_wr || (vram_data_rd & ph2_falling)) && vram_address_inc_sel))
 					fv_cntr <= fv_cntr + 3'd1;
 end
+
+assign attribute_sel = {ppu_nt_addr[1], ppu_nt_addr[1]};
 
 // name_table addr
 assign ppu_nt_addr = {fv_cntr[1:0], v_sel_cntr, h_sel_cntr, vt_cntr, ht_cntr};
 assign ppu_at_addr = {2'b00, v_sel_cntr, h_sel_cntr, 4'b1111, vt_cntr[4:2], ht_cntr[4:2]}; // 3 zero for the same address size
 assign bg_lsb_addr = {1'b0, background_pattern_sel, tile_index_reg, 1'b0, fv_cntr}; //one extra 0 for tha same address size
 assign bg_msb_addr = {1'b0, background_pattern_sel, tile_index_reg, 1'b1, fv_cntr}; //one extra 0 for tha same address size
+*/
 
+//*****************************************************************************
+//* Addr_cnt like raiko				                                          *
+//*****************************************************************************
+reg vram_addr_second_wr;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		vram_addr_second_wr <= 1'b0;
+	else
+		vram_addr_second_wr <= vram_addr_wr & second_write;	
+end
+
+localparam H_COPY = 11'd1159;						//(128 + 4*258) - 1 = 1159 (dot 257)
+localparam FINE_VERTICAL_CNT_UP = 11'd1155;			//(128 + 4*257) - 1 = 1155 (dot 256)
+localparam START_OF_LAST_TWO_FETCH = 11'd1411;		//(128 + 4*321) - 1 = 1411 (dot 320)
+localparam START_OF_V_COPY = 11'd1251;				//(128 + 4*281) - 1 = 1251 (dot 280)
+localparam END_OF_V_COPY = 11'd1347;				//(128 + 4*305) - 1 = 1347 (dot 304)
+
+wire x_cnt_en = (((bgrender_state == BG_MSB) && (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION))) 
+				&& ((x_rendercntr <= FINE_VERTICAL_CNT_UP) || (x_rendercntr > START_OF_LAST_TWO_FETCH)) && ppu_enable;
+
+wire y_cnt_en = ((bgrender_state == BG_MSB) && (x_rendercntr == FINE_VERTICAL_CNT_UP)) && ppu_enable;
+
+//|| ~(y_renderingcntr == 1'b0)
+wire x_cnt_ld = ((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW)) 
+				&& (x_rendercntr == H_COPY) && ppu_enable;
+
+//wire counters_ld = (y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr >= START_OF_V_COPY) && (x_rendercntr <= END_OF_V_COPY);
+wire counters_ld = (y_renderingcntr == PRERENDERING_ROW) && (x_rendercntr == END_OF_V_COPY) && ppu_enable;
+
+/*
+nametable_read | nametable_read | nametable_read | nametable_read
+assign nametable_read = nametable_read_reg;
+assign attribute_read = attribute_read_reg;
+assign bg_lsb_read = bg_lsb_read_reg;
+assign bg_msb_read = bg_msb_read_reg;
+
+*/
+
+//wire vram_read = (nametable_read | nametable_read | nametable_read | nametable_read); //rd_req_reg  nametable_read_reg || attribute_read_reg || bg_lsb_read_reg || bg_msb_read_reg
+
+//wire vram_write = ppu_mem_wr_request_reg;
+
+//cntrs
+reg [5:0] vram_haddr_cnt;
+reg [8:0] vram_vaddr_cnt;
+
+wire [4:0] 	ht_cnt 	= vram_haddr_cnt[4:0];
+wire [4:0] 	vt_cnt 	= vram_vaddr_cnt[7:3];
+wire		h_cnt   = vram_haddr_cnt[5];
+wire		v_cnt   = vram_vaddr_cnt[8];
+wire [2:0]  fv_cnt  = vram_vaddr_cnt[2:0];
+
+wire [14:0] vram_addr_cnt = {fv_cnt, v_cnt, h_cnt, vt_cnt, ht_cnt};
+
+wire [14:0] new_vram_addr = vram_addr_cnt + ((vram_address_inc_sel) ? 15'd32 : 15'd1);
+
+wire vram_addr_inc = vram_data_wr | (vram_data_rd & ph2_falling);
+wire haddr_cnt_ld  = vram_addr_second_wr | counters_ld | vram_addr_inc | x_cnt_ld; // | counters_ld
+wire haddr_cnt_en  = x_cnt_en;
+
+reg [5:0] new_haddr;
+
+always @(*) 
+begin
+	if (vram_addr_inc)
+		new_haddr <= {new_vram_addr[10], new_vram_addr[4:0]};
+	else
+		new_haddr <= {h_reg, ht_reg};
+end
+
+always @(posedge clk) 
+begin
+	if (rst)
+		vram_haddr_cnt <= 0;
+	else
+		if (haddr_cnt_ld)
+			vram_haddr_cnt <= new_haddr;
+		else
+			if (haddr_cnt_en)
+				vram_haddr_cnt <= vram_haddr_cnt + 6'd1;
+end
+
+wire  vaddr_cnt_ld = vram_addr_second_wr | counters_ld | vram_addr_inc;
+wire  vaddr_cnt_en = y_cnt_en;
+
+reg [8:0] new_vaddr;
+
+always @(*) 
+begin
+	if (vram_addr_inc)
+		new_vaddr <= {new_vram_addr[11], new_vram_addr[9:5], new_vram_addr[14:12]};
+	else
+		new_vaddr <= {v_reg, vt_reg, fv_reg};	
+end
+
+always @(posedge clk) 
+begin
+	if (rst)
+		vram_vaddr_cnt <= 0;
+	else
+		if (vaddr_cnt_ld)
+			vram_vaddr_cnt <= new_vaddr;
+		else
+			if (vaddr_cnt_en)
+				if (vram_addr_cnt[7:0] == 8'b11101_111)
+					vram_vaddr_cnt <= {~vram_vaddr_cnt[8], 8'd0};
+				else
+					vram_vaddr_cnt[7:0] <= vram_vaddr_cnt[7:0] + 8'd1;	
+end
+
+wire palette_ram_access = (vram_addr_cnt[13:8] == 6'h3F);
+
+reg [13:0] vram_addr_reg;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		vram_addr_reg <= 0;
+	else
+		if (vram_addr_second_wr)
+			vram_addr_reg <= {fv_reg[1:0], v_reg, h_reg, vt_reg, ht_reg};
+		else
+			if (vram_addr_inc) // || vram_write || vram_read 
+				vram_addr_reg <= vram_addr_cnt[13:0];	
+end
+
+assign attribute_sel = {vt_cnt[1], ht_cnt[1]};
+
+wire [13:0] ppu_nt_addr = {2'b10, v_cnt, h_cnt, vt_cnt, ht_cnt};
+wire [13:0] ppu_at_addr = {2'b10, v_cnt, h_cnt, 4'b1111, vt_cnt[4:2], ht_cnt[4:2]}; // 3 zero for the same address size
+wire [13:0] bg_lsb_addr = {1'b0, background_pattern_sel, tile_index_reg, 1'b0, fv_cnt}; //one extra 0 for tha same address size
+wire [13:0] bg_msb_addr = {1'b0, background_pattern_sel, tile_index_reg, 1'b1, fv_cnt};
+/*
+wire vram_address_sel = ~((y_renderingcntr <= END_OF_VISIBLE_FRAME_ROW) || (y_renderingcntr == PRERENDERING_ROW));
+wire [7:0] ppu_address_sel;
+
+assign ppu_address_sel [0] = vram_address_sel;
+assign ppu_address_sel [1] = nametable_rd_sel;
+assign ppu_address_sel [2] = attribute_rd_sel;
+assign ppu_address_sel [3] = bg_lsb_rd_sel & sprite_read;
+assign ppu_address_sel [4] = bg_msb_rd_sel & sprite_read;
+assign ppu_address_sel [5] = bg_lsb_rd_sel;
+assign ppu_address_sel [6] = bg_msb_rd_sel;
+assign ppu_address_sel [7] = ppu_enable;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		ppu_mem_addr <= 14'd0;
+	else
+		case (ppu_address_sel)
+			8'b10000010 : ppu_mem_addr <= ppu_nt_addr;
+			8'b10000100 : ppu_mem_addr <= ppu_at_addr;
+			8'b10001000 : ppu_mem_addr <= sprite_lsb_addr;
+			8'b10010000 : ppu_mem_addr <= sprite_msb_addr;
+			8'b10100000 : ppu_mem_addr <= bg_lsb_addr;
+			8'b11000000 : ppu_mem_addr <= bg_msb_addr;
+			default		: ppu_mem_addr <= vram_addr_reg;
+		endcase
+end
+*/
 //*****************************************************************************
 //* CPU clock generation			                                          *
 //*****************************************************************************
+/*
 reg ph1_rising;
 reg ph1_falling;
 reg ph2_rising;
@@ -830,7 +1039,7 @@ reg		clkgen_cnt_en;
 
 always @ (posedge clk)
 begin
-	if (rst || bgrender_state == SLEEP) // Is it correct with the (*) in the upper state machine
+	if (rst || (bgrender_state == SLEEP)) // Is it correct with the (*) in the upper state machine
 		clkgen_cnt_en <= 1'b0;
 	else // every other option next_state != SLEEP -> working processor
 		clkgen_cnt_en <= 1'b1;
@@ -858,11 +1067,63 @@ begin
 	ph2_rising	<= clkgen_cnt_en & (clkgen_cnt == 4'd6);
 	ph2_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd11);
 end
+*/
+// Clock Gen
+//reg ph1_rising;
+//reg ph1_falling;
+//reg ph2_rising;
+//reg ph2_falling;
 
-assign ph1_rising_outw = ph1_rising;
-assign ph1_falling_outw = ph1_falling;
-assign ph2_rising_outw = ph2_rising;
-assign ph2_falling_outw = ph2_falling;
+reg  clkgen_cnt_en_clr;
+wire clkgen_cnt_en_set = (x_rendercntr == (ODDFRAME_END_OF_BG_RENDERING_LINE + 4));
+
+always @(*) 
+begin
+	if (background_enabled && oddframe && (y_renderingcntr == PRERENDERING_ROW))
+		clkgen_cnt_en_clr <= (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE);
+	else
+		clkgen_cnt_en_clr <= 1'b0;	
+end
+
+// clock genereation enable
+reg		clkgen_cnt_en;
+
+always @ (posedge clk)
+begin
+	if (rst || (x_rendercntr == END_OF_BG_RENDERING_LINE) || clkgen_cnt_en_clr)
+		clkgen_cnt_en <= 1'b0;
+	else
+		if ((x_rendercntr == FIRST_SCANLINE_PIXEL) || clkgen_cnt_en_set)
+			clkgen_cnt_en <= 1'b1;
+end	
+
+//clock generation timer
+reg	[3:0]	clkgen_cnt;
+
+always @ (posedge clk)
+begin
+	if (rst)
+		clkgen_cnt <= 4'd0;
+	else
+		if (clkgen_cnt_en)
+			if (clkgen_cnt == 4'd11)
+				clkgen_cnt <= 4'd0;
+			else
+				clkgen_cnt <= clkgen_cnt + 4'd1;
+end
+
+always @ (posedge clk)
+begin
+	ph1_rising	<= clkgen_cnt_en & (clkgen_cnt == 4'd0);
+	ph1_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd5);
+	ph2_rising	<= clkgen_cnt_en & (clkgen_cnt == 4'd6);
+	ph2_falling <= clkgen_cnt_en & (clkgen_cnt == 4'd11);
+end
+
+//assign ph1_rising_outw = ph1_rising;
+//assign ph1_falling_outw = ph1_falling;
+//assign ph2_rising_outw = ph2_rising;
+//assign ph2_falling_outw = ph2_falling;
 
 //*****************************************************************************
 //* sprite rendering part									                  *
@@ -872,11 +1133,12 @@ localparam H_FIRST_COLUMN_END = 11'd163;			//(128 + 4*9) - 1 = 163 (dot 8) not 1
 //think over once again START_OF_SHIF and END_OF_SHIFT, <=, >= !!
 //FINE_VERTICAL_CNT_UP insted of END_OF_SHIFT
 wire next_pixel = ((x_rendercntr[1:0] == 2'b11) && (x_rendercntr > START_OF_SHIFT) 
-					&& (x_rendercntr < END_OF_SHIFT) && ~(bgrender_state == VBLANK));
+					&& (x_rendercntr < END_OF_SHIFT) && ~(bgrender_state == VBLANK) && ppu_enable); //&& ~(bgrender_state == VBLANK)
 
-wire sprite_read = ((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH));
+wire sprite_read = ((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH) && ppu_enable);
 
-wire first_column = ((x_rendercntr >= FIRST_SCANLINE_PIXEL) && (x_rendercntr <= H_FIRST_COLUMN_END));
+//wire first_column = ((x_rendercntr >= FIRST_SCANLINE_PIXEL) && (x_rendercntr <= H_FIRST_COLUMN_END));
+wire first_column = ((x_rendercntr > FIRST_SCANLINE_PIXEL) && (x_rendercntr <= H_FIRST_COLUMN_END) && ppu_enable);
 
 wire [7:0] 	oam_read_data;
 
@@ -884,6 +1146,7 @@ wire [7:0]  sprite_tile_index;
 wire [3:0]  sprite_range;
 wire [3:0] 	sprite_pixel;
 wire 		sprite_priority;
+wire		sprite0_visible;
 
 sprite_rendering sprite_fsm(
    	//Clock and reset
@@ -907,7 +1170,7 @@ sprite_rendering sprite_fsm(
     .sprite_size(sprite_size),     
     .next_pixel(next_pixel), // az idle is bele számolódik?  
     .start_rendering((y_renderingcntr == END_OF_VBLANK_ROW) && (x_rendercntr == END_OF_RENDERING_LINE)), // utolsó pixel a vga  1599, 260 sor
-    .scanline_begin(x_rendercntr == FIRST_SCANLINE_PIXEL),  // 127 idle cycle
+    .scanline_begin(x_rendercntr ==  FIRST_SCANLINE_PIXEL),  // 127 idle cycle FIRST_SCANLINE_PIXEL
     .bgnd_read_end(x_rendercntr == FINE_VERTICAL_CNT_UP),   // this is actually (dot 256) dot 257
     .pattern0_read(bg_lsb_read_reg),   //helyes adat
     .pattern1_read(bg_msb_read_reg),   
@@ -919,7 +1182,7 @@ sprite_rendering sprite_fsm(
 
     //Output control signals
     .lost_sprite_set(lost_sprites_set),
-    .sprite0_visible(sprite0_hit_set), //sprite 0 pixel is visible
+    .sprite0_visible(sprite0_visible), //sprite 0 pixel is visible
 
     //Output sprite data
     .sprite_tile_index(sprite_tile_index),	//sprite tile index
@@ -934,49 +1197,90 @@ wire [13:0] sprite_msb_addr;
 //sprite address with sprite size
 assign sprite_lsb_addr = (~sprite_size) ? 
 						({1'b0, sprite_pattern_sel, sprite_tile_index, 1'b0, sprite_range[2:0]})
-						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], 1'b0, sprite_range});
+						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], sprite_range[3], 1'b0, sprite_range[2:0]});
 assign sprite_msb_addr = (~sprite_size) ? 
 						({1'b0, sprite_pattern_sel, sprite_tile_index, 1'b1, sprite_range[2:0]}) 
-						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], 1'b1, sprite_range});
+						: ({1'b0, sprite_tile_index[0], sprite_tile_index[7:1], sprite_range[3], 1'b1, sprite_range[2:0]});
 
 //*****************************************************************************
 //* pixel mux a sprite and bg 												  *
 //*****************************************************************************
-wire [4:0] palette_addr;
+
 
 // (~background_clipping && first_column) // in this region we draw 0000 or black
+
+//wire tarnsparent_bground = ({bg_msb_out, bg_lsb_out} == 2'b00);
+//wire tarnsparent_bground = (sprite_pixel == 2'b00);
+localparam H_SPRITE0_CHECK_END = 4*287 - 1;
+
+reg sprite0_check_reg;
+ 
+always @(posedge clk)
+begin
+   if (rst || (x_rendercntr == H_SPRITE0_CHECK_END))
+      sprite0_check_reg <= 0;
+   else
+      if (x_rendercntr == FIRST_SCANLINE_PIXEL)
+         sprite0_check_reg <= 1;
+end
+
+wire sprite0_check = sprite0_check_reg & next_pixel;
 
 wire visible_bg_pixel = (bg_msb_out | bg_lsb_out);
 
 // visible bg pixel maybe over kill
-assign palette_addr = 	(sprite_priority && visible_bg_pixel) ?
-					 	({1'b0, tile_attr_reg, bg_msb_out, bg_lsb_out}) //back ground color
-					 	: ({1'b1, sprite_pixel}); //sprite color palette					 	
 
+wire [4:0] palette_addr = 	(sprite_priority & visible_bg_pixel) ?
+					 	({1'b0, tile_attr_reg, bg_msb_out, bg_lsb_out}) //back ground color
+					 	: ({1'b1, sprite_pixel}); //sprite color palette //sprite_pixel	
+
+
+wire tarnsparent_bground = ({bg_msb_out, bg_lsb_out} == 2'b00);
+wire tarnsparent_sprite = (sprite_pixel == 2'b00);
+
+wire sprite_select = (~sprite_priority | tarnsparent_bground) & ~tarnsparent_sprite;
+/*
+reg [4:0] palette_addr;
+always @(posedge clk) 
+begin
+	if (rst)
+		palette_addr = 0;
+	else
+		palette_addr = (sprite_select) ? ({1'b1, sprite_pixel}) : ({1'b0, tile_attr_reg, bg_msb_out, bg_lsb_out});
+end
+*/
+assign sprite0_hit_set = visible_bg_pixel & sprite0_visible ; //& sprite0_check & sprite0_visible
 //*****************************************************************************
 //* color block ram														 	  *
 //*****************************************************************************
-wire palette_ram_access = (ppu_nt_addr[13:8] == 6'h3F);
-
 // maybe we need to turn it of during rendering
 //wire [4:0] palette_ram_addr = (palette_ram_access) ? (ppu_nt_addr[4:0]) : (palette_addr); 
+/*
+wire [4:0] palette_ram_nt_addr_mirrored = 	((vram_addr_cnt[4:0] == 5'h10) 
+										|| (vram_addr_cnt[4:0] == 5'h14)
+										|| (vram_addr_cnt[4:0] == 5'h18)
+										|| (vram_addr_cnt[4:0] == 5'h1C)) ? 
+										({1'b0, vram_addr_cnt[3:0]}) 
+										: (vram_addr_cnt[4:0]);
+vram_addr_cnt
+										vram_addr_reg
+*/
+wire [4:0] palette_ram_nt_addr_mirrored = {vram_addr_cnt[4] & |vram_addr_cnt[1:0], vram_addr_cnt[3:0]};									
 
-wire [4:0] palette_ram_nt_addr_mirrored = 	((ppu_nt_addr[4:0] == 5'h10) 
-										|| (ppu_nt_addr[4:0] == 5'h14)
-										|| (ppu_nt_addr[4:0] == 5'h18)
-										|| (ppu_nt_addr[4:0] == 5'h1C)) ? 
-										({1'b0, ppu_nt_addr[3:0]}) 
-										: (ppu_nt_addr[4:0]);
-
+wire [4:0] palette_ram_addr_mirrored = {palette_addr[4] & |palette_addr[1:0], palette_addr[3:0]};	
+/*
 wire [4:0] palette_ram_addr_mirrored = 	((palette_addr[4:0] == 5'h10) 
 										|| (palette_addr[4:0] == 5'h14)
 										|| (palette_addr[4:0] == 5'h18)
 										|| (palette_addr[4:0] == 5'h1C)) ? 
 										({1'b0, palette_addr[3:0]}) 
 										: (palette_addr);
-
+*/
 (* ram_style = "distributed" *)
 reg  [5:0] 	palette_ram [31:0];
+integer y;
+initial begin for (y=0; y<32; y=y+1) palette_ram[y] = 6'b0;
+end
 
 // adat kinullázása monocrome esetben alsó 4 bit csak a paletta data 0?
 wire [5:0]  palette_data0 = palette_ram[palette_ram_nt_addr_mirrored]; 
@@ -987,7 +1291,7 @@ wire [5:0]  palette_with_monocrom = (monochrome_mode) ? ({palette_data1[5:4], 4'
 
 always @(posedge clk) 
 begin
-    if (ppu_enable && palette_ram_access) // 
+    if (vram_data_wr && palette_ram_access)
         palette_ram[palette_ram_nt_addr_mirrored] <= slv_mem_din[5:0];  
 end
 
@@ -1058,7 +1362,6 @@ begin
 		if (vram_data_wr)
 			ppu_mem_dout <= slv_mem_din;	
 end
-
 
 reg	ppu_mem_wr_request_reg;
 

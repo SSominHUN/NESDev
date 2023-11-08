@@ -378,3 +378,5 @@ Thesis/./auto/*
 *.glstex
 
 NES_hw/NES_fpga_hw/src/games/**
+
+**.wdb

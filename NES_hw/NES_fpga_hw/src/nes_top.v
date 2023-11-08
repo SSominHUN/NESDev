@@ -161,10 +161,10 @@ ppu_top ppu(
    .serdes_strobe(serdes_strobe),
 
    // Clk En outputs for peripheral	
-	.ph1_rising_outw(ph1_rising),
-	.ph1_falling_outw(ph1_falling),
-	.ph2_rising_outw(ph2_rising),
-	.ph2_falling_outw(ph2_falling),
+	.ph1_rising(ph1_rising),
+	.ph1_falling(ph1_falling),
+	.ph2_rising(ph2_rising),
+	.ph2_falling(ph2_falling),
 
     // register interface or interface to cpu
 	.slv_mem_addr(cpu_addr[2:0]),      // register interface reg select (#2000-#2007)
@@ -208,7 +208,7 @@ nes_cpu6502 cpu(
    .rst(rst),                //System reset signal.
    .ph1_rising(ph1_rising),         //Rising edge of the phase 1 clock.
    .ph1_falling(ph1_falling),        //Falling edge of the phase 1 clock.
-   .ph2_rising(ph2_falling),         //Rising edge of the phase 2 clock.
+   .ph2_rising(ph2_rising),         //Rising edge of the phase 2 clock.
    .ph2_falling(ph2_falling),        //Falling edge of the phase 2 clock.
    
    //Master bus interface.
@@ -219,7 +219,7 @@ nes_cpu6502 cpu(
    
    //Interrupt and DMA request.
    .int_n(1'b1),              //INT request signal (active-low).
-   .nmi_n(nmi),              //NMI request signal (falling edge).
+   .nmi_n(~nmi),              //NMI request signal (falling edge).
    .ready(ready)               //When low, the CPU stops at read cycles.
 );
 
@@ -260,7 +260,7 @@ sprite_dma sprite_dma(
 
    // Slave bus interface (cpu adress space, write only)
    // Using for the time when cpu activates oam and dmc dma
-   .slv_mem_select(ag6502_addr[15:14] == 2'b01), 
+   .slv_mem_select((ag6502_addr[15:14] == 2'b01)), 
    .slv_mem_rnw(ag6502_rnw),    
    .slv_mem_addr(ag6502_addr[4:0]),  // [4:0] ag6502_addr
    .slv_mem_din(ag6502_dout),  // [7:0]
@@ -276,7 +276,7 @@ sprite_dma sprite_dma(
 
 assign cpu_addr = (dma_cpu_avalid) ? (dma_cpu_addr) : (ag6502_addr);
 assign cpu_dout = (dma_cpu_dout | ag6502_dout);
-assign rnw = (dma_cpu_rnw | ag6502_rnw);
+assign rnw = ~(~dma_cpu_rnw | ~ag6502_rnw);
 
 //*****************************************************************************
 //* Memory manager                                                            *

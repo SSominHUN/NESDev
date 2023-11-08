@@ -1,0 +1,90 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////////
+//   ____  ____
+//  /   /\/   /
+// /___/  \  /    Vendor: Xilinx
+// \   \   \/     Version: P.20131013
+//  \   \         Application: netgen
+//  /   /         Timestamp: Wed Nov 01 00:23:23 2023
+// /___/   /\     
+// \   \  /  \ 
+//  \___\/\___\
+//             
+// Command: -ofmt verilog -sim -ism -tb -w -fn -dir D:\NESDev\NES_hw\NES_fpga_hw\src\cpu D:\NESDev\NES_hw\NES_fpga_hw\src\cpu\nes_cpu6502.ngc nes_cpu_test.v 
+// Design Name: nes_cpu6502
+//             
+// Purpose:    
+//     Xilinx TestFixture Template produced by program netgen P.20131013
+//             
+//     ATTENTION: This file was created by netgen and may therefore be 
+//     overwritten by subsequent runs of netgen. Xilinx recommends that you 
+//     copy this file to a new name, or 'paste' this text into another file, 
+//     to avoid accidental loss of data.
+//             
+////////////////////////////////////////////////////////////////////////////////
+
+`include "D:/Xilinx/14.7/ISE_DS/ISE/verilog/src/glbl.v"
+`timescale 1 ns/1 ps
+
+  module test;
+    reg clk;
+    reg rst;
+    reg ph1_rising;
+    reg ph1_falling;
+    reg ph2_rising;
+    reg ph2_falling;
+    reg int_n;
+    reg nmi_n;
+    reg ready;
+    wire mst_mem_rnw;
+    reg [7 : 0] mst_mem_din;
+    wire [15 : 0] mst_mem_address;
+    wire [7 : 0] mst_mem_dout;
+    nes_cpu6502 uut (
+      .clk (clk),
+      .rst (rst),
+      .ph1_rising (ph1_rising),
+      .ph1_falling (ph1_falling),
+      .ph2_rising (ph2_rising),
+      .ph2_falling (ph2_falling),
+      .int_n (int_n),
+      .nmi_n (nmi_n),
+      .ready (ready),
+      .mst_mem_rnw (mst_mem_rnw),
+      .mst_mem_din (mst_mem_din),
+      .mst_mem_address (mst_mem_address),
+      .mst_mem_dout (mst_mem_dout)
+    );
+    initial begin
+      $display("           T crppppinrmm m   m ");
+      $display("           i lshhhhnmess s   s ");
+      $display("           m kt1122tiatt t   t ");
+      $display("           e   ______d__ _   _ ");
+      $display("               rfrfnnymm m   m ");
+      $display("               iaia   ee e   e ");
+      $display("               slsl   mm m   m ");
+      $display("               ilil   __ _   _ ");
+      $display("               nini   rd a   d ");
+      $display("               gngn   ni d   o ");
+      $display("                g g   wn d   u ");
+      $display("                       [ r   t ");
+      $display("                       7 e   [ ");
+      $display("                         s   7 ");
+      $display("                       : s     ");
+      $display("                         [   : ");
+      $display("                       0 1     ");
+      $display("                       ] 5   0 ");
+      $display("                             ] ");
+      $display("                         :     ");
+      $display("                               ");
+      $display("                         0     ");
+      $display("                         ]     ");
+      $monitor("%t",$realtime,,clk,rst,ph1_rising,ph1_falling,ph2_rising,ph2_falling,int_n,nmi_n,ready,mst_mem_rnw,"%h",mst_mem_din,
+"%h",mst_mem_address,"%h",mst_mem_dout);
+    end
+    initial begin
+    #1000 $stop;
+    // #1000 $finish;
+  end
+endmodule

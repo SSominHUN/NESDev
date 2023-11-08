@@ -107,29 +107,30 @@ begin
     if (rst)
         oam_dma_state <= OAM_DMA_IDLE;
     else
-        case (oam_dma_state)
-            // in IDLE we wait for dma_reg 4014 to be written in this ready is high
-            OAM_DMA_IDLE:   if (ppu_dma_reg_wr)
-                                if (even_cycle)
-                                    oam_dma_state <= OAM_DMA_WAIT2;
+        if (ph2_falling)
+            case (oam_dma_state)
+                // in IDLE we wait for dma_reg 4014 to be written in this ready is high
+                OAM_DMA_IDLE:   if (ppu_dma_reg_wr)
+                                    if (even_cycle)
+                                        oam_dma_state <= OAM_DMA_WAIT2;
+                                    else
+                                        oam_dma_state <= OAM_DMA_WAIT1;
                                 else
-                                    oam_dma_state <= OAM_DMA_WAIT1;
-                            else
-                                oam_dma_state <= OAM_DMA_IDLE;
-            // if we were on non even cycle then we have to wait two
-            OAM_DMA_WAIT1: oam_dma_state <= OAM_DMA_WAIT2;
-            // if we were on an even cycle we need to wait one
-            OAM_DMA_WAIT2: oam_dma_state <= OAM_DMA_READ;
-            //Read and write cycles until we reach 256
-            OAM_DMA_READ: oam_dma_state <= OAM_DMA_WRITE;
+                                    oam_dma_state <= OAM_DMA_IDLE;
+                // if we were on non even cycle then we have to wait two
+                OAM_DMA_WAIT1: oam_dma_state <= OAM_DMA_WAIT2;
+                // if we were on an even cycle we need to wait one
+                OAM_DMA_WAIT2: oam_dma_state <= OAM_DMA_READ;
+                //Read and write cycles until we reach 256
+                OAM_DMA_READ: oam_dma_state <= OAM_DMA_WRITE;
 
-            OAM_DMA_WRITE:  if (last_oam_dma_cycle)
-                                oam_dma_state <= OAM_DMA_IDLE;
-                            else
-                                oam_dma_state <= OAM_DMA_READ;
+                OAM_DMA_WRITE:  if (last_oam_dma_cycle)
+                                    oam_dma_state <= OAM_DMA_IDLE;
+                                else
+                                    oam_dma_state <= OAM_DMA_READ;
 
-            default: oam_dma_state <= OAM_DMA_IDLE;
-        endcase    
+                default: oam_dma_state <= OAM_DMA_IDLE;
+            endcase  
 end
 
 //OAM DMA address cntr increment signal

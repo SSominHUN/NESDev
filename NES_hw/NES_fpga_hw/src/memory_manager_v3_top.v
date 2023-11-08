@@ -46,6 +46,9 @@ module memory_manager_v3_top #(
 //*****************************************************************************
 (* ram_style = "block" *)
 reg	 [7:0]	cpu_work_ram [2047:0];
+integer i;
+initial begin for (i=0; i<2048; i=i+1) cpu_work_ram[i] = 8'b0;
+end
 reg	 [7:0]	cpu_work_ram_dout;
 wire [10:0]	cpu_work_ram_addr = cpu_addr[10:0];			 //cpu inner memory access
 wire		cpu_work_ram_sel  = (cpu_addr[15:13] == 3'b000); //0x0000-0x07FF and the mirrors until 0x1FFF
@@ -125,6 +128,9 @@ end
 
 (* ram_style = "block" *)
 reg  [7:0] 		name_table_ram [2047:0];
+integer x;
+initial begin for (x=0; x<2048; x=x+1) name_table_ram[x] = 8'b0;
+end
 reg  [7:0] 		name_table_ram_reg;
 reg  [7:0] 		name_table_ram_dout;
 wire [11:0]		ppu_name_table_addr = {ppu_name_table_addr_h, ppu_addr[9:0]};
