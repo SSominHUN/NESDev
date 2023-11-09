@@ -902,7 +902,7 @@ assign bg_msb_read = bg_msb_read_reg;
 
 */
 
-//wire vram_read = (nametable_read | nametable_read | nametable_read | nametable_read); //rd_req_reg  nametable_read_reg || attribute_read_reg || bg_lsb_read_reg || bg_msb_read_reg
+//wire vram_read = (nametable_read | attribute_read | bg_lsb_read | bg_msb_read); //rd_req_reg  nametable_read_reg || attribute_read_reg || bg_lsb_read_reg || bg_msb_read_reg
 
 //wire vram_write = ppu_mem_wr_request_reg;
 
@@ -1230,8 +1230,37 @@ wire visible_bg_pixel = (bg_msb_out | bg_lsb_out);
 
 // visible bg pixel maybe over kill
 
+reg [1:0] tile_attr_reg_saved;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		tile_attr_reg_saved <= 2'b0;
+	else
+		if (bg_msb_read) // & (x_rendercntr <= FINE_VERTICAL_CNT_UP) & (x_rendercntr[3:0] == 4'b1010)
+			tile_attr_reg_saved <= tile_attr_reg;
+end
+
+reg [7:0] shr_attr0_render = 8'd0; 
+
+always @(posedge clk) 
+if ((x_rendercntr[1:0] == 2'b11) 
+	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK)) //(bgrender_state != IDLE) && (bgrender_state != VBLANK) && (bgrender_state != SLEEP)
+		shr_attr0_render <= {shr_attr0_render[6:0], tile_attr_reg_saved[0]};
+
+wire shr_attr0_out = shr_attr0_render[~fh_reg];
+
+reg [7:0] shr_attr1_render = 8'd0; 
+
+always @(posedge clk) 
+if ((x_rendercntr[1:0] == 2'b11) 
+	&& (x_rendercntr >= START_OF_SHIFT) && (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK))
+		shr_attr1_render <= {shr_attr1_render[6:0], tile_attr_reg_saved[1]};
+
+wire shr_attr1_out = shr_attr1_render[~fh_reg];
+
 wire [4:0] palette_addr = 	(sprite_priority & visible_bg_pixel) ?
-					 	({1'b0, tile_attr_reg, bg_msb_out, bg_lsb_out}) //back ground color
+					 	({1'b0, shr_attr1_out, shr_attr0_out, bg_msb_out, bg_lsb_out}) //back ground color
 					 	: ({1'b1, sprite_pixel}); //sprite color palette //sprite_pixel	
 
 
@@ -1370,7 +1399,7 @@ begin
 	if (rst)
 		ppu_mem_wr_request_reg <= 1'b0;	
 	else
-		if (vram_data_wr)
+		if (vram_data_wr) //write állapot és x_cntr == 000
 			ppu_mem_wr_request_reg <= 1'b1;
 		else
 			ppu_mem_wr_request_reg <= 1'b0;	
@@ -1398,11 +1427,11 @@ begin
 	if (rst)
 		vram_read_reg <= 8'hff;
 	else
-		if (vram_data_rd)
+		if (vram_data_rd) // állapot gép read állapotból való kilépésnél tölténik vram_read
 			vram_read_reg <= ppu_mem_din; 	
 end
 
-always @(posedge clk) 
+always @(posedge clk)
 begin
 	if (rst)
 		read_enable <= 1'b0;
