@@ -1,119 +1,220 @@
 \chapter{FPGA tervezés}
 
+\section{Rendszer blokkvázlat bemutatása}
+
 \section{Működési órajel választása}
 
 \section{Picture Process Unit}
 \label{sec:PPU-FPGA}
 
-	\subsection{PPU felkészítése VGA rendeléshez}
+	\subsection{Eredeti rendrelés menete}
 
-	\subsection{Háttér rendering állapot gép}
+	\subsection{VGA rendelés}
+
+	\subsection{Háttér renderelési állapot gép}
 	
 	\begin{lstlisting}[style=prettyverilog]
-		//rendering in visible frame
-		always@(*)
-		begin
-		case (bgrender_state)
-		IDLE:begin
-		if (x_rendercntr[1:0] == 2'b01) // stay in visible frame or Pre rendering maybe should use this (& y_renderingcntr <= 9'd239 | x_rendercntr[1:0] == 2'b01 & y_renderingcntr == 9'd261)
-		next_state <= NT;
-		else
-		next_state <= IDLE;
-		end
-		NT:begin
-		if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr == 9'd261)begin // (341*2)-1 = 681 odd frame jump to NT in the last line of PPU rendering
-		if(oddframe)
-		next_state <= NT;
-		else
-		next_state <= IDLE;
-		end
-		else if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr <= 9'd239) // (341*2)-1 = 681 sleep just between 0-239
-		next_state <= SLEEP;
-		else if (x_rendercntr[9:0] == 10'd677) // (339*2)-1 = 677
-		next_state <= NT;
-		else if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= AT;
-		else 
-		next_state <= NT;
-		end
-		AT:begin
-		if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= BG_Lsb;
-		else
-		next_state <= AT;
-		end
-		BG_Lsb:begin
-		if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= BG_Msb;
-		else
-		next_state <= BG_Lsb;
-		end
-		BG_Msb:begin
-		if (x_rendercntr[9:0] == 10'd513) // (257*2)-1 = 513
-		next_state <= GB_NT_1;
-		else if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= NT;
-		else
-		next_state <= BG_Msb;
-		end
-		GB_NT_1:begin
-		if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= GB_NT_2;
-		else
-		next_state <= GB_NT_1;
-		end
-		GB_NT_2:begin
-		if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= SP_Lsb;
-		else
-		next_state <= GB_NT_2;
-		end
-		SP_Lsb:begin
-		if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= SP_Msb;
-		else
-		next_state <= SP_Lsb;
-		end
-		SP_Msb:begin
-		if (x_rendercntr[9:0] == 10'b641) // (321*2)-1 = 641
-		next_state <= NT;
-		else if (x_rendercntr[1:0] == 2'b01) 
-		next_state <= GB_NT_1;
-		else
-		next_state <= SP_Msb;
-		end
-		//PPU and CPU en off just VGA rendering goes
-		SLEEP:begin
-		if (x_rendercntr == 11'd1363 & y_renderingcntr == 9'd239)
-		next_state <= VBLANK;
-		else if (x_rendercntr == 11'd1363 & y_renderingcntr < 9'd239) // (341*4)-1 = 1363
-		next_state <= IDLE;	
-		else
-		next_state <= SLEEP;
-		end
-		//I take prost-rendering line and VBlank together just one bit set in thissection
-		VBLANK:begin
-		if (x_rendercntr[9:0] == 10'd681 & y_renderingcntr <= 9'd260) //(341*2)-1 = 681
-		next_state <= IDLE;
-		else 
-		next_state <= VBLANK;
-		end
-		default:
-		next_state <= 4'bxxxx;
-		endcase
-		end
+always @ (posedge clk)
+begin
+	if (rst)
+	bgrender_state <= SLEEP;
+else	
+	case (bgrender_state)
+		SLEEP: begin
+			if ((x_rendercntr == FIRST_SCANLINE_PIXEL) 
+			&& ((y_renderingcntr >= START_OF_VBLANK_ROW) && ~(y_renderingcntr == PRERENDERING_ROW)))
+				bgrender_state <= VBLANK;
+			else if ((x_rendercntr == FIRST_SCANLINE_PIXEL) && oddframe && (y_renderingcntr == FIRST_RENDERING_ROW))
+				begin
+				ppu_addr_fetch <= ppu_nt_addr;
+				nametable_rd_sel <= 1'b1;
+				rd_req_reg <= 1'b1;
+				
+				bgrender_state <= NT;
+				end
+			else if (x_rendercntr == FIRST_SCANLINE_PIXEL)
+				begin
+				ppu_addr_fetch <= bg_lsb_addr;
+				
+				bgrender_state <= IDLE;
+				end
+			else
+				bgrender_state <= SLEEP;
+			end
+		IDLE: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				bgrender_state <= NT;
+			else
+				begin
+				ppu_addr_fetch <= vram_addr_reg;
+				bgrender_state <= IDLE;
+				end
+			end
+		NT: begin
+			if ((x_rendercntr == END_OF_BG_RENDERING_LINE) 
+			|| ((y_renderingcntr == PRERENDERING_ROW) && oddframe && (x_rendercntr == ODDFRAME_END_OF_BG_RENDERING_LINE)))
+				begin
+				nametable_read_reg <= 1'b0;
+				
+				bgrender_state <= SLEEP;
+				end
+	// ODDFRAME_END_OF_FIRST_NT is good here because x_rendercntr will always be higher then this just in the first line 
+			else if ((x_rendercntr == ODDFRAME_END_OF_FIRST_NT) || (x_rendercntr == START_OF_LAST_NT))
+				begin
+				// commands get here for NT fetch
+				nametable_read_reg <= 1'b0;
+				
+				bgrender_state <= NT;
+				end
+			else if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				begin
+				// commands get here for AT fetch
+				nametable_read_reg <= 1'b0;
+				
+				bgrender_state <= AT;
+				end
+			else
+			begin
+				// commands get here for NT Load
+				if (x_rendercntr[2:0] == MEM_READ_START)
+				begin
+				ppu_addr_fetch <= ppu_nt_addr;
+				nametable_rd_sel <= 1'b1;
+				rd_req_reg <= 1'b1;
+				end
+			else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF) 
+				begin
+				nametable_rd_sel <= 1'b0;
+				rd_req_reg <= 1'b0;
+				end
+			else if (x_rendercntr[2:0] == MEM_READ_TAKE)
+				nametable_read_reg <= 1'b1;
+	
+	
+				bgrender_state <= NT;
+				end
+			end
+		AT: begin
+			if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+				begin
+				// commands get here for BG_LSB fetch
+				attribute_read_reg <= 1'b0;
+				
+				bgrender_state <= BG_LSB;
+				end
+			else
+				begin
+				// commands get here for AT Load
+					if (x_rendercntr[2:0] == MEM_READ_START)
+						begin
+						ppu_addr_fetch <= ppu_at_addr;
+						attribute_rd_sel <= 1'b1;
+						rd_req_reg <= 1'b1;
+						end
+					else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+						begin
+						attribute_rd_sel <= 1'b1;
+						rd_req_reg <= 1'b0;
+						end
+					else if (x_rendercntr[2:0] == MEM_READ_TAKE)
+						begin
+						attribute_read_reg <= 1'b1;
+						end
+	
+	
+					bgrender_state <= AT;
+					end
+				end
+	BG_LSB: begin
+	if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+	begin
+	// commands get here for BG_MSB fetch
+	bg_lsb_read_reg <= 1'b0;
+	
+	bgrender_state <= BG_MSB;
+	end
+	else
+	begin
+	// commands get here for BG_LSB load	
+	if (x_rendercntr[2:0] == MEM_READ_START)
+	begin
+	if (sprite_read)
+	ppu_addr_fetch <= sprite_lsb_addr;
+	else
+	ppu_addr_fetch <= bg_lsb_addr;
+	bg_lsb_rd_sel <= 1'b1;
+	rd_req_reg <= 1'b1;
+	end
+	else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+	begin
+	bg_lsb_rd_sel <= 1'b0;
+	rd_req_reg <= 1'b0;
+	end
+	else if (x_rendercntr[2:0] == MEM_READ_TAKE)
+	begin
+	bg_lsb_read_reg <= 1'b1;
+	end
+	
+	
+	bgrender_state <= BG_LSB;
+	end
+	end
+	BG_MSB: begin
+	if (x_rendercntr[2:0] == BG_NEXT_STEP_CONDITION)
+	begin
+	// commands get here for NT fetch
+	bg_msb_read_reg <= 1'b0;
+	
+	bgrender_state <= NT;
+	end
+	else
+	begin
+	// commands get here for BG_MSB load	
+	if (x_rendercntr[2:0] == MEM_READ_START)
+	begin
+	if (sprite_read)
+	ppu_addr_fetch <= sprite_msb_addr;
+	else
+	ppu_addr_fetch <= bg_msb_addr;
+	bg_msb_rd_sel <= 1'b1; 
+	rd_req_reg <= 1'b1;
+	end
+	else if (x_rendercntr[2:0] == MEM_READ_CONTROLL_OFF)
+	begin
+	bg_msb_rd_sel <= 1'b0;
+	rd_req_reg <= 1'b0;
+	end
+	else if (x_rendercntr[2:0] == MEM_READ_TAKE)
+	begin
+	bg_msb_read_reg <= 1'b1;
+	end
+	
+	bgrender_state <= BG_MSB;	
+	end
+	end
+	VBLANK: begin
+	if (x_rendercntr == END_OF_BG_RENDERING_LINE)
+	bgrender_state <= SLEEP;
+	else
+	bgrender_state <= VBLANK;
+	//ppu_addr_fetch <= vram_addr_reg;//vram_addr_reg
+	end
+	default:
+	bgrender_state <= IDLE;
+	endcase
+end
 	\end{lstlisting}
 
 	\subsection{Sprite rendering állapot gép}
-	
-	\subsection{Memória elérés}
 
-	\subsection{Irányító regiszterek és PPU adatbusz}
+	\subsection{CPU által elérhető regiszterek és CPU adatbusz}
+	
+	\subsection{PPU adatbusz és memória elérése}
 
 \section{NES memória felépítése FPGA-ban}
 
-\section{CPU}
+\section{DMA}
 
-\section{APU}
+\section{6502 processzor működése}
 
-\section{Játék vezérlők kezelése}
+\section{NES kontrollerek kezelése}

@@ -65,78 +65,78 @@ A kártyán az alábbi komponensek találhatók:
 	 
 \section{Órajel források}
 	
-	A NES kártyán a Logsys fejlesztő kártyához hasonlóan, egy 50 MHz-es oszcillátort helyeztem el. Az FPGA, vagy a fejlesztő portról érkező CLK-től kapja az órajelét, vagy ezt az 50 MHz-es CLK-t használja. Ahhoz, hogy az FPGA használhassa ezeket az órajeleket egy-egy órajel bemeneti lábára (GCLK) kellet ezeket bekötni. Az oszcillátor segéd áramkörét \aref{sec:OSC-JTAG} függelékben láthatjuk és órajel források bekötését pedig \aref{tab:FPGA-OSCpin} táblázatban olvashatjuk.
+	A NES kártyán a Logsys fejlesztő kártyához hasonlóan, egy 50 MHz-es oszcillátort helyeztem el. Az FPGA, vagy a fejlesztő portról érkező CLK-től kapja az órajelét, vagy ezt az 50 MHz-es CLK-t használja. Ahhoz, hogy az FPGA használhassa ezeket az órajeleket egy-egy órajel bemeneti lábára (GCLK) kellet ezeket bekötni. Az oszcillátor segéd áramkörét \aref{sec:OSC-JTAG} függelékben láthatjuk. % és órajel források bekötését pedig \aref{tab:FPGA-OSCpin} táblázatban olvashatjuk.
 	
-	\begin{table}[H]
-		\footnotesize
-		\centering
-		\begin{tabular}{|l|l|}
-			\hline
-			\rowcolor[HTML]{C0C0C0} 
-			\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{Órajel forrás}}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{FPGA láb}}} \\ \hline
-			50 MHz-es oszcillátor                                                                       & P85                                                                                   \\ \hline
-			Fejlesztői port CLK vonala                                                                  & P95                                                                                   \\ \hline
-		\end{tabular}
-		\caption{FPGA órajel forrásainak bekötése}
-		\label{tab:FPGA-OSCpin}
-	\end{table}
+%	\begin{table}[H]
+%		\footnotesize
+%		\centering
+%		\begin{tabular}{|l|l|}
+%			\hline
+%			\rowcolor[HTML]{C0C0C0} 
+%			\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{Órajel forrás}}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{FPGA láb}}} \\ \hline
+%			50 MHz-es oszcillátor                                                                       & P85                                                                                   \\ \hline
+%			Fejlesztői port CLK vonala                                                                  & P95                                                                                   \\ \hline
+%		\end{tabular}
+%		\caption{FPGA órajel forrásainak bekötése}
+%		\label{tab:FPGA-OSCpin}
+%	\end{table}
 	
 \section{Memória - SRAM}
 	
-	A választott asszinkron SRAM mérete 256 k x 16 bit (byte-okban 512 k ), ez a méret megfelel \aref{sec:Game-store} fejezetben tárgyalt játék méreteknek (csak egy NES játék nem fog beleférni ebbe a RAM-ba). Ennek a memória típusnak az előnyei még, hogy egy 10 ns elérési idejű asszinkron, statikus RAM, egyszerű kezeléssel. Ez azért jelent előnyt a konzol hardveres emulálásának szempontjából, mert így a memória elérési idő alacsonysága és aszinkronsága miatt, nem fogja ez az emulálást befolyásolni (ezáltal a memória elérést igazíthatjuk az általunk elkészített hardver időzítéséhez).
+	A választott asszinkron SRAM mérete 256 k x 16 bit (byte-okban mérve 512 k), ez a méret megfelel \aref{sec:Game-store} fejezetben tárgyalt játék méreteknek (csak egy NES játék nem fog beleférni ebbe a RAM-ba). A választott memória előnye, hogy 10 ns elérési idejű asszinkron, statikus RAM, egyszerű kezeléssel. Ez azért jelent előnyt a konzol hardveres emulálása szempontjából, mert nem fogja ennek működését befolyásolni a memória elérési idő (a későbbiekben az elérést igazíthatjuk az általunk választott időzítéshez). DRAM esetén sokkal több időzítési paraméterrel kell számolni ez természetesen jóval megnehezíti a időzítés kritikus hardver létrehozását.
 	
-	Az SRAM 18 bites címmel rendelkezik, amellyel megcímezhetők a 2 byte-osával az adataink (256 k cím), ezek FPGA bekötését \aref{tab:FPGA-MEM-SRAMpin} táblázatban olvashatjuk. A RAM-ból kiolvasott, illetve beírandó adatokat pedig a 16 bit-es adat vonalak olvasásával és írásával érhetjük el. Az SRAM vezérlésétől függően kiolvasható vagy írható egyszerre mind a 16 bit, de van byte-os elérési mód is.
+	Az SRAM 18 bites címmel rendelkezik, amellyel megcímezhetők a 2 byte-osával az adataink (256 k cím). A RAM-ból kiolvasott, illetve beírandó adatokat pedig a 16 bit-es adat vonalak olvasásával és írásával érhetjük el. Az SRAM vezérlésétől függően kiolvasható vagy írható egyszerre mind a 16 bit, de van byte-os elérési mód is.
 	
-	Az SRAM szabványos vezérlési felülettel rendelkezik (\ref{tab:FPGA-CONTROL-SRAMpin}). Tehát következő vezérlő jelek segítségével tudjuk irányítani (ezek mindegyike negált logikájú): chip engedélyezés CSn, írás engedélyezése WEn, olvasás engedélyezés OEn, alsó byte engedélyezés LBn, végül pedig a felső byte engedélyezés UBn. A memória olvasási és írási idő diagramjait \acite{sram} adatlapon olvashatjuk, kiegészítő áramkörét pedig \aref{sec:SRAM-SPI-Flash} függelékben láthatjuk.     
+	Az SRAM szabványos vezérlési felülettel rendelkezik. Tehát következő vezérlő jelek segítségével tudjuk irányítani (ezek mindegyike negált logikájú): chip engedélyezés CSn, írás engedélyezése WEn, olvasás engedélyezés OEn, alsó byte engedélyezés LBn, végül pedig a felső byte engedélyezés UBn. A memória olvasási és írási idő diagramjait \acite{sram} adatlapon olvashatjuk, kiegészítő áramkörét pedig \aref{sec:SRAM-SPI-Flash} függelékben láthatjuk.     
 	
-	\begin{table}[H]
-		\footnotesize
-		\centering
-		\begin{tabular}{|lccccccccc|}
-			\hline
-			\rowcolor[HTML]{C0C0C0} 
-			\multicolumn{10}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Címbusz}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \\ \hline
-			\rowcolor[HTML]{EFEFEF} 
-			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}SRAM}                            & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A0}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A1}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A2}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A3}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A4}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A5}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A6}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A7}                         & A8   \\ \hline
-			\rowcolor[HTML]{EFEFEF} 
-			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} FPGA láb}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P47}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P46}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P45}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P44}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P43}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P34}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P33}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P32}} & P30  \\ \hline
-			\multicolumn{1}{|l|}{SRAM}                                                    & \multicolumn{1}{c|}{A9}                                                 & \multicolumn{1}{c|}{A10}                                                & \multicolumn{1}{c|}{A11}                                                & \multicolumn{1}{c|}{A12}                                                & \multicolumn{1}{c|}{A13}                                                & \multicolumn{1}{c|}{A14}                                                & \multicolumn{1}{c|}{A15}                                                & \multicolumn{1}{c|}{A16}                                                & A17  \\ \hline
-			\multicolumn{1}{|l|}{FPGA láb}                                                & \multicolumn{1}{c|}{P29}                                                & \multicolumn{1}{c|}{P7}                                                 & \multicolumn{1}{c|}{P6}                                                 & \multicolumn{1}{c|}{P5}                                                 & \multicolumn{1}{c|}{P2}                                                 & \multicolumn{1}{c|}{P1}                                                 & \multicolumn{1}{c|}{P139}                                               & \multicolumn{1}{c|}{P138}                                               & P137 \\ \hline
-		\end{tabular}
-		\caption{SRAM memória címbusz bekötése}
-		\label{tab:FPGA-MEM-SRAMpin}
-	\end{table}
-		
-	\begin{table}[H]
-		\footnotesize
-		\centering
-		\begin{tabular}{|lcccccccc|}
-			\hline
-			\rowcolor[HTML]{C0C0C0} 
-			\multicolumn{9}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Adatbusz}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \\ \hline
-			\rowcolor[HTML]{EFEFEF} 
-			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}SRAM}                            & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D0}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D1}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D2}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D3}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D4}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D5}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D6}                         & D7                         \\ \hline
-			\rowcolor[HTML]{EFEFEF} 
-			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} FPGA láb}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P40}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P17}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P21}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P22}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P23}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P24}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P26}} & {\color[HTML]{333333} P27} \\ \hline
-			\multicolumn{1}{|l|}{SRAM}                                                    & \multicolumn{1}{c|}{D8}                                                 & \multicolumn{1}{c|}{D9}                                                 & \multicolumn{1}{c|}{D10}                                                & \multicolumn{1}{c|}{D11}                                                & \multicolumn{1}{c|}{D12}                                                & \multicolumn{1}{c|}{D13}                                                & \multicolumn{1}{c|}{D14}                                                & D15                        \\ \hline
-			\multicolumn{1}{|l|}{FPGA láb}                                                & \multicolumn{1}{c|}{P8}                                                 & \multicolumn{1}{c|}{P9}                                                 & \multicolumn{1}{c|}{P10}                                                & \multicolumn{1}{c|}{P11}                                                & \multicolumn{1}{c|}{P12}                                                & \multicolumn{1}{c|}{P14}                                                & \multicolumn{1}{c|}{P15}                                                & P16                        \\ \hline
-		\end{tabular}
-		\caption{SRAM memória adatbusz bekötése}
-		\label{tab:FPGA-DATA-SRAMpin}
-	\end{table}
-
-	\begin{table}[H]
-		\footnotesize
-		\centering
-		\begin{tabular}{|llllcc|}
-			\hline
-			\multicolumn{6}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Vezérlő jelek}}                                                                                \\ \hline
-			\multicolumn{1}{|l|}{SRAM}     & \multicolumn{1}{l|}{CSn} & \multicolumn{1}{l|}{WEn} & \multicolumn{1}{l|}{OEn}  & \multicolumn{1}{c|}{LBn}  & UBn  \\ \hline
-			\multicolumn{1}{|l|}{FPGA láb} & \multicolumn{1}{l|}{P41} & \multicolumn{1}{l|}{P35} & \multicolumn{1}{l|}{P140} & \multicolumn{1}{c|}{P142} & P141 \\ \hline
-		\end{tabular}
-		\caption{SRAM memória vezérlő jelek bekötése}
-		\label{tab:FPGA-CONTROL-SRAMpin}
-	\end{table} 
+%	\begin{table}[H]
+%		\footnotesize
+%		\centering
+%		\begin{tabular}{|lccccccccc|}
+%			\hline
+%			\rowcolor[HTML]{C0C0C0} 
+%			\multicolumn{10}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Címbusz}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \\ \hline
+%			\rowcolor[HTML]{EFEFEF} 
+%			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}SRAM}                            & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A0}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A1}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A2}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A3}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A4}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A5}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A6}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}A7}                         & A8   \\ \hline
+%			\rowcolor[HTML]{EFEFEF} 
+%			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} FPGA láb}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P47}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P46}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P45}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P44}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P43}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P34}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P33}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P32}} & P30  \\ \hline
+%			\multicolumn{1}{|l|}{SRAM}                                                    & \multicolumn{1}{c|}{A9}                                                 & \multicolumn{1}{c|}{A10}                                                & \multicolumn{1}{c|}{A11}                                                & \multicolumn{1}{c|}{A12}                                                & \multicolumn{1}{c|}{A13}                                                & \multicolumn{1}{c|}{A14}                                                & \multicolumn{1}{c|}{A15}                                                & \multicolumn{1}{c|}{A16}                                                & A17  \\ \hline
+%			\multicolumn{1}{|l|}{FPGA láb}                                                & \multicolumn{1}{c|}{P29}                                                & \multicolumn{1}{c|}{P7}                                                 & \multicolumn{1}{c|}{P6}                                                 & \multicolumn{1}{c|}{P5}                                                 & \multicolumn{1}{c|}{P2}                                                 & \multicolumn{1}{c|}{P1}                                                 & \multicolumn{1}{c|}{P139}                                               & \multicolumn{1}{c|}{P138}                                               & P137 \\ \hline
+%		\end{tabular}
+%		\caption{SRAM memória címbusz bekötése}
+%		\label{tab:FPGA-MEM-SRAMpin}
+%	\end{table}
+%		
+%	\begin{table}[H]
+%		\footnotesize
+%		\centering
+%		\begin{tabular}{|lcccccccc|}
+%			\hline
+%			\rowcolor[HTML]{C0C0C0} 
+%			\multicolumn{9}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Adatbusz}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \\ \hline
+%			\rowcolor[HTML]{EFEFEF} 
+%			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}SRAM}                            & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D0}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D1}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D2}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D3}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D4}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D5}                         & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}D6}                         & D7                         \\ \hline
+%			\rowcolor[HTML]{EFEFEF} 
+%			\multicolumn{1}{|l|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} FPGA láb}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P40}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P17}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P21}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P22}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P23}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P24}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} P26}} & {\color[HTML]{333333} P27} \\ \hline
+%			\multicolumn{1}{|l|}{SRAM}                                                    & \multicolumn{1}{c|}{D8}                                                 & \multicolumn{1}{c|}{D9}                                                 & \multicolumn{1}{c|}{D10}                                                & \multicolumn{1}{c|}{D11}                                                & \multicolumn{1}{c|}{D12}                                                & \multicolumn{1}{c|}{D13}                                                & \multicolumn{1}{c|}{D14}                                                & D15                        \\ \hline
+%			\multicolumn{1}{|l|}{FPGA láb}                                                & \multicolumn{1}{c|}{P8}                                                 & \multicolumn{1}{c|}{P9}                                                 & \multicolumn{1}{c|}{P10}                                                & \multicolumn{1}{c|}{P11}                                                & \multicolumn{1}{c|}{P12}                                                & \multicolumn{1}{c|}{P14}                                                & \multicolumn{1}{c|}{P15}                                                & P16                        \\ \hline
+%		\end{tabular}
+%		\caption{SRAM memória adatbusz bekötése}
+%		\label{tab:FPGA-DATA-SRAMpin}
+%	\end{table}
+%
+%	\begin{table}[H]
+%		\footnotesize
+%		\centering
+%		\begin{tabular}{|llllcc|}
+%			\hline
+%			\multicolumn{6}{|l|}{\cellcolor[HTML]{C0C0C0}\textbf{Vezérlő jelek}}                                                                                \\ \hline
+%			\multicolumn{1}{|l|}{SRAM}     & \multicolumn{1}{l|}{CSn} & \multicolumn{1}{l|}{WEn} & \multicolumn{1}{l|}{OEn}  & \multicolumn{1}{c|}{LBn}  & UBn  \\ \hline
+%			\multicolumn{1}{|l|}{FPGA láb} & \multicolumn{1}{l|}{P41} & \multicolumn{1}{l|}{P35} & \multicolumn{1}{l|}{P140} & \multicolumn{1}{c|}{P142} & P141 \\ \hline
+%		\end{tabular}
+%		\caption{SRAM memória vezérlő jelek bekötése}
+%		\label{tab:FPGA-CONTROL-SRAMpin}
+%	\end{table} 
 	
 \section{Digital Analog Converter és erősítő}
 	
@@ -225,7 +225,7 @@ A kártyán az alábbi komponensek találhatók:
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=110mm, keepaspectratio]{figures/7pin-connector}
+		\includegraphics[width=80mm, keepaspectratio]{figures/7pin-connector} %110
 		\caption{NES kontroller csatlakozó}
 		\label{fig:7PIN-Port}
 	\end{figure}
@@ -269,43 +269,42 @@ A kártyán az alábbi komponensek találhatók:
 	%TODO fix jumper heights if you have time
 \section{LOGSYS fejlesztői port}
 	
-	A fejlesztői port kialakítása teljes mértékben megegyezik a Logsys fejlesztő kártyán található port-al, ennek köszönhetően az FPGA felprogramozása történhet a MIT tanszéken tervezett egyedi fejlesztő kábellel. Ennek részletes bemutatása \acite{spatan6}-os dokumentáció része. A fejlesztői port kialakítását \aref{fig:DEV-port} képen látható és FPGA bekötését pedig \aref{tab:DEV-pinout} táblázatban olvasható, illetve \aref{sec:OSC-JTAG} függelékben látható. Az FPGA sikeres felkonfigurálását egy zöld LED-el jelzem (DONE). A fejlesztői port a következő elemekből áll:  
+	A fejlesztői port kialakítása teljes mértékben megegyezik a Logsys fejlesztő kártyán található port-al, ennek köszönhetően az FPGA felprogramozása történhet a MIT tanszéken tervezett egyedi fejlesztő kábellel. Ennek részletes bemutatása \acite{spatan6}-os dokumentáció része. A fejlesztői port kialakítását \aref{fig:DEV-port} képen látható és FPGA bekötését pedig \aref{tab:DEV-pinout} táblázatban olvasható, illetve \aref{sec:OSC-JTAG} függelékben látható. Az FPGA sikeres felkonfigurálását egy zöld LED-el jelzem (DONE). %A fejlesztői port a következő elemekből áll:
 	
-	\begin{enumerate}
-		\item JTAG interfész (vörös)
-		\item Soros SPI kommunikációs interfész (zöld)
-		\item 5 V-os egyenfeszültségű táp forrás (szürke)
-	\end{enumerate}
-	
-	\begin{figure}[H]
-		\begin{minipage}[]{\textwidth}
-			\begin{minipage}[b]{0.49\textwidth}
-				\centering
-				\includegraphics[width=50mm, keepaspectratio]{figures/DEV-port}
-				\captionof{figure}{Fejlesztői port kiosztása}
-				\label{fig:DEV-port}
-			\end{minipage}
-			\hfill
-			\begin{minipage}[b]{0.49\textwidth}
-				\footnotesize
-				\centering
-				\begin{tabular}{|l|l|l}
-					\cline{1-2}
-					\rowcolor[HTML]{C0C0C0} 
-					\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}\textbf{jel}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{Irány}}} & \multicolumn{1}{c}{\cellcolor[HTML]{C0C0C0}\textbf{FPGA láb}} \\ \hline
-					\rowcolor[HTML]{FFFFFF} 
-					MOSI                                                       & bemenet                                                                            & \multicolumn{1}{l|}{\cellcolor[HTML]{FFFFFF}P104}             \\ \hline
-					\rowcolor[HTML]{FFFFFF} 
-					MISO                                                       & kimenet                                                                            & \multicolumn{1}{l|}{\cellcolor[HTML]{FFFFFF}P144}             \\ \hline
-					CLK                                                        & bemenet                                                                            & \multicolumn{1}{l|}{P95}                                      \\ \hline
-					RST                                                        & bemenet                                                                            & \multicolumn{1}{l|}{P94}                                      \\ \hline
-				\end{tabular}
-				\captionof{table}{Fejlesztői port bekötése}
-				\label{tab:DEV-pinout}
-			\end{minipage}
-		\end{minipage}
-	\end{figure} 
-	
+%	\begin{enumerate}
+%		\item JTAG interfész (vörös)
+%		\item Soros SPI kommunikációs interfész (zöld)
+%		\item 5 V-os egyenfeszültségű táp forrás (szürke)
+%	\end{enumerate}
+%	
+%	\begin{figure}[H]
+%		\begin{minipage}[]{\textwidth}
+%			\begin{minipage}[b]{0.49\textwidth}
+%				\centering
+%				\includegraphics[width=50mm, keepaspectratio]{figures/DEV-port}
+%				\captionof{figure}{Fejlesztői port kiosztása}
+%				\label{fig:DEV-port}
+%			\end{minipage}
+%			\hfill
+%			\begin{minipage}[b]{0.49\textwidth}
+%				\footnotesize
+%				\centering
+%				\begin{tabular}{|l|l|l}
+%					\cline{1-2}
+%					\rowcolor[HTML]{C0C0C0} 
+%					\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}\textbf{jel}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}{\color[HTML]{333333} \textbf{Irány}}} & \multicolumn{1}{c}{\cellcolor[HTML]{C0C0C0}\textbf{FPGA láb}} \\ \hline
+%					\rowcolor[HTML]{FFFFFF} 
+%					MOSI                                                       & bemenet                                                                            & \multicolumn{1}{l|}{\cellcolor[HTML]{FFFFFF}P104}             \\ \hline
+%					\rowcolor[HTML]{FFFFFF} 
+%					MISO                                                       & kimenet                                                                            & \multicolumn{1}{l|}{\cellcolor[HTML]{FFFFFF}P144}             \\ \hline
+%					CLK                                                        & bemenet                                                                            & \multicolumn{1}{l|}{P95}                                      \\ \hline
+%					RST                                                        & bemenet                                                                            & \multicolumn{1}{l|}{P94}                                      \\ \hline
+%				\end{tabular}
+%				\captionof{table}{Fejlesztői port bekötése}
+%				\label{tab:DEV-pinout}
+%			\end{minipage}
+%		\end{minipage}
+%	\end{figure} 		
 
 \section{Nyomtatott áramköri terv}
 
@@ -357,6 +356,7 @@ A schematik megalkotását követően, a pcb tervezés következő fázisa a lay
 		\item Az FPGA sikeres felkonfigurálását jelző LED (DONE)
 		\item Az FPGA kézi reset gomja (RSTn)
 		\item A bekapcsolt tápfeszültséget jelző LED (PWR)
+		\item A NES hangerő szabályzó gombjai (VOL-, VOL+)
 	\end{enumerate}
 	
 	Mivel kézi forrasztással és hőfúvó segítségével fogjuk a kártyát összeállítani, ezért törekedtem arra, hogy az összes komponens (és ezek segéd áramkörei) a top oldalon helyezkedjen el, illetve a bottom oldalra csak azonos méretű elemek kerüljenek. Egyedül a HDMI csatlakozó poli fuse-a került a hátoldalra, ami nem 0603-as méretű lett.

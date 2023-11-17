@@ -283,7 +283,7 @@ assign rnw = ~(~dma_cpu_rnw | ~ag6502_rnw);
 //*****************************************************************************
 wire [7:0] memory_manager_cpu_din;
 
-memory_manager_v3_top  #(.NT_MIRRORING(2'b01)) memory_manager (
+memory_manager_v2_top  #(.NT_MIRRORING(2'b01)) memory_manager (
 	//clock and rst signals
 	.clk(clk),
 	.rst(rst),
