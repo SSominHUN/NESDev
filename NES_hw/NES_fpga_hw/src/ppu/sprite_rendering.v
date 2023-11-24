@@ -588,7 +588,7 @@ end
 //*****************************************************************************
 reg [1:0] sprite0_in_range;
 // sprite0_visible set 
-assign sprite0_visible = sprite0_in_range[1] & sprite_enabled & |sprite_pixel[1:0]; // not fully sure & |sprite_pixel[1:0]
+assign sprite0_visible = sprite0_in_range[1] & |sprite_pixel[1:0] & ~(~sprite_enabled | (first_column & ~no_sprite_clip)); //& |sprite_pixel[1:0] not fully sure & |sprite_pixel[1:0]
 //assign sprite0_visible = sprite0_in_range[1] | sprite0_in_range[0];
 
 always @(posedge clk) 

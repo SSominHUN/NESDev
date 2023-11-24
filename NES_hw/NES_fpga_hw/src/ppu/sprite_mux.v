@@ -63,11 +63,11 @@ wire [7:0] sprite_sel = {(sprite_pixel_7[0] | sprite_pixel_7[1]),
                          (sprite_pixel_1[0] | sprite_pixel_1[1]),
                          (sprite_pixel_0[0] | sprite_pixel_0[1])};
 
-always @(*) 
+always @(posedge clk) 
 begin
-    //if (rst)
-    //    sprite_pixel <= 4'b0000;
-    //else
+    if (rst)
+        sprite_pixel <= 4'b0000;
+    else
         if (~sprite_enabled | (~no_sprite_clip && first_column) )
             sprite_pixel <= 4'b0000;
         else
@@ -84,11 +84,11 @@ begin
             endcase    
 end
 
-always @(*) 
+always @(posedge clk) 
 begin
-    //if (rst)
-    //    sprite_priority <= 1'b1;
-    //else
+    if (rst)
+        sprite_priority <= 1'b1;
+    else
         if (~sprite_enabled | (~no_sprite_clip && first_column) )
             sprite_priority <= 1'b1;
         else

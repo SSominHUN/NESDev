@@ -1204,9 +1204,9 @@ end
 localparam H_FIRST_COLUMN_END = 11'd163;			//(128 + 4*9) - 1 = 163 (dot 8) not 100%
 
 //think over once again START_OF_SHIF and END_OF_SHIFT, <=, >= !!
-//FINE_VERTICAL_CNT_UP insted of END_OF_SHIFT
+//FINE_VERTICAL_CNT_UP insted of END_OF_SHIFT START_OF_SHIFT
 wire next_pixel = ((x_rendercntr[1:0] == 2'b11) && (x_rendercntr > START_OF_SHIFT) 
-					&& (x_rendercntr <= END_OF_SHIFT) && ~(bgrender_state == VBLANK) && ppu_enable); //&& ~(bgrender_state == VBLANK)
+					&& (x_rendercntr < END_OF_SHIFT) && ~(bgrender_state == VBLANK) && ppu_enable); //&& ~(bgrender_state == VBLANK)
 
 wire sprite_read = ((x_rendercntr > FINE_VERTICAL_CNT_UP) && (x_rendercntr <= START_OF_LAST_TWO_FETCH) && ppu_enable);
 
@@ -1286,6 +1286,9 @@ assign sprite_msb_addr = (~sprite_size) ?
 //wire tarnsparent_bground = (sprite_pixel == 2'b00);
 localparam H_SPRITE0_CHECK_END = 4*287 - 1;
 
+//H_COPY						//(128 + 4*258) - 1 = 1159 (dot 257)
+//FINE_VERTICAL_CNT_UP	
+
 reg sprite0_check_reg;
  
 always @(posedge clk)
@@ -1299,7 +1302,7 @@ end
 
 wire sprite0_check = sprite0_check_reg & next_pixel;
 
-wire visible_bg_pixel = (bg_msb_out | bg_lsb_out);
+wire visible_bg_pixel = |bg_pixel[1:0];
 
 // visible bg pixel maybe over kill
 
@@ -1332,8 +1335,18 @@ if ((x_rendercntr[1:0] == 2'b11)
 
 wire shr_attr1_out = shr_attr1_render[~fh_reg];
 
+reg [3:0] bg_pixel;
+
+always @(posedge clk) 
+begin
+	if (rst)
+		bg_pixel <= 4'b0;
+	else
+		bg_pixel <= {shr_attr1_out, shr_attr0_out, bg_msb_out, bg_lsb_out};		
+end
+
 wire [4:0] palette_addr = 	(sprite_priority & visible_bg_pixel) ?
-					 	({1'b0, shr_attr1_out, shr_attr0_out, bg_msb_out, bg_lsb_out}) //back ground color
+					 	({1'b0, bg_pixel}) //back ground color
 					 	: ({1'b1, sprite_pixel}); //sprite color palette //sprite_pixel	
 
 
