@@ -15,9 +15,11 @@ Az otthoni konzol 8 bites processzorral rendelkezett, és a játékok tárolás�
 
 A konzolra megjelent legnépszerűbb és legnagyobb hatású játékai közé tartozik a Super Mario Bros., a The Legend of Zelda, a Metroid, a Mega Man, a Castlevania és még sok más játék. Ezek a játékok megalapoztak számos sikeres franchise-t, amelyek ma is virágoznak.
 
-A játékkonzol hardverének megismerésére, elsősorban a hivatalos wiki oldalt használtam. Az itt olvasható tartalmakat az évek során nagy részt az eredeti hardver visszafejtésével (reverse engineering) tárták fel, mivel a játékkonzol pontos adatlapjai, illetve időzítés és működési diagramjai nem lettek publikusak (a Nintendo tulajdonban vannak). Az oldalon szereplő adatokat a NESDev online közösség tartja karban, ezáltal az oldal pontos és helyes adatokat tartalmaz (ezeket a közösség rendszeresen felül vizsgálja). A NES eredeti hardverének áttekintéséhez és a chippek megismeréséhez (PPU, CPU) nagy segítséget nyújtott még a NESHacker youtube csatorna. 
+A játékkonzol hardverének megismerésére, elsősorban a hivatalos wiki oldalt használtam \cite{NESdev_wiki}. Az itt olvasható tartalmakat az évek során nagy részt az eredeti hardver visszafejtésével (reverse engineering) tárták fel, mivel a játékkonzol pontos adatlapjai, illetve időzítés és működési diagramjai nem lettek publikusak (a Nintendo tulajdonban vannak). Az oldalon szereplő adatokat a NESDev online közösség tartja karban, ezáltal az oldal pontos és helyes adatokat tartalmaz (ezeket a közösség rendszeresen felül vizsgálja).A kutatáshoz sok segítséget nyújtott Nathon Altice által írt könyv \cite{IAmError}. Ez rengeteg fundamentális információt nyújt a NES hardverén belül található chipekről.A NES hardverének áttekintéséhez és a chipek általános megismeréséhez (PPU, CPU) nagy segítséget nyújtott még a NESHacker youtube csatorna \cite{Neshacker_youtube}. Amely páratlanul pontos információkkal és képi adatokkal szolgált az eszköz működéséről. 
+
 
 \section{NES hardver főbb komponensei}
+\label{sec:NES-motherboard}
 
 A Nintendo Entertainment System hardverének áttekintéséhez célszerű az eredeti konzol alaplapjának tüzetes vizsgálata. Ezt \aref{fig:NES-Motherboard} képen láthatjuk, és ez alapján a komponensek öt fő csoportba sorolhatjuk.
 
@@ -54,12 +56,13 @@ A  játék kazetták fő alkotó elemei:
 \end{itemize}
 
 	\subsection{Komponensek kapcsolata - PPU és CPU adatbusz}
+	\label{sec:NES-connection-components}
 	
 	A különböző komponensek mélyebb bemutatása előtt a NES hardverének adat kapcsolatát is át kell tekintenünk. A NES úgynevezett memory-mapped I/O architektúrával rendelkezik. Ez egy olyan technika amely a rendszer teljes memória területét feldarabolja nagyobb egységekre, és ezeket hardveres komponensekhez rendel. Ezek alapján az alaplapon található WRAM, a játék kártyán található Program ROM, illetve a PPU hét vezérlő regisztere és az APU vezérlőregisztere, mind a CPU 16 bites címterületén belül található és a CPU adatbuszon keresztül írható és olvasható. A NES-en belül található még egy PPU adatbusz is amely a VRAM-ot és a játék kazettán található karakter ROM-ot foglalja a PPU cím tartományba (\ref{tab:PPU-memory}). Ezeket az adatkapcsolatokról \aref{fig:NES-Data-Buses} sematikus ábra foglalja össze.
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=150mm, keepaspectratio]{figures/NES-databuses}
+		\includegraphics[width=120mm, keepaspectratio]{figures/NES-databuses}
 		\caption{Komponensek közti kapcsolat (fent játék kazetta) \cite{NES_hardware}}
 		\label{fig:NES-Data-Buses}
 	\end{figure}
@@ -69,7 +72,7 @@ A  játék kazetták fő alkotó elemei:
 
 A következőkben azt fogom bemutatni, hogy a NES hogyan tárol, dolgoz fel és jelenít meg sprite grafikákat. A Sprite egy 8x8-as pixel csempét jelent, ez a NES képalkotásának alappillére.
 
-A NES főkomponensei közül a Picture Process Unit (későbbiekben PPU) felelős a konzol 8-bit-es grafikájának elő állításáért. A PPU egy a Nintendo által kifejlesztett speciális chip amely a processzor mellett működik, mint egy társprocesszor (co-processor), hasonlóan a napjainkban elterjedt videókártya-processzor pároshoz.
+A NES főkomponensei közül a Picture Process Unit (későbbiekben PPU) felelős a konzol 8-bit-es grafikájának elő állításáért. A PPU egy a Nintendo által kifejlesztett speciális chip amely a processzor mellett működik, mint egy társprocesszor (coprocessor), hasonlóan a napjainkban elterjedt videókártya-processzor pároshoz.
 
 A CPU-tól eltérően a PPU egy előre meghatározott grafikus műveleti parancs sorozatot hajt végre ciklikusan, nem lehet közvetlenül programozni. Saját memóriával rendelkezik
 amelyet a CPU képes módosítani, hogy ezzel megváltoztassa a grafika generálását. Ez a memóriaterület a következőképpen négy részre oszlik:
@@ -146,15 +149,15 @@ Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböz
 			\hline
 			\rowcolor[HTML]{C0C0C0} 
 			\multicolumn{1}{|c|}{\cellcolor[HTML]{C0C0C0}\textbf{Memórai címek}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Méret}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Leírás}} \\ \hline
-			$0000 - $0FFF                                                        & \$1000                                                      & Pattern tábla 1                                              \\ \hline
-			$1000 - $1FFF                                                        & \$1000                                                      & Pattern tábla 2                                              \\ \hline
-			$2000 - $23FF                                                        & \$0400                                                      & Név tábla 1                                                  \\ \hline
-			$2400 - $27FF                                                        & \$0400                                                      & Név tábla 2                                                  \\ \hline
-			$2800 - $2BFF                                                        & \$0400                                                      & Név tábla 3                                                  \\ \hline
-			$2C00 - $2FFF                                                        & \$0400                                                      & Név tábla 4                                                  \\ \hline
-			$3000 - $3EFF                                                        & \$0F00                                                      & A $2000 - $2EFF címterület mirror-ja                         \\ \hline
-			$3F00 - $3F1F                                                        & \$0020                                                      & Szín paletta RAM indexek                                     \\ \hline
-			$3F20 - $3FFF                                                        & \$00E0                                                      & A $3F00 - $3F1F címterület mirror-ja                         \\ \hline
+			\$0000 - \$0FFF                                                        & \$1000                                                      & Pattern tábla 1                                              \\ \hline
+			\$1000 - \$1FFF                                                        & \$1000                                                      & Pattern tábla 2                                              \\ \hline
+			\$2000 - \$23FF                                                        & \$0400                                                      & Név tábla 1                                                  \\ \hline
+			\$2400 - \$27FF                                                        & \$0400                                                      & Név tábla 2                                                  \\ \hline
+			\$2800 - \$2BFF                                                        & \$0400                                                      & Név tábla 3                                                  \\ \hline
+			\$2C00 - \$2FFF                                                        & \$0400                                                      & Név tábla 4                                                  \\ \hline
+			\$3000 - \$3EFF                                                        & \$0F00                                                      & A \$2000 - \$2EFF címterület mirror-ja                         \\ \hline
+			\$3F00 - \$3F1F                                                        & \$0020                                                      & Szín paletta RAM indexek                                     \\ \hline
+			\$3F20 - \$3FFF                                                        & \$00E0                                                      & A \$3F00 - \$3F1F címterület mirror-ja                         \\ \hline
 		\end{tabular}
 		\caption{A PPU memória kezelése (14 bit címek) mirroring jelenséggel}
 		\label{tab:PPU-memory}
@@ -201,7 +204,7 @@ A NES videojáték konzol egy komplex több feladatot ellátó fő végrehajtó 
 	
 	A CPU alapja a MOS Technology 6502-es 8 bites architektúrával rendelkező mikroprocesszora. A processzort Chuck Peddle és Bill Mensch amerikai mérnökök tervezték és először 1975-ben mutatták be. Már a kezdetektől nagy sikernek számított kompakt és egyszerű designja és jó programozhatósága miatt. Egyszerűsége miatt sokkal kevesebb tranzisztorban elfért (3510 tranzisztor) mint vetélytársai az Intel és Motortollától. Anyagköltsége miatt nagyon kedvező áron kezdhették el forgalmazni (csupán 25 dollár). A leghíresebb felhasználásai az Apple 1, 2, illetve a Commodore 64. Több játék konzol is felhasználta a chip architektúráját saját CPU-ik kialakításához (NES, SNES, Atari 2600). 
 	
-	A processzor egy órajel bemenettel rendelkezik $\phi0$, amelyet a NES esetén egy külső kvarc kristály hajt meg 1.789773 MHz frekvencián (\ref{fig:NES-Motherboard}). Ebből a beérkező órajelből állít elő a processzor két, eltolt fázisú órajelet $\phi1$ és $\phi2$. Ezzel több szinkronizációs lehetőséget engedve egy órajelenbeliül a külső hardvereknek. A 6502 8 bites architektúrája azt jelenti, hogy a processzorunk egy byte adatot képes feldolgozni/módosítani egy órajel lefutása alatt.Tehát 8 bites adatbusszal és egy 16 bites címbusszal rendelkezik. Az 2A03-as modellekben a Nintendo mérnökei annyiban módosították az eredeti MOS architektúrát, hogy letiltották a cpu decimális módját.
+	A processzor egy órajel bemenettel rendelkezik $\phi0$, amelyet a NES esetén egy külső kvarc kristály hajt meg 1.789773 MHz frekvencián (\ref{fig:NES-Motherboard}). Ebből a beérkező órajelből állít elő a processzor két, eltolt fázisú órajelet $\phi1$ és $\phi2$. Ezzel több szinkronizációs lehetőséget engedve egy órajelenbeliül a külső hardvereknek. A 6502 8 bites architektúrája azt jelenti, hogy a processzorunk egy byte adatot képes feldolgozni/módosítani egy órajel lefutása alatt.Tehát 8 bites adatbusszal és egy 16 bites címbusszal rendelkezik. Az 2A03-as modellekben a Nintendo mérnökei annyiban módosították az eredeti MOS architektúrát, hogy letiltották a cpu módját.
 
 	\begin{figure}[H]
 	\centering
@@ -228,16 +231,94 @@ A NES videojáték konzol egy komplex több feladatot ellátó fő végrehajtó 
 		\label{fig:6502-P-reg}
 	\end{figure} 
 	
-	opkódok
+	Az eredeti MOS 6502 tizenhárom címzési móddal rendelkezett, többek között akkumulátoros, beleértett (implied), közvetlen (immediate), relatív, abszolút X és Y szerinti, ezek között voltak ritkábban és gyakran használt címzési módok is. Nem minden címzési módban van lehetőségünk az összes utasítás használatára.
 	
-	memória cím tartomány
+	A processzorunk utasítás készlete 56 alapértelmezett utasításból állt. Az utasítások műveleti kódjai egy bájtosak és a különböző címzési módokkal 151-nyi kód helyet foglalnak el a rendelkezésre álló 256-ból. A maradék fennálló utasítás helyet általában a processzor gyártók foglalt (reserved) utasítás területekként tartják fent. Ezek használata során előre nem definiált jelenségek történnek a 6502-ben. Ez azért fontos a NES szempontjából, mert a játék fejlesztők az 2A03-ra történő fejlesztés során többször is használtak, ilyen úgy nevezett illegális utasításokat a program ROM helytakarékossága szempontjából. Ilyen játék például a Beauty and the Beast (E) (1994) amely a \$80 műveleti kódot használja (ez egy 2-bájtos NOP utasításnak felel meg) vagy a F-117A Stealth Fighter amely a \$89-ot (hasonlóan egy 2-bájtos NOP). Ahhoz, hogy teljes hardveres emulálást készítsünk ezeket az illegális utasításokat is le kell implementálnunk. Az \ref{fig:2A03-Opcodes} ábrán a 2A03-ban található 6502 teljes utasítás készlete látható. A táblázat horizontális tengelye a 8 bites műveleti kódok ofszetje, a vertikális pedig a kezdő címe (így a oszlop és a sor érték összegéből megkaphatjuk az opkódot). A piros utasítsátok a program végrehajtást befolyásolják, a zöldek a különböző ALU utasítások, a kékek pedig az úgynevezett olvasási és írási utasítások (read-modify-write, RMW)). Az összes szürke utasítás pedig illegális utasítás, ezek többsége a kék és zöld utasítások valamilyen kombinációja. A táblázatban még az is látható, hogy az adat utasítás milyen címzési módban használható, illetve milyen adatokat várnak el bemenetként.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=150mm, keepaspectratio]{figures/2A03-opcodes}
+		\caption{A 2A03-ban található 6502 teljes utasítás készlete}
+		\label{fig:2A03-Opcodes}
+	\end{figure}
+	
+	Az \ref{sec:NES-connection-components} fejezetben már olvasottak alapján a 2A03 chip esetén is foglalkoznunk kell a memory mapped I/O architektúrával, tehát a különböző hardveres komponensek elérésével. A 6502, 16 bites címtartománnyal rendelkezik, ez pedig a NES tervezői \ref{tab:CPU-Memory} táblázatban látható módon osztották fel. Itt is jól megfigyelhető a PPU-ban már bemutatott tükrözés (mirroring) jelensége.
+	
+	\begin{table}[H]
+		\footnotesize
+		\centering
+		\begin{tabular}{|l|c|l|}
+			\hline
+			\rowcolor[HTML]{C0C0C0} 
+			\textbf{Cím tartomány} & \textbf{Méret} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Eszközök}}                                                                         \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$0000 - \$07FF        & \$0800         & 2 KB belső memória                                                                                                                     \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$0800 - \$0FFF        & \$0800         & \$0000 - \$07FF tükörképe (Mirrors)                                                                                                    \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$1000 - \$17FF        & \$0800         & \$0000 - \$07FF tükörképe (Mirrors)                                                                                                    \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$1800 - \$1FFF        & \$0800         & \$0000 - \$07FF tükörképe (Mirrors)                                                                                                    \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$2000 - \$2007        & \$0008         & PPU regiszterei                                                                                                                        \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$2008 - \$3FFF        & \$1FF8         & \$2000 - \$2007 tükörképei (Mirrors) 8 bájtonként ismételve                                                                            \\ \hline
+			\rowcolor[HTML]{FFFFFF} 
+			\$4000 - \$4017        & \$0018         & APU és I/O regiszterek                                                                                                                 \\ \hline
+			\$4018 - \$401F        & \$0008         & \begin{tabular}[c]{@{}l@{}}Olyan APU és I/O funkciók amik alapértelmezetten \\ ki vannak kapcsolva\end{tabular}                        \\ \hline
+			\$4020 - \$FFFF        & \$BFE0         & \begin{tabular}[c]{@{}l@{}}Játék kártya területek, először Mapper regiszterek, \\ ezt követően program ROM és Program RAM\end{tabular} \\ \hline
+		\end{tabular}
+		\caption{A CPU memória címtartománya (16 bit címek) mirroring jelenséggel}
+		\label{tab:CPU-Memory}
+	\end{table}
 
 	\subsection{Audió feldolgozó egység (Audio Process Unit, APU)}
 	
-	5 sound chanel
-
-	\subsection{DMA}
+	Az APU is egy PPU-hoz hasonló társprocesszor (coprocessor), tehát a CPU a chip belső regiszterein keresztül képes elérni és változtatni működését (a CPU adatbuszon keresztül \ref{tab:CPU-Memory}). Az eszköz belsejében öt digitális jel generátor található, amelyek szimultán működnek a chip belsejében. A regiszterek segítségével ezeknek a jelgenerátoroknak a működését tudjuk befolyásolni (frekvencia, amplitúdó (milyen hangos az adott csatorna), illetve az adott csatorna ki és bekapcsolása). A csatornák részletesebb vizsgálatához tekintsük meg \aref{fig:APU-5-sound-channel} ábrát.
 	
-	sprite/ dmc mode
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=150mm, keepaspectratio]{figures/APU-sound-channel-num}
+		\caption{Az audió feldolgozó egység hang sávjai}
+		\label{fig:APU-5-sound-channel}
+	\end{figure} 
+	
+	\begin{enumerate}
+		\item \emph{Első négyszög jel generátor kimenete (pulse$_1$):} Az első és második pulzus generátor a NES melodikus dallamaiért volt felelős. A két pulzus jel generátor a korabeli számítógépek jellegzetes Y hangjára hasonlított. 
+		\item \emph{Második négyszögjel generátor kimenete(pulse$_2$):} A pulzus generátorok felhasználása megegyezik az első pulzus generátoréval.
+		\item \emph{Háromszögjel generátor} A legtöbb esetben a basszus hangok képzésére használták. Itt érdekes még megfigyelni, hogy a háromszög generátor nagy lépésekben dolgozik \aref{fig:APU-5-sound-channel} ábrán is jól láthatók ezek (összesen 32 lépéssel rendelkezik, amely mindegyikéhez 4 bites értékeket rendel). Illetve egy szinusz jelet próbál generálni a nagyobb lépésekkel (ebből csak fűrész jel lesz). Ezzel egy enyhe, tompa hangokat tartalmazó basszust nyújt a NES játékoknak. 
+		\item\emph{Zaj generátor} Ez a csatorna egy fehér zaj generátor, ez a korabeli TV-k jel nélküli (no-signal) hangjához hasonlított leginkább. A hang mérnökök ezt a zajt ütősökhöz és dobokhoz használták legtöbbször. 
+		\item \emph{Delta modulációs csatorna:} Ez a hangcsatorna egy delta-kódolt egy bites kimenetet működtet vagy a hardverben található hét bites számlálót töltheti. A kimeneten képes előre beállított DPCM minták lejátszására (ez egy veszteség mentes kódolási típus). Ennek segítségével letudtak játszani beszédhangokat, dallamokat, ütősöket. Viszont ügyelni kellett rá, hogy csak rövid idő tartalmú minták lejátszása volt lehetséges a hardverben található puffer mérete miatt. Használata befolyásolta az OAM DMA működését.  
+	\end{enumerate} 
+	
+	Az öt szimultán működő jel generátornak egy-egy digitál-analóg konverter változtatja analóggá a kimenetét A konverterek egymástól nem lineárisan függő elemek, amik befolyásolhatják az egyes csatornák amplitúdóját. Ezeket a jeleket az APU analóg keverője alakítja egy analóg kimenetté a későbbiek során. A fentebbiekben leírt nem linearitást és az analóg csatornák keverését \aref{mat:APU-nonlin-1}, \ref{mat:APU-nonlin-2} és \ref{mat:APU-nonlin-3} egyenletekkel tudjuk legjobban közelíteni.
+	
+	\begin{align}
+		\label{mat:APU-nonlin-1}	
+		Output = Pulse_{out} + Tnd_{out}
+	\end{align}
+	
+	\begin{align}
+		\label{mat:APU-nonlin-2}
+		Pulse_{out} = \frac{95.88}{\frac{8128}{pulse_1 + pulse_2} + 100}
+	\end{align}
+	
+	\begin{align}
+		\label{mat:APU-nonlin-3}
+		Tnd_{out} = \frac{159.79}{\frac{1}{\frac{tiangle}{8227} + \frac{noise}{12241} + \frac{dmc}{22638}} + 100}
+	\end{align}
 
-\section{NES joypad}
+	\subsection{Direct Memory Access - OAM DMA}
+	\label{sec:DMA}
+	
+	A 2A02-on belül egy korai DMA megvalósítás is helyet kapott. Ennek szerepe az adatok fix RAM területre való másolása, gyorsabban mintha a 6502-nek kellene ezzel foglalkoznia. A CPU-nak négy órajel ciklusra lenne szüksége egy adat kiolvasására és másolására, a DMA ezt fele annyi idő alatt (két órajel ciklus) eltudja végezni, viszont csak előre fixált területről tudunk olvasni és írni. Ez a modern DMA megvalósításokhoz képest egy egyszerűbb és primitívebb eszköz, mivel amikor ezen keresztül másolunk a DMA elveszi a CPU adatbuszát és ready jelét így a CPU egy blokkolt állapotba (stand by) a másolás idejére. Napjainkban a DMA-k már nem blokkolják a mikrokontrollerek/processzorok működését, így nem veszítve CPU számítási kapacitást.
+	
+	A NES esetén a DMA szerepe az Objektum Attribútum Memória gyors feltöltése a mozgó csempe adatokkal. Minden esetben ha a DMA-t aktiváljuk (belső regiszterén keresztül) a teljes OAM RAM feltöltésre kerül. Egy írási/olvasási ciklus során, a CPU által beállított WRAM címről (általában \$0200), egy bájtnyi adatot olvas az eszköz. Majd az olvasott adatot a CPU címtartományában található \$2004-es PPU OAMDATA regiszterbe írja. Ezt a ciklust ismétli (növelve a WRAM címszámláló értékét) a DMA, mindaddig amíg a teljes memória végére nem érünk.
+	
+	Ez a hardveres komponens szoros kapcsolatban áll az APU DMC csatornájával. Mivel ez a csatorna képes szüneteltetni DMC elérés során a DMA másolását négy órajelciklus idejéig.  
+	
+\section{NES kontroller}
+
+	A Nintendo Entertainment System videó játék konzolhoz különlegesebbnél különlegesebb bemeneti eszközök születtek az évek során. Ebben a dokumentumban viszont a modern értelembe vett a kontrollerek atyját szeretném jobban bemutatni. Ez pedig a NES gamepad vagy NES standard kontroller néven vált ismerté \aref{fig:NES-Consol} ábrán is ez látható.
+	
+	Az eszköz működése rendkívül egyszerű, hardvere csupán egy paralel-soros léptető (shift) regiszterből áll. Összesen nyolc gomb található a kontrolleren, ezt nyolc gombot mintavételezi a CPU (a címtartományában található regiszteren keresztül \ref{tab:CPU-Memory} ). A mintavételezés pillanatában a lenyomott gombok nullás, a többi gomb pedig egyes értékkel szerepelnek a léptető (shift) regiszter bemenetén. A mintavételezést követően pedig a 2A03-tól kapott órajel hatására, bitenként kiolvasásra kerül a mintavételezett érték. A két kontrollerből beérkező értékek még egy hardveres negáláson esnek át az alaplapon \ref{sec:NES-motherboard}, a könnyebb feldolgozhatóság érdekében. 
