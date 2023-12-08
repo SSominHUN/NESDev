@@ -1,4 +1,5 @@
 \chapter{FPGA NES kártya ismertetése}
+\label{sec:fpga-nes-board-summary}
 
 A NES hardverének újragondolásából \aref{fig:PCB-blockdiagram} ábrán látható blokk diagramot készítettem, ez a nyomtatott huzalozott kártyák tervezésének első lépése. Már itt érdemes feltüntetni a különböző áramköri elemek közti kommunikációs utakat (busz típusokat), illetve ezek irányát. Ez alapján a diagram alapján, pedig elkezdődhet a különböző komponensek keresése, ezt követően át kell gondolnunk ezek fogyasztását és feszültség szintjeit ezekből az adatokból pedig megtervezhető a kártya táp ellátása is (a mi esetünkben már kiegészítettem ezzel a blokk diagramot). 
 
@@ -268,6 +269,7 @@ A kártyán az alábbi komponensek találhatók:
 	
 	%TODO fix jumper heights if you have time
 \section{LOGSYS fejlesztői port}
+\label{sec:logsysport}
 	
 	A fejlesztői port kialakítása teljes mértékben megegyezik a Logsys fejlesztő kártyán található port-al, ennek köszönhetően az FPGA felprogramozása történhet a MIT tanszéken tervezett egyedi fejlesztő kábellel. Ennek részletes bemutatása \acite{spatan6}-os dokumentáció része. A fejlesztői port kialakítását \aref{fig:DEV-port} képen látható és FPGA bekötését pedig \aref{tab:DEV-pinout} táblázatban olvasható, illetve \aref{sec:OSC-JTAG} függelékben látható. Az FPGA sikeres felkonfigurálását egy zöld LED-el jelzem (DONE). %A fejlesztői port a következő elemekből áll:
 	

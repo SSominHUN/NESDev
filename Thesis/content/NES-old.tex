@@ -69,6 +69,7 @@ A  játék kazetták fő alkotó elemei:
 	
 
 \section{Képalkotás - Picture process unit}
+\label{PPU-irodalom}
 
 A következőkben azt fogom bemutatni, hogy a NES hogyan tárol, dolgoz fel és jelenít meg sprite grafikákat. A Sprite egy 8x8-as pixel csempét jelent, ez a NES képalkotásának alappillére.
 
@@ -111,6 +112,7 @@ Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböz
 	A NES játékokat sosem programozták régió specifikusak, az egyetlen dolog ami változott területenként az a NES PPU-jának hardvere. Így a világ különböző területein ugyanaz a játék gyorsabban illetve lassabban futott, ez akár 17\%-os különbséget is jelenthetett. A NES emulálás szempontjából az NTSC készülékeket veszem alapul mivel ezeken gépek működését tárták fel részletesebben reverse engineering-gel.
 	
 	\subsection{Pattern táblák és paletták}
+	\label{sec:Pattern-tables-and-palettes}
 	A sprite képek, amelyek a PPU Pattern tábla memóriájában helyezkednek el, képezik az alapját minden grafikái megjelenítésnek. Ezek a  8 x 8 pixeles csempék alkotják a bonyolult háttereket, mozgó objektumokat és speciális effekteket. Alapvetően a sprite-ok tárolása hasonló módon történik mint egy modern számítógépek által használt kép esetében, mint például png. Mindkét tárolási formátumot kétdimenziós szám rácsként tudjuk elképzelni, ahol minden egyes cellához tartozó érték egy pixelhez tartozó színt reprezentál, csak amíg a png több millió színt támogat addig a NES egy pixel-e csupán négy különböző színű lehet. Gyakorlatilag egy ilyen csempe nem is tárol szín adatokat, a pixel-eket reprezentáló számértékek referenciák egy éppen aktív szín paletta színére.
 	
 	\begin{figure}[H]
@@ -131,9 +133,10 @@ Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböz
 	
 	A fentiek alapján, tehát egy pixel 0-3-ig vehet fel értéket, tehát 2 biten vagyunk képesek eltárolni az értékét. Egy 8 x 8 as csempe pedig 64 pixelt tartalmaz, ezért összesen 16 byte helyet foglal. Mivel a NES processzora egy 6502-es (8 bit-es) modell volt, ennek okán a legkisebb memóriaegység amit képes volt megcímezni az egy byte volt, így a csempe adatok ésszerű tárolásához egyedi megoldásra volt szükség.
 	
-	Mivel a NES nem képes direkt a 2 bit-es számértékekkel dolgozni, ezért ezeket fel daraboljuk először logikailag magas és alacsony bitekre. Ezt követően elsőként a csempe alacsony 8 byte-ját tároljuk el majd ezt követően a magas nyolc byte-ot, így megkapjuk a fentebb kiszámolt 16 byte-os értéket. Ezáltal könnyel elérhetővé tettük a kép adatainkat a cpu számára, illetve a PPU-is helyesen képes ezeket megjeleníteni.
+	Mivel a NES nem képes direkt a 2 bájtos számértékekkel dolgozni, ezért ezeket fel daraboljuk először logikailag magas és alacsony bitekre. Ezt követően elsőként a csempe alacsony 8 byte-ját tároljuk el majd ezt követően a magas nyolc byte-ot, így megkapjuk a fentebb kiszámolt 16 byte-os értéket. Ezáltal könnyel elérhetővé tettük a kép adatainkat a cpu számára, illetve a PPU-is helyesen képes ezeket megjeleníteni.
 	
 	\subsection{A név táblák (Name Tables) és tulajdonság táblák (Attribute Tables)}
+	\label{sec:NT-AT-mirroring}
 	
 	A név táblák alapvetően, ahogyan már fentebb olvashattuk egy-egy 32 x 30-as rácsként képzelhetők el, ahol minden egyes cella egy csempének felel meg (8 x 8 pixel). Ebből következően egy név tábla 256 x 240 pixelt tartalmaz, ez a CRT monitorok teljes képernyő területe. Egy rács elem, pedig egy, egy byte-os címet tartalmaz, amely az éppen aktív pattern tábla egy csempéjét címzi meg (mivel összesen 256 aktív csempénk lehet ezért elég egy byte a címzéshez).
 	
@@ -175,6 +178,7 @@ Ezen felül a PPU további funkciókkal is rendelkezik, ezeket nyolc különböz
 	 Így a teljes képünket 8 x 8 ilyen byte-tal írhatjuk le. 
  
  	 \subsection{Objektum Attribútum Memória (OAM)}
+ 	 \label{sec:OAM-memory}
  	 Ez a memória terület 64 külön álló sprite tárolására képes. Minden egyes OAM spritehoz négy byte adat tartozik. Az első byte meghatározza a vertikális vagy y koordinátáját a sprite-nak. A második byte azt határozza meg, hogy melyik 8 x 8-as csempe legyen megjelenítve az éppen aktív Pattern táblából. A harmadik byte segítségével különböző tulajdonságait vagyunk képesek befolyásolni a sprite-nak. Végül pedig az utolsó byte a horizontális vagyis x koordinátáját határozzam meg az objektumnak.
  	 
  	 Az előbb bemutatott byte-ok közül az egyetlen bonyolultabb működésű a harmadik, ebben az estben is a különböző bit-ek más és más működést kódolnak.  Az nulladik és az első bit egy előtér szín palettát választanak ki a sprite számára. A következő három bit (3, 4 és 5) nem használtak. Ezt követően az ötödik bit határozza meg, hogy a sprite a háttér elé vagy mögé kerüljön (ha értéke nulla akkor a háttér fölé fog kerülni, ha pedig egy mögé). Végül pedig a hatodik illetve hetedik bitek azt határozzák, hogy a sprite pixel-ei horizontálisan vagy vertikálisan helyet cseréljenek (tükrözve legyenek), nulla esetén a sprite eredeti formájában marad, egy esetén, pedig meg tükröződik. Ez egy nagyon hasznos tulajdonság, hiszen így a játék fejlesztők rengeteg memória területet spórolhattak a Pattern táblákból. Mivel több olyan objektumot, karaktert vagy effektet is tervezhettek amelyek vagy horizontálisan vagy vertikálisan szimmetrikusak voltak (erre az egyik legjobb példa a felvető gomba  a Super Mario Bros. videojátékból).    
@@ -318,6 +322,7 @@ A NES videojáték konzol egy komplex több feladatot ellátó fő végrehajtó 
 	Ez a hardveres komponens szoros kapcsolatban áll az APU DMC csatornájával. Mivel ez a csatorna képes szüneteltetni DMC elérés során a DMA másolását négy órajelciklus idejéig.  
 	
 \section{NES kontroller}
+\label{sec:NES-controller}
 
 	A Nintendo Entertainment System videó játék konzolhoz különlegesebbnél különlegesebb bemeneti eszközök születtek az évek során. Ebben a dokumentumban viszont a modern értelembe vett a kontrollerek atyját szeretném jobban bemutatni. Ez pedig a NES gamepad vagy NES standard kontroller néven vált ismerté \aref{fig:NES-Consol} ábrán is ez látható.
 	
