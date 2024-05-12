@@ -1,7 +1,7 @@
 \chapter{FPGA NES kártya ismertetése}
 \label{sec:fpga-nes-board-summary}
 
-A NES hardverének újragondolásából \aref{fig:PCB-blockdiagram} ábrán látható blokk diagramot készítettem, ez a nyomtatott huzalozott kártyák tervezésének első lépése. Már itt érdemes feltüntetni a különböző áramköri elemek közti kommunikációs utakat (busz típusokat), illetve ezek irányát. Ez alapján a diagram alapján, pedig elkezdődhet a különböző komponensek keresése, ezt követően át kell gondolnunk ezek fogyasztását és feszültség szintjeit ezekből az adatokból pedig megtervezhető a kártya táp ellátása is (a mi esetünkben már kiegészítettem ezzel a blokk diagramot). 
+A NES hardverének újragondolásából \aref{fig:PCB-blockdiagram}. ábrán látható blokkdiagramot készítettem, ez a nyomtatott huzalozott kártyák tervezésének első lépése. Már itt érdemes feltüntetni a különböző áramköri elemek közti kommunikációs utakat (busz típusokat), illetve ezek irányát. A diagram alapján elkezdődhet a különböző komponensek keresése, ezt követően át kell gondolnunk ezek fogyasztását és feszültség szintjeit, majd ezekből az adatokból már megtervezhető a kártya tápellátása is (a mi esetünkben már kiegészítettem ezzel a blokkdiagramot). 
 
 \begin{figure}[H]
 	\centering
@@ -10,26 +10,26 @@ A NES hardverének újragondolásából \aref{fig:PCB-blockdiagram} ábrán lát
 	\label{fig:PCB-blockdiagram}
 \end{figure}
 
-A komponensek, közül az FPGA chip kiválasztása a legnehezebb, ennek menete általában az, hogy megpróbáljuk felmérni a hardverünk méretét és ez alapján választunk megfelelő méretű chip-et. A mi esetünkben az egyik legkomplexebb elem a 6502-es 8-bites processzor amely méretét az OpenCores weboldalon található nyílt forráskódú hardver tervek alapján megbecsülhetjük körülbelül 1000 LUT-ra. Mivel NES hardver működéséhez három fő komponens kell (CPU, APU, PPU) ezek méretét egyesével felülbecsülhetjük a legkomplexebb alkatrész méretével, így összesen 3000 LUT-ot kapunk. Ehhez még érdemes a VGA jel elő állítását (HDMI jel kódolása), illetve az audió jel kezelését még hozzá számolni, erre is jó felső becslés az 1000 LUT. Végül még érdemes tartalékkal is számolni ezért egy 5000-6000 LUT-al rendelkező FPGA chip valószínűleg elég nagy ahhoz, hogy a teljes projekt elférjen benne. Fontos kritérium még, hogy DCM-el illetve PLL-el rendelkezzen a chip az egyedi órajelek előállítása érdekében (például a 250 MHz a VGA bit-ek kiadásához), ezen kívül még Blokk-RAM-ra is szükség lesz legalább akkorára mint a NES hardverének belső memóriája (például Név táblák 2 kilobájt).  
+A komponensek közül az FPGA chip kiválasztása a legnehezebb. Ennek menete általában az, hogy megpróbáljuk felmérni az FPGA-val elvégzendő feladat hardveres méretét és ez alapján választunk megfelelő erőforrásokkal ellátott chip-et. A mi esetünkben az egyik legkomplexebb elem a 6502-es 8 bites processzor, amely méretét az OpenCores weboldalon \cite{OpenCore} található nyílt forráskódú hardvertervek alapján 1000 LUT-ra becsülhetjük. A NES működéséhez három fő komponens kell (CPU, APU, PPU), ezek méretét egyesével felülbecsülhetjük a legkomplexebb alkatrész méretével, így összesen 3000 LUT-ot kapunk. Ehhez még érdemes a VGA jel előállítását (TMDS jel kódolása), illetve az audió jel kezelését még hozzászámolni, erre is jó felső becslés az 1000 LUT. Végül még érdemes tartalékkal is számolni, ezért egy 5000-6000 LUT-al rendelkező FPGA chip valószínűleg elég nagy ahhoz, hogy a teljes projekt elférjen benne. Fontos kritérium még, hogy DCM-el és PLL-el rendelkezzen a chip az egyedi órajelek előállítása érdekében (például a 250 MHz a TMDS bitek kiadásához), ezen kívül még blokk RAM-ra is szükség lesz, legalább akkorára, mint a NES hardverének belső memóriája.  
 
 %todo kell e ide a konzulens hivatkozása Szerencsére a konzulensem jóvoltából, szert tettem
-A feladat megvalósításához egy Spartan-6-os Xilinx FPGA állt a rendelkezésemre, amely megfelel a fent említett összes elvárásnak. Ez a chip nagyban meggyorsította a nyáktervezés menetét is, mivel az egyetemi Spartan-6-os fejlesztő kártyák fő komponense is ez az FPGA volt (erről itt olvashatunk részletesebben \cite{spatan6}). Ezt a fejlesztő kártyát vettem alapul a NES kártyám fejlesztő portjának kialakítása, az SPI flash bekötése, illetve a táp vonalak kialakítása során is. 
+A feladat megvalósításához egy Spartan-6-os Xilinx FPGA állt a rendelkezésemre, amely megfelel a fent említett összes elvárásnak. Ez a chip nagyban meggyorsította a nyáktervezés menetét is, mivel az egyetemi Spartan-6-os fejlesztő kártyák fő komponense is ez az FPGA volt \cite{spatan6}. Ezt a fejlesztő kártyát vettem alapul a NES kártyám fejlesztő portjának kialakítása, az SPI flash bekötése, illetve a tápvonalak kialakítása során is. 
 	
-A kártyán az alábbi komponensek találhatók:
+A kártyán az alábbi komponensek találhatóak:
 
 \begin{itemize}
-	\item \emph{FPGA:} Xilinx XC6SLX9-2TQG144C típusú Spartan-6-os FPGA, amely lehetővé teszi összetettebb logikák és
-	mikroprocesszoros rendszerek megvalósítását. Az eszköz főbb jellemzői:
+	\item \emph{FPGA:} Xilinx XC6SLX9-2TQG144C típusú Spartan-6-os FPGA, amely lehetővé teszi az összetettebb logikák és
+	a mikroprocesszoros rendszerek megvalósítását. Az eszköz főbb jellemzői:
 		\begin{itemize}
 			\item 5720 darab 6 bemenetű LUT és 11440 darab flip-flop
-			\item 32 darab 18 kilobites blokk-RAM
-			\item 16 darab DSP48A1 blokk (elő összeadó, 18 x 18 bites előjeles szorzó és akkumulátor)
+			\item 32 darab 18 kilobites blokk RAM
+			\item 16 darab DSP48A1 blokk (elő összeadó, 18x18 bites előjeles szorzó és akkumulátor)
 			\item 4 darab DCM (Digital Clock Manager) és 2 darab PLL (Phase Locked Loop) modul
 		\end{itemize} 
 	\item \emph{Memóriák a program és az adatok tárolására:}
 		\begin{itemize}
-			\item Egy 256k x 16 bites (512 kB), 10 ns-os aszinkron SRAM (Cypress CY7C1041DV33-10ZSXI)
-			\item Egy 32 Megabites SPI buszos soros FLASH memória (Atmel AT25DF321A), amely
+			\item Egy 256kx16 bites (512 kB), 10 ns-os aszinkron SRAM (Cypress CY7C1041DV33-10ZSXI)
+			\item Egy 32 Megabites SPI buszos soros flash memória (Atmel AT25DF321A), amely
 			konfigurációs memóriaként is szolgál az FPGA számára
 		\end{itemize}
 	\item \emph{Egy MicroSD memóriakártya foglalat:}
@@ -45,28 +45,28 @@ A kártyán az alábbi komponensek találhatók:
 	\item \emph{Képfeldolgozás:}
 		\begin{itemize}
 			\item HDMI csatlakozó 
-			\item I2C szint illesztő (PCA9306DCUR típusú), a HDMI audió vonalainak illesztéséhez 
+			\item I2C szint illesztő (PCA9306DCUR típusú), megjelenítő EDID ROM-jának ki olvasásához 
 		\end{itemize}
 	\item \emph{Audio:}
 		\begin{itemize}
 			\item Digitális-analóg átalakító (DAC), CS4334-KSZ típusú  
-			\item 100mW Erősítő TS486IST típus (fülhallgatókhoz)
-			\item CUI SJ1-3553NG 3.5mm Jack csatlakozó
+			\item 100 mW-os TS486IST típusú erősítő (fülhallgatókhoz)
+			\item CUI SJ1-3553NG 3,5mm Jack csatlakozó
 		\end{itemize}
-	\item \emph{Tápegységek:} MCP1612-ADJI/MS típusú szinkron Buck konverterek
+	\item \emph{Tápegységek:} MCP1612-ADJI/MS típusú szinkron buck konverterek
 	\item \emph{Egy 50 MHz-es oszcillátor} 
 	\item \emph{Csatlakozó a LOGSYS fejlesztői kábel számára} 
 \end{itemize}
 	
 \section{Tápellátás}
 	
-	A tápellátás kialakítása a Logsys Spartan-6-os fejlesztői kártyáéhoz hasonló \cite{spatan6}. A NES kártya 5 V-os tápfeszültségről működik. Ezt a tápellátást, vagy a fejlesztő kábelről kapja az eszköz, vagy egy külső 5 V-os forrásból. A külső egyenfeszültségű forrás Shottky diódával védtem, illetve a kártyát töltést jelző zöld led-del is elláttam (PWR). 
+	A tápellátás kialakítása a Logsys Spartan-6-os fejlesztői kártyáéhoz hasonló \cite{spatan6}. A NES kártya 5 V-os tápfeszültségről működik. Ezt a tápellátást vagy a fejlesztő kábelről kapja az eszköz, vagy egy külső 5 V-os forrásból. A külső egyenfeszültségű forrást Schottky dióda védi, illetve a kártyán elhelyeztem egy tápellátást jelző zöld LED-et is (PWR). 
 	
-	Az 5 V-os forrást két azonos típusú step down (Buck) konverterrel 3.3 V-ra és 1.2 V-ra konvertálom. Alapvetően az FPGA működéséhez kell a két feszültség szint. A 3.3 V az I/O vonalakért, DCM, PLL, és konfigurációért felelős, az 1.2 V pedig az FPGA belső magjának kell. Ezt a két tápvonalat az FPGA dokumentációja alapján (a táp lábaihoz közel) elláttam a megfelelő mennyiségű csatoló (coupling) és hidegítő (bulk) kapacitásokkal a stabil működés végett. A 3.3 V-ot a kártyán található többi alkatrész is használja (SRAM, MicroSDkártya, kontrollerek, a fejlesztő kábel is megkapja mint JTAG referencia feszültség ként stb.). Illetve a kártya a HDMI csatlakozó, DAC és erősítő komponensek esetén, a tápellátás 5 V-ját is felhasználja. A tápellátás schematik rajzát \aref{sec:PSU} függelékben láthatjuk. 
+	Az 5 V-os forrást két azonos típusú step down (buck) konverterrel 3,3 V-ra és 1,2 V-ra konvertálom. Alapvetően az FPGA működéséhez kell a két feszültségszint. A 3,3 V az I/O vonalakért, a DCM, a PLL és a konfigurációért felelős, míg az 1,2 V pedig az FPGA belső magjának kell. Ezt a két tápvonalat az FPGA dokumentációja alapján (a táp lábaihoz közel) elláttam a megfelelő mennyiségű csatoló (coupling) és hidegítő (bulk) kapacitásokkal a stabil működés érdekében. A 3,3 V-ot a kártyán található többi alkatrész is használja (SRAM, MicroSDkártya, kontrollerek, a fejlesztő kábel is megkapja, mint JTAG referencia feszültség, stb.). A kártya a HDMI csatlakozó, a DAC és az erősítő komponensek esetén a tápellátás 5 V-ját használja fel. A tápellátás kapcsolási rajzát \aref{sec:PSU}. függelékben láthatjuk. 
 	 
 \section{Órajel források}
 	
-	A NES kártyán a Logsys fejlesztő kártyához hasonlóan, egy 50 MHz-es oszcillátort helyeztem el. Az FPGA, vagy a fejlesztő portról érkező CLK-től kapja az órajelét, vagy ezt az 50 MHz-es CLK-t használja. Ahhoz, hogy az FPGA használhassa ezeket az órajeleket egy-egy órajel bemeneti lábára (GCLK) kellet ezeket bekötni. Az oszcillátor segéd áramkörét \aref{sec:OSC-JTAG} függelékben láthatjuk. % és órajel források bekötését pedig \aref{tab:FPGA-OSCpin} táblázatban olvashatjuk.
+	A NES kártyán a Logsys fejlesztő kártyához hasonlóan egy 50 MHz-es oszcillátort helyeztem el. Az FPGA, vagy a fejlesztő portról érkező CLK-tól kapja az órajelét, vagy az 50 MHz-es oszcillátorról. Ahhoz, hogy az FPGA használhassa ezeket az órajeleket, egy-egy órajel bemeneti lábára (GCLK) kellett ezeket bekötni. Az oszcillátor segéd áramkörét \aref{sec:OSC-JTAG}. függelékben láthatjuk. % és órajel források bekötését pedig \aref{tab:FPGA-OSCpin} táblázatban olvashatjuk.
 	
 %	\begin{table}[H]
 %		\footnotesize
@@ -84,11 +84,11 @@ A kártyán az alábbi komponensek találhatók:
 	
 \section{Memória - SRAM}
 	
-	A választott asszinkron SRAM mérete 256 k x 16 bit (byte-okban mérve 512 k), ez a méret megfelel \aref{sec:Game-store} fejezetben tárgyalt játék méreteknek (csak egy NES játék nem fog beleférni ebbe a RAM-ba). A választott memória előnye, hogy 10 ns elérési idejű asszinkron, statikus RAM, egyszerű kezeléssel. Ez azért jelent előnyt a konzol hardveres emulálása szempontjából, mert nem fogja ennek működését befolyásolni a memória elérési idő (a későbbiekben az elérést igazíthatjuk az általunk választott időzítéshez). DRAM esetén sokkal több időzítési paraméterrel kell számolni ez természetesen jóval megnehezíti a időzítés kritikus hardver létrehozását.
+	A választott aszinkron SRAM mérete 256kx16 bit (512 kilobájt). Ez a méret megfelel \aref{sec:Game-store}. fejezetben tárgyalt játék méreteknek (csak egy NES játék nem fog beleférni ebbe a RAM-ba). A választott memória előnye, hogy 10 ns elérési idejű aszinkron, statikus RAM, egyszerű kezeléssel. Ez azért jelent előnyt a konzol hardveres emulálása szempontjából, mert nem fogja ennek működését befolyásolni a memória elérési idő (a későbbiekben az elérést igazíthatjuk az általunk választott időzítéshez). DRAM esetén sokkal több időzítési paraméterrel kell számolni, ez jóval megnehezítené egy időzítés kritikus hardver létrehozását.
 	
-	Az SRAM 18 bites címmel rendelkezik, amellyel megcímezhetők a 2 byte-osával az adataink (256 k cím). A RAM-ból kiolvasott, illetve beírandó adatokat pedig a 16 bit-es adat vonalak olvasásával és írásával érhetjük el. Az SRAM vezérlésétől függően kiolvasható vagy írható egyszerre mind a 16 bit, de van byte-os elérési mód is.
+	Az SRAM 18 bites címmel rendelkezik, ezzel az adataink 2 bájtosával címezhetőek (összesen 256 kilobájt cím). A RAM-ból kiolvasott, illetve beírandó adatokat pedig a 16 bites adatvonalak segítségével érhetjük el. Az SRAM vezérlésétől függően kiolvasható vagy írható egyszerre mind a 16 bit, de van bájtos elérési mód is.
 	
-	Az SRAM szabványos vezérlési felülettel rendelkezik. Tehát következő vezérlő jelek segítségével tudjuk irányítani (ezek mindegyike negált logikájú): chip engedélyezés CSn, írás engedélyezése WEn, olvasás engedélyezés OEn, alsó byte engedélyezés LBn, végül pedig a felső byte engedélyezés UBn. A memória olvasási és írási idő diagramjait \acite{sram} adatlapon olvashatjuk, kiegészítő áramkörét pedig \aref{sec:SRAM-SPI-Flash} függelékben láthatjuk.     
+	Az SRAM szabványos vezérlési felülettel rendelkezik. A következő vezérlőjelek segítségével tudjuk irányítani (ezek mindegyike negált logikájú): chip engedélyezés CSn, írás engedélyezése WEn, olvasás engedélyezés OEn, alsó bájt engedélyezés LBn, végül pedig a felső bájt engedélyezés UBn. A memória olvasási és írási idő diagramjait \acite{sram} adatlapban olvashatjuk, a kiegészítő áramkörét pedig \aref{sec:SRAM-SPI-Flash}. függelékben láthatjuk.     
 	
 %	\begin{table}[H]
 %		\footnotesize
@@ -141,17 +141,17 @@ A kártyán az alábbi komponensek találhatók:
 	
 \section{Digital Analog Converter és erősítő}
 	
-	A NES kártya egyetlen analóg alkatrészekre támaszkodó része a DAC-ot követő erősítő áramkör, ennek részletes megértéséhez tekintsük meg \aref{fig:DAC-AMP-JACK} ábrát, amely \aref{sec:DAC-controllers} függelékből lett kiemelve.
+	A NES kártya egyetlen analóg alkatrészekre támaszkodó része a DAC-ot követő erősítő áramkör, ennek részletes megértéséhez tekintsük meg \aref{fig:DAC-AMP-JACK}. ábrát, amely \aref{sec:DAC-controllers}. függelékből lett kiemelve.
 	
-	A DAC komponenst egy 100MHz-en 600 $\Omega$-as Ferrite Bead-el védem, az esetleges 5 V-os tápvonalról beszűrődő zajokkal szemben, ide szűrési okokból tantál és kerámia kondenzátorokat is helyeztem. Az alkatrész az FPGA által elő állított mono digitális "hang" jelet, átalakítja és kiadja mind a két kimenetén. Ezek az analóg jelek fognak az erősítést követően, a Jack csatlakozó bal és jobb fülhöz menő lábára csatlakozni. 
+	A DAC komponenst egy 100 MHz-en 600 $\Omega$-os Ferrite Bead-el védem az esetleges 5 V-os tápvonalról beszűrődő zajokkal szemben. Ide szűrési okokból tantál és kerámia kondenzátorokat is helyeztem. Az alkatrész az FPGA által előállított mono digitális "hang" jelet alakítja át és adja ki mind a két kimenetén. Ezek az analóg jelek fognak az erősítést követően, a Jack csatlakozó bal és jobb fülhöz menő lábára csatlakozni. 
 	
-	A DAC két kimenetét, egy egy 3.3 uF-os csatoló kondenzátorral választom el az analóg résztől. Az áramkörben található C38, C39-es kondenzátorok és R27, R28-as ellenállások egy alul áteresztő szűrőt valósítanak meg. A kondenzátorok értékét, pedig a következő képlet alapján határoztam meg (az ellenállások értéke kötött volt az erősítő miatt):
+	A DAC két kimenetét, egy-egy 3,3 uF-os csatoló kondenzátorral választom el az analóg résztől. Az áramkörben található C38, C39-es kondenzátorok és R27, R28-as ellenállások egy aluláteresztő szűrőt valósítanak meg. A kondenzátorok értékét, pedig a következő képlet alapján határoztam meg (az ellenállások értéke kötött volt az erősítő miatt):
 	
 	\begin{align}	
 		C = \frac{R + 560 \Omega}{4} *\pi * Fs * (R * 560 \Omega)
 	\end{align} 
 	
-	Itt $Fs$ az általunk választott audió jel frekvenciája az 560 $\Omega$ pedig a soros ellenállás értéke. Ezek alapján a két kondenzátorom értéke 3.3 nF vagy 2.7 nF lehet, mivel így 48 KHz-hez közeli értéket kapunk a frekvenciára. Az összes kerámia kondenzátornak, amely az analóg áramkör része NP0 (vagy C0G) dielektrikummal kell rendelkeznie, mivel ezeknek nincs piezoelektromos tulajdonságuk.   
+	Itt $Fs$ az általunk választott audió jel frekvenciája, az 560 $\Omega$ pedig a soros ellenállás értéke. Ezek alapján a két kondenzátorom értéke 3,3 nF vagy 2,7 nF lehet, mivel így 48 kHz-hez közeli értéket kapunk a frekvenciára. Az összes kerámia kondenzátornak, amely az analóg áramkör része NP0 (vagy C0G) dielektrikummal kell rendelkeznie, mivel ezeknek nincs piezoelektromos tulajdonságuk.   
 	
 	\begin{figure}[H]
 		\centering
@@ -160,7 +160,7 @@ A kártyán az alábbi komponensek találhatók:
 		\label{fig:DAC-AMP-JACK}
 	\end{figure}
 	
-	Az erősítő komponensnek egy fázis fordító erősítőt választottam, amely erősítése az R24 és R38 ellenállásokkal módosítható a következő képletek alapján:
+	Az erősítő komponensnek egy fázisfordító erősítőt választottam, amely erősítése az R27 és R24, illetve az R28 és R38 ellenállásokkal módosítható a következő képletek alapján:
 	
 	\begin{align}	
 		Gain_{LINEAR} = -\frac{RFEED}{RIN}
@@ -170,23 +170,23 @@ A kártyán az alábbi komponensek találhatók:
 		Gain_{dB} = 20 * lg(\frac{RFEED}{RIN})
 	\end{align}
  
-	Az áramkörben jelenleg nem állítottam be erősítést az RFEED és RIN ellenállások értékét 20 k$\Omega$-nak határoztam meg. Ez természetesen a hardveres tesztelés során cserélhető és állítható.	
+	Az áramkörben jelenleg nem állítottam be erősítést, az RFEED és RIN ellenállások értékét 20 k$\Omega$-nak határoztam meg. Ez természetesen a hardveres tesztelés során cserélhető és állítható.	
 	
 \section{HDMI és I2C szint illesztő}
 	\label{sec:HMI-I2C}
 	
-	A NES nyomtatott huzalozott kártyáján elhelyeztem egy HDMI csatlakozót és a körülötte elhelyezkedő áramkör segítségével felkészítettem VGA jelek kiadására. A teljes áramkör sematikus ábráját (schematic) \aref{sec:HDMI-MicroSDcard} függelékben láthatjuk.
+	A NES nyomtatott huzalozott kártyáján elhelyeztem egy HDMI csatlakozót és a körülötte elhelyezkedő áramkör segítségével felkészítettem TMDS jelek kiadására. A teljes áramkör kapcsolási rajzát \aref{sec:HDMI-MicroSDcard}. függelékben láthatjuk.
 	
-	A jövőbeli fejlesztések miatt elhelyeztem a nyákon még egy I2C jel szint illesztőt is, amely segítségével az FPGA 3.3 V-on működő lábait, a HDMI audió jel kiadásáért felelős lábaihoz (SCL/SDA) illesztem. Így a kártya támogatja a TV-k és monitorok beépített hangszóróit is. 
+	A jövőbeli fejlesztések miatt elhelyeztem a nyákon még egy I2C jelszint illesztőt is, hogy ennek segítségével a csatlakoztatott eszköz EDID ROM-ját ki tudjam olvasni. Ebből megállapítható, hogy képes-e audió adatok vételére a TV vagy monitor, így a kártya támogatja ezen eszközök beépített hangszóróit is. 
 	
-	Az alábbi ábrákon láthatjuk és olvashatjuk egy HDMI anya aljzat pin és láb kiosztását:   
+	Az alábbi ábrákon láthatjuk egy HDMI anya aljzat pin és láb kiosztását:   
 	
 	\begin{figure}[H]
 	\begin{minipage}[]{\textwidth}
 		\begin{minipage}[b]{0.39\textwidth}
 			\centering
 			\includegraphics[width=55mm, keepaspectratio]{figures/hdmi-Pinout}
-			\captionof{figure}{aljzat anya}
+			\captionof{figure}{aljzat anya \cite{HDMI}}
 			\label{fig:HDMI-pinout}
 		\end{minipage}
 		\hfill
@@ -214,38 +214,38 @@ A kártyán az alábbi komponensek találhatók:
 	\end{minipage}
 	\end{figure} 
 	
-	Mivel az FPGA nem minden I/O láb pára képes differenciális jelek küldésére, ezért figyelni kell, hogy a csatlakozót az FPGA melyik oldalához közel helyezem el. A HDMI szabvány az adat vonalak között 100 $\Omega$-os impedancia különbséget ír elő (15\% os toleranciával), ezért érdemes ezeket az vezetékeket minél rövidebben/egyszerűbben megoldani (FPGA bekötési oldalhoz közel). 
+	Mivel az FPGA nem minden I/O láb pára képes differenciális jelek küldésére, ezért figyelni kell, hogy a csatlakozót az FPGA melyik oldalához közel helyezem el. A HDMI szabvány a differenciális vonalakra 100 $\Omega$-os differenciális impedanciát ír elő (15 \%-os toleranciával), ezért érdemes ezeket a vezetékeket minél rövidebben huzalozni (FPGA bekötési oldalhoz közel). 
 	
 	Az alkatrészeim védelmére a HDMI 5 V-os tápellátását egy 100 mA-es biztosítékon (poli fuse) vezettem keresztül, ez túláram esetén véd. A csatlakozó fém burkolatát egy 1 M$\Omega$-os ellenállással és egy 1 nF-os (1 kV-os) kapacitással földeltem, ez HDMI kimenetek esetén ideális. 
 	
 \section{A kártya bemenetei}
 	
-	A NES nyomtatott huzalozott kártyáját az eredeti játékkonzol kontroller csatlakozóival láttam el. Az eredeti kontroller a NES 5 V-járól működik, viszont a benne található parallel-soros átalakító (shift regiszter) adatlapja alapján 3.3 V-ról is működik. Ez azért fontos, mert így nem kell extra jelszint illesztő IC a kártyára, működtethetem az adat fogadást és az órajel küldést az FPGA I/O lábairól (3.3 V).
+	A NES nyomtatott huzalozott kártyáját az eredeti játékkonzol kontroller csatlakozóival láttam el. Az eredeti kontroller a NES 5 V-járól működik, viszont a benne található párhuzamos-soros átalakító (shiftregiszter) az adatlapja alapján 3,3 V-ról is működik. Ez azért fontos, mert így nem kell extra jelszint illesztő IC a kártyára, működtethetem az adat fogadást és az órajel küldést az FPGA I/O lábairól (3,3 V).
 	
-	Ennek a kontrollernek egyedi hét lábas anya csatlakozója, van amit \aref{fig:7PIN-Port} ábrán láthatunk.   
+	Ennek a kontrollernek egyedi hét lábas anya csatlakozója van, amit \aref{fig:7PIN-Port}. ábrán láthatunk.   
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=80mm, keepaspectratio]{figures/7pin-connector} %110
-		\caption{NES kontroller csatlakozó}
+		\caption{NES kontroller csatlakozó \cite{NES_controller}}
 		\label{fig:7PIN-Port}
 	\end{figure}
 	
-	Ebből a hét lábból kettőnek csak rögzítési szerepe van, kettő a tápellátásért felelős és a maradék három lábon keresztül történik a kontrollerben található regiszter olvasása, vezérlése és a működési órajel küldése. A kártyára ebből a csatlakozóból kettőt helyeztem el a kooperatív játékok végett. A kontroller portok sematikus ábráját (schematic) \aref{sec:DAC-controllers} függelékben láthatjuk.
+	Ebből a hét lábból kettőnek csak rögzítési szerepe van, kettő a tápellátásért felelős és a maradék három lábon keresztül történik a kontrollerben található regiszter olvasása, vezérlése és a működési órajel küldése. A kártyára ebből a csatlakozóból kettőt helyeztem el a kooperatív játékok végett. A kontroller portok kapcsolási rajzát \aref{sec:DAC-controllers}. függelékben láthatjuk.
 	
-	A pcb-n két gomb is helyet kapott az egyik az FPGA és ezáltal a NES reset gombja (RST), a másik pedig az FPGA újrakonfigurálását elindító nyomógomb (PROG). Az RST gomb pergésmentesítésért az FPGA a felelős. Ezek mindegyikét \aref{sec:OSC-JTAG} függelékben láthatjuk. 
+	A nyákon négy gomb is helyet kapott: az első az FPGA és ezáltal a NES reset gombja (RST), a második az FPGA újrakonfigurálását elindító nyomógomb (PROG), a harmadik és negyedik pedig a hangerő növelő és csökkentő gombok. Az gombok pergés mentesítéséért az FPGA felelős. Ezek mindegyikét \aref{sec:OSC-JTAG}. függelékben láthatjuk. 
 	
 \section{MicroSD kártya}
 	
-	A MicroSD kártya csatlakozót teljes interfésszel tudtam implementálni, mivel az FPGA-nak még sok szabad I/O lába maradt. Ez azt jelenti hogy teljes SD kártya protokollt is megtudok valósítani a NES fejlesztő kártyán, az egyszerűbb soros SPI kommunikációt mellett/helyett. A MicroSD kártya segéd áramkörét \aref{sec:HDMI-MicroSDcard} függelék sematikus rajzán láthatjuk. 
+	A MicroSD kártya csatlakozót teljes interfésszel tudtam implementálni, mivel az FPGA-nak még sok szabad I/O lába maradt. Ez azt jelenti, hogy teljes SD kártya protokollt is megtudok valósítani a NES fejlesztő kártyán az egyszerűbb soros SPI kommunikáció mellett. A MicroSD kártya segéd áramkörét \aref{sec:HDMI-MicroSDcard}. függelék kapcsolási rajzán láthatjuk. 
 	
-	Itt érdemes az áramkör ki-bekapcsolásáért felelős P-Mosfet-es áramkört megnézni, ez azért szükséges, mert a fent említett két protokoll közötti váltáshoz áramtalanítanunk kell az csatlakozót. A tápellátás elvétele mellet a felhúzó ellenállások tápellátását is elvesszük kikapcsolás során. Egyedül a CD kártya detektáló lábtól nem vesszük el, mivel ez csak azt jelzi, hogy van-e SD kártya a csatlakozóban (nem része a fent említett kommunikációs protokolloknak). Ezt be/ki kapcsolási eseményt az FPGA egy I/O lábának segítségével kontrollálhatjuk.
+	Itt érdemes az áramkör ki-és bekapcsolásáért felelős P-MOSFET-es áramkört megnézni. Ez azért szükséges, mert a fent említett két protokoll közötti váltáshoz áramtalanítanunk kell az SD kártyát. A tápellátás elvétele mellett a felhúzó ellenállások tápellátását is elvesszük kikapcsolás során. Egyedül a CD kártya detektáló lábtól nem vesszük el, mivel ez csak azt jelzi, hogy van-e SD kártya a csatlakozóban (nem része a fent említett kommunikációs protokolloknak). Ezt a be- és kikapcsolási eseményt az FPGA egy I/O lábának segítségével vezéreljük.
 	
-	Az FPGA védelme érdekében elhelyeztem a az SD kártya CLK lábára egy 33 $\Omega$-os soros ellenállást, ezt a PCB layout tervezése során a lehető legközelebb helyeztem el az FPGA-hoz.  
+	Az esetleges túllövések csökkentése érdekében elhelyeztem az SD kártya CLK lábára egy 33 $\Omega$-os soros ellenállást, ezt a PCB layout tervezése során a lehető legközelebb helyeztem el az FPGA-hoz.  
 	
 \section{FPGA konfigurációs módok}
 	
-	A NES kártyának is, a LOGSYS Spartan-6 FPGA kártyához hasonló módon \cite{spatan6} két konfigurációs módja van. Az FPGA-t felprogramozhatjuk a fejlesztőportban található JTAG interfész segítségével, illetve felkonfigurálhatja saját magát a kártyán található soros FLASH memóriából is. A konfigurációs módok között egy rövidzár segítségével (jumper) válthatunk a LOGSYS-es kártyához hasonlóan. Ennek működését \aref{tab:FPGA-config} táblázatban olvashatjuk, illetve \aref{sec:FPGA-BANKS} függelékben láthatjuk.       
+	A NES kártyának is a LOGSYS Spartan-6 FPGA kártyához hasonló módon \cite{spatan6} két konfigurációs módja van. Az FPGA-t felprogramozhatjuk a fejlesztői porton található JTAG interfész segítségével, illetve felkonfigurálhatja saját magát a kártyán található soros flash memóriából is. A konfigurációs módok között egy rövidzár segítségével (jumper) válthatunk a LOGSYS-es kártyához hasonlóan. Ennek működését \aref{tab:FPGA-config}. táblázatban olvashatjuk, illetve \aref{sec:FPGA-BANKS}. függelékben láthatjuk.       
 	
 	\begin{table}[H]
 		\footnotesize
@@ -255,23 +255,23 @@ A kártyán az alábbi komponensek találhatók:
 			\rowcolor[HTML]{C0C0C0} 
 			\textbf{\begin{tabular}[c]{@{}c@{}}Jumper\\ állása\end{tabular}} & {\color[HTML]{333333} \textbf{\begin{tabular}[c]{@{}c@{}}Konfigurációs \\ mód\end{tabular}}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}\textbf{Leírás}}                                                                                                                          \\ \hline
 			\rowcolor[HTML]{FFFFFF} 
-			\raisebox{-.5\height}{\includegraphics[width=10mm, keepaspectratio]{figures/SPI-jumper}}                                                                & JTAG                                                                                         & Az FPGA-t a JTAG interfacen keresztül kell felkonfigurálni.                                                                                                                           \\ \hline
+			\raisebox{-.5\height}{\includegraphics[width=10mm, keepaspectratio]{figures/SPI-jumper}}                                                                & JTAG                                                                                         & Az FPGA-t a JTAG interfészen keresztül kell felkonfigurálni.                                                                                                                           \\ \hline
 			\rowcolor[HTML]{FFFFFF} 
-			\raisebox{-.5\height}{\includegraphics[width=10mm, keepaspectratio]{figures/JTAG-jumper}}                                                                & SPI                                                                                          & \begin{tabular}[c]{@{}l@{}}Az FPGA az SPI buszos soros FLASH memóriából konfigurálja \\ fel magát a tápfeszültség bekapcsolása vagy a PROG gomb \\ megnyomását követően.\end{tabular} \\ \hline
+			\raisebox{-.5\height}{\includegraphics[width=10mm, keepaspectratio]{figures/JTAG-jumper}}                                                                & SPI                                                                                          & \begin{tabular}[c]{@{}l@{}}Az FPGA az SPI buszos soros flash memóriából konfigurálja \\ fel magát a tápfeszültség bekapcsolása vagy a PROG gomb \\ megnyomását követően.\end{tabular} \\ \hline
 		\end{tabular}
-		\caption{Fejlesztői port bekötése}
+		\caption{FPGA konfigurációs mód állítása}
 		\label{tab:FPGA-config}
 	\end{table}
 	
-\section{Soros Flash memória}
+\section{Soros flash memória}
 	
-	A NES kártyán egy Atmel AT25DF321A típusú, 32 Megabit-es SPI busszal rendelkező soros FLASH memóriát helyeztem el. Ez a komponens az FPGA számára konfigurációs memóriaként szolgál (tehát a NES hardverének binárisát fogja tartalmazni). Ennek a komponensnek az elhelyezése, bekötése és ezáltal működése is megegyezik a Logsys Spartan-6-os fejlesztői kártyán található Flash-el \cite{spatan6}. A soros Flash bekötését, pedig \aref{sec:SRAM-SPI-Flash} függelékben láthatjuk.
+	A NES kártyán egy Atmel AT25DF321A típusú, 32 Megabites, SPI busszal rendelkező soros flash memóriát helyeztem el. Ez a komponens az FPGA számára konfigurációs memóriaként szolgál (tehát a NES hardverének binárisát fogja tartalmazni). Ennek a komponensnek az elhelyezése, bekötése és ezáltal a működése is megegyezik a Logsys Spartan-6-os fejlesztői kártyán található flash-el \cite{spatan6}. A soros flash bekötését \aref{sec:SRAM-SPI-Flash}. függelékben láthatjuk.
 	
 	%TODO fix jumper heights if you have time
 \section{LOGSYS fejlesztői port}
 \label{sec:logsysport}
 	
-	A fejlesztői port kialakítása teljes mértékben megegyezik a Logsys fejlesztő kártyán található port-al, ennek köszönhetően az FPGA felprogramozása történhet a MIT tanszéken tervezett egyedi fejlesztő kábellel. Ennek részletes bemutatása \acite{spatan6}-os dokumentáció része. A fejlesztői port kialakítását \aref{fig:DEV-port} képen látható és FPGA bekötését pedig \aref{tab:DEV-pinout} táblázatban olvasható, illetve \aref{sec:OSC-JTAG} függelékben látható. Az FPGA sikeres felkonfigurálását egy zöld LED-el jelzem (DONE). %A fejlesztői port a következő elemekből áll:
+	A fejlesztői port kialakítása teljes mértékben megegyezik a Logsys fejlesztőkártyán található port-al, ennek köszönhetően az FPGA felprogramozása történhet a MIT tanszéken tervezett egyedi fejlesztőkábellel. Ennek részletes bemutatása \acite{spatan6}-os dokumentáció része. A fejlesztői port kialakítása \aref{sec:OSC-JTAG}. függelékben látható. Az FPGA sikeres felkonfigurálását egy zöld LED-el jelzem (DONE). %A fejlesztői port a következő elemekből áll:
 	
 %	\begin{enumerate}
 %		\item JTAG interfész (vörös)
@@ -310,13 +310,13 @@ A kártyán az alábbi komponensek találhatók:
 
 \section{Nyomtatott áramköri terv}
 
-A schematik megalkotását követően, a pcb tervezés következő fázisa a layout (pcb rajzolat) elkészítése. Itt természetesen figyelembe kell vennünk az eddig meghatározott célokat \ref{sec:Size}, miszerint egy kompakt hordozható eszközt tervezünk. Egy nyomtatott áramkör mérete nagyban függ a réteg felépítésétől, illetve a kiválasztott komponensek méretétől. Tehát minél több rétegből épül fel egy pcb és minél modernebb alkatrészeket használunk, annál nagyobb felületi alkatrész sűrűség érhető el. Természetesen ezekkel arányosán az ár is nő. Viszont mivel először egy prototípust fejlesztek, ezért egy kompromisszumos megoldást kellett választanom.   
+A kapcsolási rajz megalkotását követően, a nyák tervezés következő fázisa a PCB rajzolat (layout) elkészítése. Itt természetesen figyelembe kell vennünk az eddig meghatározott célokat (lásd \ref{sec:Size}. fejezet), miszerint egy kompakt és hordozható eszközt tervezünk. Egy nyomtatott áramkör mérete nagyban függ a réteg felépítésétől, illetve a kiválasztott komponensek méretétől. Tehát minél több rétegből épül fel egy PCB és minél modernebb alkatrészeket használunk, annál nagyobb felületi alkatrész sűrűség érhető el. Természetesen ezekkel arányosan az ár is nő. Mivel először egy prototípust fejlesztek, ezért egy kompromisszumos megoldást kellett választanom.   
 		
 	\subsection{Réteg beállítások}
 	
-	A Logsys Spartan-6-os fejlesztő kártyán már láthattuk \cite{spatan6}, hogy a választott FPGA chip TQFP tokozása miatt, két rétegű nyákon behuzalozható. Az FPGA NES kártya tervezésekor ez egy fő szempont volt, mivel így érdekes mérnöki megoldásokat kellett alkalmaznom a táp bekötése során, illetve a kártya elkészítési költségét is csökkenteni tudtam.
+	A Logsys Spartan-6-os fejlesztőkártyán már láthattuk \cite{spatan6}, hogy a választott FPGA chip TQFP tokozása miatt kétrétegű nyákon behuzalozható. Az FPGA NES kártya tervezésekor ez egy fő szempont volt, mivel így érdekes mérnöki megoldásokat kellett alkalmaznom a táp bekötése során, illetve a kártya elkészítési költségét is csökkenteni tudtam.
 	
-	A prototípus kártyákat a jlcpcb nevű kínai nyomtatott áramkör gyártó fogja gyártani. Ahhoz, hogy az Altium tervező program képes legyen bonyolultabb számítások (differencial pair routing) és szimulációk készítésére, a réteg felépítést meg kell adnunk a PCB-nk számára. Ez a kínai gyártó által szolgáltatott információk által \cite{jlcpcb} alakítottam ki, ez \aref{fig:Layer-stackup} ábrán látható.    
+	A prototípus kártyákat a JLCPCB nevű kínai cég gyártotta. Ahhoz, hogy az Altium tervező program képes legyen bonyolultabb számítások (differencial pair routing) és szimulációk készítésére, a réteg felépítést meg kell adnunk a PCB-nk számára. Ezt a kínai gyártó által szolgáltatott információk alapján \cite{jlcpcb} alakítottam ki, ez \aref{fig:Layer-stackup}. ábrán látható.    
 	
 	\begin{figure}[H]
 		\centering
@@ -327,7 +327,7 @@ A schematik megalkotását követően, a pcb tervezés következő fázisa a lay
 	
 	\subsection{Komponensek elhelyezése}
 	
-	A rétegbeállításokat követően, a komponensek és segéd áramköreik elhelyezése következett. Ennek segítségével tudtam meghatározni végül, hogy az FPGA mely I/O bankjaihoz/lábaihoz fogom vezetni a különböző komponensek kivezetéseit, illetve ez határozta meg pcb-m méreteit is. Az alkatrészek és segéd áramköreik rajzolatát \aref{sec:NES-components} függelékben láthatjuk, de a könnyebb áttekinthetőség érdekeben elkészítettem a következő ábrát:
+	A réteg beállításokat követően, a komponensek és segéd áramköreik elhelyezése következett. Ennek segítségével tudtam meghatározni végül, hogy az FPGA mely I/O bankjaihoz fogom vezetni a különböző komponensek kivezetéseit, illetve ez határozta meg a kártyám fizikai méreteit is. Az alkatrészek és segédáramköreik rajzolatát \aref{sec:NES-components}. függelékben láthatjuk, de a könnyebb áttekinthetőség érdekeben elkészítettem a következő ábrát is:
 	
 	\begin{figure}[H]
 		\centering
@@ -339,51 +339,51 @@ A schematik megalkotását követően, a pcb tervezés következő fázisa a lay
 	FPGA NES kártya főbb alkotó komponensei:
 	\begin{enumerate}
 		\item Xilinx XC6SLX9-2TQG144C típusú FPGA
-		\item 256k x 16 bites (512 kB), 10 ns-os aszinkron SRAM (Cypress CY7C1041DV33-10ZSXI)
-		\item 3.5mm Jack csatlakozó (CUI SJ1-3553NG)
-		\item 100mW Erősítő (TS486IST fülhallgatókhoz)
+		\item 256kx16 bites (512 kB), 10 ns-os aszinkron SRAM (Cypress CY7C1041DV33-10ZSXI)
+		\item 3,5 mm Jack csatlakozó (CUI SJ1-3553NG)
+		\item 100 mW erősítő (TS486IST fülhallgatókhoz)
 		\item Digital Analog Converter (DAC), (CS4334-KSZ)
 		\item HDMI csatlakozó
 		\item 2C szint illesztő (PCA9306DCUR)
 		\item Csatlakozó a LOGSYS fejlesztői kábel számára
-		\item 2.1mm 12 V / 5 A DC táp csatlakozó (DC10A)
+		\item 2,1 mm 12 V / 5 A DC táp csatlakozó (DC10A)
 		\item 3,3 V feszültséget előállító tápegység
 		\item 1,2 V feszültséget előállító tápegység
 		\item 50 MHz-es oszcillátor 
-		\item 7 pines NES GamePAD kontroller csatlakozók anya aljzat 1
-		\item 7 pines NES GamePAD kontroller csatlakozók anya aljzat 2
-		\item 32 Mbites SPI buszos soros FLASH (Atmel AT25DF321A)
+		\item 7 lábú NES GamePAD kontroller csatlakozók anya aljzat 1
+		\item 7 lábú NES GamePAD kontroller csatlakozók anya aljzat 2
+		\item 32 Megabites SPI buszos soros flash (Atmel AT25DF321A)
 		\item MicroSD kártya foglalat
 		\item Az FPGA újrakonfigurálását indító gomb (PROG)
 		\item Az FPGA sikeres felkonfigurálását jelző LED (DONE)
-		\item Az FPGA kézi reset gomja (RSTn)
+		\item Az FPGA kézi reset gombja (RSTn)
 		\item A bekapcsolt tápfeszültséget jelző LED (PWR)
 		\item A NES hangerő szabályzó gombjai (VOL-, VOL+)
 	\end{enumerate}
 	
-	Mivel kézi forrasztással és hőfúvó segítségével fogjuk a kártyát összeállítani, ezért törekedtem arra, hogy az összes komponens (és ezek segéd áramkörei) a előlapi (top) oldalon helyezkedjen el, illetve a hátoldalra (bottom) csak azonos méretű elemek kerüljenek. Egyedül a HDMI csatlakozó biztosítéka került a hátoldalra, ami nem 0603-as méretű lett.
+	Mivel kézi forrasztással és hőfúvó segítségével fogjuk a kártyát összeállítani, ezért törekedtem arra, hogy az összes komponens (és ezek segédáramkörei) a felső (top) oldalon helyezkedjen el, illetve az alsó (bottom) csak azonos méretű elemek kerüljenek. Egyedül a HDMI csatlakozó biztosítéka került a hátoldalra, ami nem 0603-as méretű.
 	
-	Ezt követően a PCB alkatrészek bekötésével foglalkoztam, itt a alsó és felső réteget is jel/föld (signal/GND) rétegként alakítottam ki. Ez azt jelenti, hogy jel vezetékeket és táp vonalak bekötését követően az egész nyák felszínén föld kitöltést hoztam létre, így növelve a jelek integritását. A alsó és a felső föld rétegeket, pedig via-k segítségével kötöttem össze (via stiching). A két rétegemet egyszerre \aref{sec:FPGA-nes-transparency} függelékben láthatjuk, az itt használt réteg ábrázolási mód az Altium designer átlátszó 2D módja, amely betekintést enged a föld kitöltések alá. A felső réteg jeleit és komponensek pad-jei vörös színnel vannak jelölve, a alsó rétegé pedig kék színnel.
+	Ezt követően a PCB alkatrészek bekötésével foglalkoztam. Itt az alsó és a felső réteget is jel/föld (signal/GND) rétegként alakítottam ki. Ez azt jelenti, hogy a jel vezetékeket és a tápvonalak bekötését követően az egész nyák felszínén föld kitöltést hoztam létre, így növelve a jelek integritását. Az alsó és a felső föld rétegeket, pedig via-k segítségével kötöttem össze (via stiching). A két rétegemet egyszerre \aref{sec:FPGA-nes-transparency}. függelékben láthatjuk, az itt használt réteg ábrázolási mód az Altium designer átlátszó 2D módja, amely betekintést enged a föld kitöltések alá. A felső réteg jelei és a komponensek pad-jei vörös színnel vannak jelölve, az alsó rétegé pedig kék színnel.
 	
 	\subsection{HDMI adatvonalainak bekötése}
 	
-	A HDMI vonalak kialakításáról már \aref{sec:HMI-I2C} fejezet során olvashattunk. Viszont mivel a réteg kialakítás során a két rétegű megvalósítást választottunk és a PCB gyártó (jlcpcb) nem biztosít két réteg esetén impedancia kontrollálásra réteg felépítést. Ezért a HDMI szabványban leírt 100 $\Omega$-os impedancia különbséget (15\% os toleranciával) csak egy speciális differenciális pár bekötés típussal tudjuk biztosítani. Ez a típus a Dual Strip Coplanar Waweguide Grounded, ez azt jelenti, hogy differenciális pár bekötés mellett figyelnünk kell arra is, hogy a pár jobb és bal oldalán fix távolságra föld kitöltést helyezzünk el. Az itt található két réteg földjét előre meghatározott távolságokon via fence-szel látjuk el (ezt az elrendezést \aref{fig:coplanar} ábrán láthatjuk). A via-k közti maximális távolságot a következő képlettel számolhatjuk ki:
+	A HDMI vonalak kialakításáról már \aref{sec:HMI-I2C}. fejezet során olvashattunk. A réteg kialakítás során kétrétegű megvalósítást választottuk, de a PCB gyártó nem biztosít két réteg esetén impedancia kontrollálásra réteg felépítést, ezért a HDMI szabványban leírt 100 $\Omega$-os impedancia különbséget (15 \% os toleranciával) csak egy speciális differenciális pár bekötési típussal tudjuk biztosítani. Ez a típus a Dual Strip Coplanar Waweguide Grounded, ez azt jelenti, hogy differenciális pár bekötése mellett figyelnünk kell arra is, hogy a pár jobb és bal oldalán fix távolságra föld kitöltést helyezzünk el. Az itt található két réteg földjét az előre meghatározott távolságokon via fence-el látjuk el (ezt az elrendezést \aref{fig:coplanar}. ábrán láthatjuk). A viák közti maximális távolságot a következő képlettel számolhatjuk ki:
 	
 	\begin{align}
 		\label{mat:via-distance}	
 		S(via) = \frac{\lambda}{20} = \frac{c}{20 * f * \sqrt[]{\epsilon_r}}
 	\end{align}   
 	
-	Az \ref{mat:via-distance} képletben található $\lambda$ a differenciális jelünk hullámhossza (a részletesebb képletben pedig: c a fény terjedési sebessége, f a jelünk frekvenciája, $\epsilon_r$ pedig az anyag dielektromos állandója). A mi esetünkben ezen a vezeték páron 250 Mhz-es jeleket fogunk küldeni, ennek hullámhossza körülbelül 1,151 m, ebből kiszámított két via közti maximális távolság 0.058 m (ennél természetesen választhatunk kisebb értéket is).
+	\Aref{mat:via-distance}. képletben található $\lambda$ a differenciális jelünk hullámhossza (a részletesebb képletben pedig: c a fény terjedési sebessége, f a jelünk frekvenciája, $\epsilon_r$ pedig az anyag relatív dielektromos állandója). A mi esetünkben ezen a vezeték páron 250 MHz-es jeleket fogunk küldeni, ennek hullámhossza körülbelül 1,151 m, ebből kiszámított két via közti maximális távolság 0,058 m (ennél természetesen választhatunk kisebb értéket is).
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=90mm, keepaspectratio]{figures/coplanar}
-		\caption{Dual Strip Coplanar Waweguide Grounded felépítése} 
+		\caption{Dual Strip Coplanar Waweguide Grounded felépítése \cite{coplanar}} 
 		\label{fig:coplanar}
 	\end{figure}
 	
-	Az Altium designer segítségével van lehetőségem a GND réteg és vezető pár közti távolság kiszámítására (később az ecad szoftver ez alapján fogja elhelyezni a vezetékeket). Ezek a beállítások az alábbi ábrán láthatók:      
+	Az Altium Designer segítségével van lehetőségem a GND réteg és vezető pár közti távolság kiszámítására (később az ECAD szoftver ez alapján fogja elhelyezni a vezetékeket). Ezek a beállítások az alábbi ábrán láthatók:      
 	
 	\begin{figure}[H]
 		\centering
@@ -392,18 +392,18 @@ A schematik megalkotását követően, a pcb tervezés következő fázisa a lay
 		\label{fig:Impedance-control}
 	\end{figure}
 	
-	A FPGA NES kártya HDMI jeleinek bekötésére 2,75 mm-es via fence méretet választottam (körülbelül a fentebb kiszámolt érték 20-ad része) ez részletesen \aref{fig:HDMI-Differencial-pair-routing} ábrán látható, amely \aref{sec:FPGA-nes-transparency} függelékből lett kiemelve.
+	A FPGA NES kártya HDMI jeleinek bekötésére 2,75 mm-es via fence méretet választottam (körülbelül a fentebb kiszámolt érték 20-ad része). Ez részletesen \aref{fig:HDMI-Differencial-pair-routing}. ábrán látható, amely \aref{sec:FPGA-nes-transparency}. függelékből lett kiemelve.
 	
 	\begin{figure}[H]
 	\centering
-	\includegraphics[width=82mm, keepaspectratio, angle=90]{figures/HDMI-Differencial-pair-routing}
+	\includegraphics[width=90mm, keepaspectratio, angle=90]{figures/HDMI-Differencial-pair-routing}
 	\caption{A HDMI adatvonalainak bekötése}
 	\label{fig:HDMI-Differencial-pair-routing}
 	\end{figure}
 	
 	\subsection{FPGA táp vonalak kialakítása}
 	
-	Ahhoz, hogy a Spartan-6-os FPGA chip-et két rétegen teljes mértékben ki tudjuk használni egy speciális tápellátási módszerhez kellet folyamodnunk (Logsys-es fejlesztő kártya táp vonalai is hasonlóan vannak kialakítva). Ennek alapja az volt, hogy az alsó oldalról érkezik a 3.3 V és az 1.2 V-is. A 3.3 V-ot az FPGA lábai alatt végig vezetjük (innen indul ki a többi 3.3 V-os komponens tápellátást is) egy helyen be engedve az 1.2 V-ot a belső magja számára. Ezzel a rendszerrel az előnye, hogy így az összes csatoló (coupling) és hidegítő (bulk) kapacitás az FPGA alatt kaphat helyet, ezzel szabadon tartva a top réteget az FPGA I/O bankjainak és JTAG interfészének bekötésére.
+	Ahhoz, hogy a Spartan-6-os FPGA chip-et két rétegen teljes mértékben ki tudjuk használni, egy speciális tápellátási módszerhez kellett folyamodnunk (Logsys-es fejlesztőkártya tápvonalai is hasonlóan vannak kialakítva). Ennek alapja az volt, hogy az alsó oldalról érkezik a 3,3 V és az 1,2 V is. A 3,3 V-ot az FPGA lábai alatt végigvezetjük (innen indul ki a többi 3,3 V-os komponens tápellátása is) egy helyen beengedve az 1,2 V-ot az FPGA belső magja számára. Ennek a rendszernek az előnye, hogy így az összes hidegítő (decoupling és bulk) kapacitás az FPGA alatt kaphat helyet, ezzel szabadon tartva a top réteget az FPGA I/O bankjainak és JTAG interfészének bekötésére.
 	
 	\begin{figure}[H]
 		\centering
@@ -412,11 +412,11 @@ A schematik megalkotását követően, a pcb tervezés következő fázisa a lay
 		\label{fig:FPGA-PSU-routing}
 	\end{figure}
 	
-	A chip tápellátását \aref{fig:FPGA-PSU-routing} ábrán láthatjuk, a kártya teljes tápellátását pedig \aref{sec:FPGA-nes-transparency} függelékben figyelhetjük meg. 
+	A chip tápellátását \aref{fig:FPGA-PSU-routing}. ábrán láthatjuk, a kártya teljes tápellátását pedig \aref{sec:FPGA-nes-transparency}. függelékben figyelhetjük meg. 
 	
 	\subsection{FPGA NES 3D terve}
 	
-	A kártya tervezését követően, az Altium designer lehetőséget nyújt PCB 3D tervének megtekintéséhez (ez a komponensek elhelyezésénél, illetve nyák foglalatok/tokok tervezésénél is hasznos). Ez egy teljes képet nyújt a nyomtatott áramkör kialakításáról és jövőbeli kinézetéről. Az FPGA NES 3D tervét a következő (\ref{fig:PCB-3D}) ábrán láthatjuk:  
+	A kártya tervezését követően az Altium designer lehetőséget nyújt a PCB 3D tervének megtekintéséhez (ez a komponensek elhelyezésénél, illetve nyák foglalatok tervezésénél is hasznos). Ez egy teljes képet nyújt a nyomtatott áramkör kialakításáról és jövőbeli kinézetéről. Az FPGA NES 3D tervét a következő \ref{fig:PCB-3D}. ábrán láthatjuk:  
 	
 	\begin{figure}[H]
 		\centering

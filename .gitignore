@@ -61,6 +61,7 @@ NES_hw/NES_fpga_hw/webtalk.log
 NES_hw/NES_fpga_hw/webtalk_pn.xml
 
 # generated folders
+NES_hw/NES_fpga_hw/isim/
 NES_hw/NES_fpga_hw/iseconfig/
 NES_hw/NES_fpga_hw/xlnx_auto_0_xdb/
 NES_hw/NES_fpga_hw/xst/

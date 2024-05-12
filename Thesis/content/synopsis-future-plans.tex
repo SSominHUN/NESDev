@@ -1,7 +1,13 @@
 \chapter{Összefoglalás, jövőbeli tervek}
 
-A Diplomatervezés 1 során sikerült foglalkoznom a projekt irodalom kutatásával, és NES nyomtatott áramkörének FPGA alapú újratervezésével, illetve a PPU hardverének felépítésével és felújításával.
+A diplomatervezési feladat megoldása során sikerült elkészíteni Nintendo Entertainment System (NES) 8 bites videojáték konzol újratervezett nyomtatott áramkörét. Ezt sikerült beültetni és tesztelni működés és funkciók szempontjából. A NES kártyából a második félév során készült egy javított verzió is, amely kiküszöbölte az első verzió hibáit. 
 
-A Diplomatervezés végeztéig még meg kell ismernem a CPU és APU hardverét is részletesen, illetve ezeket a PPU-val együtt meg kell terveznem a spatan-6-os FPGA-ba. Ezt követően pedig tesztelnem kell ezeket az éles hardveren.
+Az FPGA-ba implementált NES hardveréből sikerült elkészíteni a képalkotásért felelős chipet (PPU), illetve a működéshez elengedhetetlen kisebb hardveres elemeket (DMA, kontrollervezérlő és memória menedzser). A rendszer processzorát konzulensemtől kaptam a tesztelésekhez. Az általam tesztelt hardveres elemek képesek az eredeti NES-nek megfelelő működésre és a mapper nélküli játékok hibátlan futtatására. 
 
-A projekt hosszútávú tervei közé tartozik az MicroSD kártyáról történő játék betöltés és minél több NES játék mapper-ének lefejlesztése, ezzel teljes körű hardveres emulálást készítve a Nintendo Entertainment System-hez. 
+Sajnos az idő szűke miatt nem tudtam a két félév alatt lefejleszteni a saját 6502-es processzoromat és a NES hardverének utolsó chipjét a hang kiadásért felelős APU-t. Viszont ezzel jövőbeli fejlesztési célokat hagytam a projekt számára.
+
+A rövidtávú fejlesztések közé tartozik egy nyílt forráskódú 6502-es processzor illesztése a NES-rendszeréhez, majd az audió kiadásáért felelős chip lefejlesztése az eszközhöz. Ezt követően a NES kártya SRAM-ját fogom a rendszerhez illeszteni, ezzel lehetővé téve a későbbiekben nagyobb játékok futtatását is.
+
+A projekt hosszútávú tervei közé tartozik a MicroSD kártyáról történő játék betöltés és minél több NES játék mapper-ének lefejlesztése, ezzel teljes körű hardveres emulálást készítve a Nintendo Entertainment System-hez. 
+
+Úgy gondolom, hogy a diplomatervezés két féléve alatt rengeteget fejlődtem a nyák tervezés, FPGA fejlesztés és tesztelés területén. Az így megszerzett tudás korszerű és a jövőben széles körben felhasználható. Örülök, hogy egy izgalmas hosszútávú projekt alap pilléreit hozhattam létre a tantárgy keretében.  

@@ -1,14 +1,14 @@
 \chapter{Az FPGA NES tesztelése}
 
-Az FPGA-s projektek tesztelésének általában három nagy fázisa van. Az első a fejlesztői környezet, szimulációs rendszerében futtatott tesztek. A második, pedig ezt követően az éles hardverrel futtatott tesztek. Végül a teszteket végeztével az eredmények kiértékelése a harmadik fázis. Ezt a teszt folyamatot fogom bemutatni a diplomaterv projektemen, ebben a fejezetben.
+Az FPGA-s projektek tesztelésének általában három nagy fázisa van. Az első a fejlesztői környezet szimulációs rendszerében futtatott tesztek. A második ezt követően az éles hardverrel futtatott tesztek. A teszteket végeztével az eredmények kiértékelése a harmadik fázis. Ezeket a teszt folyamatokat fogom bemutatni a diplomaterv projektemen, ebben a fejezetben.
 
 \section{Rendszer szimulációk}
 
-A legtöbb esetben egy FPGA-s fejlesztés során a tesztelések két csoportra bonthatók, a modul tesztek, és végül a teljes rendszer tesztelése. A NES projekt esetén viszont olyan komplex változásokat és inputokat kellet volna időzítéspontosan megadni a különálló modul tesztekhez(teljes CPU ciklusok processzor oldali műveletei), hogy inkább közvetlenül a teljes rendszer tesztelését kezdtem el.
+A legtöbb esetben egy FPGA-s fejlesztések során a tesztelések két csoportra bonthatóak: a modul tesztekre és a teljes rendszer tesztelésére. A NES projekt esetén viszont olyan komplex változásokat és bemeneteket kellett volna időzítéspontosan megadni a különálló modul tesztekhez (teljes CPU ciklusok processzor oldali műveletei), hogy inkább közvetlenül a teljes rendszer tesztelését kezdtem el.
 
-A rendszer teszteket az ISE-n bellül található, ISim szimulátorában végeztem, ezzel képesek vagyunk szintetizálható rendszerek működési szimulációjára, és implementálás utáni, úgy nevezet post-implemented rendszerek szimulálására is. A szintetizálható rendszerek esetben Verilog test fixture készítésével tudjuk meghatározni a szimulált jeleinket és szimulációs órajeleinket. A NES test programjának írása során, a VGA modult és a hozzá tartozó elemeket kivettem a rendszerből, mivel ez csak extra számítást vett volna el a szimulátortól, illetve a rendszer időzítéseinek szinkronizálását is nehezebbé tette volna (50 MHz és 250 MHz-es órajelek arányainak megtartása a rendszer órajellel).
+A rendszer teszteket az ISE-n belül található ISim szimulátorában végeztem. Ezzel képesek vagyunk szintetizálható hardverek működési szimulációjára és az implementálás utáni, úgynevezett post-implemented rendszerek szimulálására is. A szintetizálható rendszerek esetében Verilog test fixture készítésével tudjuk meghatározni a szimulált jeleinket és szimulációs órajeleinket. A NES tesztkörnyezetének írása során a VGA modult és a hozzá tartozó elemeket kivettem a rendszerből, mivel ez csak extra számítást vett volna el a szimulátortól, illetve a rendszer időzítéseinek szinkronizálását is nehezebbé tette volna (50 MHz és 250 MHz-es órajelek arányainak megtartása a rendszer órajellel).
 
-Ahhoz hogy a teljes NES hardveremet szimulálhassam, szimulálhatóvá kellet tennem a konzulensemtől kapott 6502 futtatható binárisát. Ezt a feladatot az UNISIM konzol alkalmazás segítségével tudtam megoldani. Ez az eszköz azt teszi lehetővé, hogy implementált modulokból post-implemented szimulációs fájlt készít. Majd ehhez egy általunk feldolgozható Verilog input és output portokat illeszt, így képesek vagyunk az így kapott szimulációs fájt beilleszteni a Verilog test fixture-ünkbe. A program futtatásához \aref{fig:UNISIM} ábrán látható beállításokat alkalmaztam.
+Ahhoz, hogy a teljes NES hardveremet szimulálhassam, szimulálhatóvá kellett tennem a konzulensemtől kapott 6502-es processzor futtatható binárisát. Ezt a feladatot az UNISIM konzol alkalmazás segítségével tudtam megoldani. Ez az eszköz azt teszi lehetővé, hogy implementált modulokból post-implemented szimulációs fájlt készít. Majd ehhez egy általunk értelmezhető Verilog input és output portokkal ellátott modult illeszt, ezáltal képesek vagyunk a kapott szimulációs fájt beilleszteni egy Verilog test fixture-be. A program futtatásához \aref{fig:UNISIM}. ábrán látható beállításokat alkalmaztam.
 
 \begin{figure}[H]
 	\centering
@@ -17,7 +17,7 @@ Ahhoz hogy a teljes NES hardveremet szimulálhassam, szimulálhatóvá kellet te
 	\label{fig:UNISIM}
 \end{figure}
 
-A szimulációk és későbbiekben a hardveres tesztekhez is szükségünk van arra, hogy a CH és Program ROM-jaink helyes adatokat tartalmazzanak. A NES játék kártyák tartalmát általában egy .nes bináris fájl ként tudjuk kinyerni a kártyákból. Ez tartalmaz egy 16 bájtos fejlécet majd a program ROM-ot végül pedig a karakter ROM-ot. A fejléc írja le, hogy az adott játék ROM-jai mekkora területet foglalnak, illetve a játék kártya milyen mapper-t tartalmazott. Ezt egy egyszerű program segítségével könnyen felbonthatjuk a két ROM területre, majd egy egyszerű shell script segítségével fájlba írhatjuk a ki binárisaink tartalmát. Majd az így kapott szöveges fájlok tartalmat a \$readmemh parancs segítségével tudunk blokk RAM-okba tölteni. A szimulációk helyes működéséhez érdemes még az összes használt memória területet 0-val feltölteni. Ezek az inicializációk \aref{code:filling-RAM} hardverleírásban olvashatjuk.
+A szimulációkhoz és későbbiekben a hardveres tesztekhez is szükségünk van arra, hogy a Karakter és Program ROM-jaink helyes adatokat tartalmazzanak. A NES játékkártyák tartalma általában egy .nes bináris fájlban áll rendelkezésre. Ez tartalmaz egy 16 bájtos fejlécet, majd a program ROM-ot, végül pedig a karakter ROM-ot. A fejléc írja le, hogy az adott játék ROM-jai mekkora területet foglalnak, illetve a játék kártya milyen mapper-t tartalmaz. A .nes fájlt egy program segítségével könnyen felbonthatjuk két bináris ROM területre, majd egy egyszerű shell script segítségével szöveges fájlba írhatjuk a kapott binárisaink tartalmát. Majd az így kapott szöveges fájlok tartalmát a \$readmemh parancs segítségével tudjuk a blokk RAM-okba tölteni. A szimulációk kezdetén a helyes működéséhez érdemes még az összes használt memória területet 0-val feltölteni. Ezeknek az inicializációknak egy részét \aref{code:filling-RAM}. hardverleírásban olvashatjuk.
 
 \begin{lstlisting}[caption={A memória területek inicializálása a szimulációs és hardveres tesztekhez}, label={code:filling-RAM}, style=prettyverilog]
 //Character ROM initialization 
@@ -31,12 +31,12 @@ integer x;
 initial begin for (x=0; x<2048; x=x+1) name_table_ram[x] = 8'b0;
 end\end{lstlisting}
 
-Sajnos viszont azt tapasztaltam, hogy nagyobb és összetettebb rendszerek szimulációja során az ISim, hosszabb időtartalmú szimulációkra nem alkalmas (nem konzisztensek a számításai). Ezáltal csak egy adott pontig tudtam a szimulációkra hagyatkozni, viszont ez pont elégnek volt ahhoz, hogy könnyen elkezdhessem a teljes rendszer hardveres tesztelését.  
+Azt tapasztaltam, hogy nagyobb és összetettebb rendszerek szimulációja során az ISim, hosszabb időtartalmú szimulációkra nem alkalmas (nem konzisztensek a számításai). Ezáltal csak egy adott pontig tudtam a szimulációkra hagyatkozni, viszont ez pont elégnek volt ahhoz, hogy könnyen elkezdhessem a teljes rendszer hardveres tesztelését.  
 
 \newpage
 \section{Hardveres tesztek}
 
-A félév során sikerült elkészíteni, konzulensem segítségével az első verzióját az FPGA NES kártyának, ez \aref{fig:PCB-Assembled} képen látható. \Aref{sec:fpga-nes-board-summary} fejezet során viszont már egy javított második verziót mutatok be (ezért láthatunk némi különbséget a két kártya elrendezése között). A második verzióra javítottam a FLASH chip FPGA-ba huzalozásán és két extra hangerő szabályzó gombot adtam a nyákhoz.
+A diplomatervem során sikerült elkészíteni a konzulensem segítségével az első verzióját az FPGA NES kártyának. Ez \aref{fig:PCB-Assembled}. ábrán látható. \Aref{sec:fpga-nes-board-summary}. fejezet során viszont már egy javított második verziót mutattam be (ezért láthatunk némi különbséget a két kártya elrendezése között). A második verzióra javítottam a flash chip FPGA-ba huzalozásán és két extra hangerő szabályzó gombot adtam a nyákhoz.
 
 \begin{figure}[H]
 	\centering
@@ -46,14 +46,14 @@ A félév során sikerült elkészíteni, konzulensem segítségével az első v
 	\label{fig:PCB-Assembled}
 \end{figure}
 
-A hardveres tesztelés során, a hardver binárisának feltöltésére a MIT-en fejlesztett, Logsys FLASH programozót használtam, ennek implementálását már a fentebbiekben olvashattuk (\ref{sec:logsysport}). Az FPGA NES kártya mérési és tesztelési elrendezését \aref{fig:pcb-testing} ábrán láthatjuk. 
+A hardveres tesztelés során, a hardver binárisának feltöltésére a MIT-en fejlesztett, Logsys flash programozót használtam, ennek implementálását már a fentebbiekben olvashattuk (\ref{sec:logsysport}. fejezet). Az FPGA NES kártya mérési és tesztelési elrendezését \aref{fig:pcb-testing}. ábrán láthatjuk. 
 
-A NES rendszer tesztelésére két klasszikus játékot választottam. Az első a Donkey Kong amely egy könnyebben emulálható 16 kilobájtos program ROM-al rendelkező játék. A második pedig a NES egyik legnehezebben emulálható játéka a Super Mario Bros. . Ennek emulálására alapvetően a NES hibátlan időzítésére és helyes implementált PPU és CPU memória címekre van szükség. Ezt a játékot szokták a legtöbbször végső teszt ként használni emulált PPU-k és CPU-k tesztelésére. A Donkey Kong tesztelése során készített képeket \aref{fig:Donkey-start} és \ref{fig:Donkey-level-1} képeken láthatjuk. A Super Mario Bros.-t pedig futás közben \aref{fig:Super-Mario-start} és \ref{fig:Super-Mario-world5-1} ábrán tekinthetjük meg.
+A NES rendszer tesztelésére két klasszikus játékot választottam. Az első a Donkey Kong, amely egy könnyebben emulálható 16 kilobájtos program ROM-al rendelkező játék. A második pedig a NES egyik legnehezebben emulálható játéka, a Super Mario Bros. Ehhez a játékhoz hibátlanul implementált időzítésekre és helyesen kialakított PPU és CPU memória címekre van szükség. Ezt a játékot szokták legtöbbször a végső tesztként használni emulált PPU-k és CPU-k tesztelésére. A Donkey Kong tesztelését és futását \aref{fig:Donkey-start}. és \ref{fig:Donkey-level-1}. ábrákon láthatjuk. A Super Mario Bros.-t pedig futás közben \aref{fig:Super-Mario-start}. és \ref{fig:Super-Mario-world5-1}. ábrán tekinthetjük meg.
 	
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=150mm, keepaspectratio]{figures/nes-pcb-testing}
-	\caption{Megvalósult FPGA projekt (nes\_top) működési diagramja} 
+	\includegraphics[width=112mm, keepaspectratio, angle=90]{figures/nes-pcb-testing}
+	\caption{FPGA NES kártya mérési és tesztelési elrendezésé} 
 	\label{fig:pcb-testing}
 \end{figure}
 
@@ -87,8 +87,8 @@ A NES rendszer tesztelésére két klasszikus játékot választottam. Az első 
 
 \section{A tesztek eredményeinek kiértékelése}
 
-A szimulációs tesztek során sikeresen feltudtam éleszteni a NES rendszerét, olyan szintre hogy elkezdhettem a hardveres teszteket. Illetve a későbbiek során is voltak olyan hardveres modulok amelyekben  hiba keresés során, többször is vissza nyúltam a szimulátorhoz. Sajnos a ISim hibás működése miatt a teljes rendszert nem tudtam nyomon követni, viszont a szimulációk során megfigyelt hardveres működéseket, \aref{sec:fpga-desing-begining} fejezetben több helyen is láthatjuk.
+A szimulációs tesztek során sikeresen fel tudtam éleszteni a NES rendszerét olyan szintre, hogy elkezdhettem a hardveres teszteket. A későbbiek során is voltak olyan hardveres modulok, amelyekben hibakeresés során többször is visszanyúltam a szimulátorhoz. Sajnos a ISim hibás működése miatt a teljes rendszert nem tudtam nyomon követni, viszont a szimulációk során megfigyelt hardveres működéseket \aref{sec:fpga-desing-begining}. fejezetben több helyen is láthatjuk.
 
-A hardveres tesztelések eredménye is sikeres lett, a két játék teljes mértékben játszató állapotban van. A hosszabb tesztelések során sem akadtam olyan hibára, amely a programok futása megakadályozná és ezzel a játékokat játszhatatlanná tenné. A képalkotásért felelős chip a PPU időzítési is pontosak, hiszen még az idő kritikus játékok Mario is játszható a konzolon ez \aref{fig:Super-Mario-world5-1} ábrán is látható,itt még jól megfigyelhető az is, hogy a PPU háttér és sprite alkotási része is összhangban van (egy sűrűbb mozgó elemekkel teli képen sem hibásodik meg a képalkotás). Az eredeti NES játékokkal összehasonlítva a képalkotás szín palettája is nagyban egyezik, ezzel egy nagyon jó minőségű emulálást lehetővé téve.
+A hardveres tesztelések eredménye is sikeres lett, a két játék teljes mértékben játszható állapotban van. A hosszabb tesztelések során sem akadtam olyan hibára, amely a programok futását megakadályoznák és ezzel a játékokat játszhatatlanná tennék. A képalkotásért felelős chip a PPU időzítései is pontosak, hiszen még az idő kritikus játékok, mint a Mario is játszható a konzolon. Ez \aref{fig:Super-Mario-world5-1}. ábrán is látható. Itt még jól megfigyelhető az is, hogy a PPU háttér és sprite alkotási része is összhangban van (egy sűrűbb mozgó elemekkel teli képen sem hibásodik meg a képalkotás). Az általam használt színpaletták, szépen visszaadják az eredeti NES játékok színvilágát, ezzel egy nagyon jó minőségű emulálást lehetővé téve.
 
-Úgy érzem az FPGA-s hardverfejlesztések teszteléseinek széles körű tárházát ismertem meg, és ezen eszközök segítségével sikeresen működésre bírtam az általam fejlesztett NES hardverét.
+Úgy érzem az FPGA-s hardverfejlesztések teszteléseinek széleskörű tárházát ismertem meg, és ezen eszközök segítségével sikeresen működésre bírtam az általam fejlesztett konzol hardverét.

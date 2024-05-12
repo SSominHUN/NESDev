@@ -8,8 +8,13 @@
 %----------------------------------------------------------------------------
 \chapter*{Kivonat}\addcontentsline{toc}{chapter}{Kivonat}
 
-Jelen dokumentum egy diplomaterv sablon, amely formai keretet ad a BME Villamosmérnöki és Informatikai Karán végző hallgatók által elkészítendő szakdolgozatnak és diplomatervnek. A sablon használata opcionális. Ez a sablon \LaTeX~alapú, a \emph{TeXLive} \TeX-implementációval és a PDF-\LaTeX~fordítóval működőképes.
+A Nintendo Entertainment System (NES) egy ikonikus videójáték konzol, amelyet a Nintendo eredetileg 1983-ban Japánban, Famicom néven (Family Computer) mutatott be, majd később 1985-ben az Egyesült Államokban és más régiókban a Nintendo Entertainment System néven jelent meg.
 
+A diplomatervem témája a NES viszonylag egyszerű, jól átgondolt hardverét, egy olcsóbb, viszonylag kevesebb erőforrással rendelkező FPGA eszközben történő megvalósítása. Ez lehetővé teszi a régebbi hardver továbbgondolását modern megjelenítő interfészek használatával (VGA, DVI, HDMI, stb.), valamint az eredeti játékkazetták helyettesítését modern adattárolók segítségével.
+
+Ehhez a diplomatervem első felében részletesen meg kellett ismernem az eredeti hardver működését, majd ezt követően úgy kellett módosítani a hardvert, hogy az egyedi változat képes legyen futtatni az eredeti játékprogramokat. A tervezéseket követően, elkészítettem a NES továbbgondolt alaplapját, amelyet egy olcsóbb Spartan-6-os FPGA chippel láttam el. Ezek mellett a nyák természetesen rendelkezik modern megjelenítő és audio interfésszel, illetve háttértárolóval is. Ezt követően elkezdtem a felújított NES hardver fejlesztését az ISE Design Suit fejlesztő programban Verilog nyelven. 
+
+Végül az elkészült rendszer tesztelése során a játékprogramok (Super Mario Bros., Donkey Kong) futtatása bizonyítja a projekt sikerét.
 
 \vfill
 \selectenglish
@@ -20,8 +25,13 @@ Jelen dokumentum egy diplomaterv sablon, amely formai keretet ad a BME Villamosm
 %----------------------------------------------------------------------------
 \chapter*{Abstract}\addcontentsline{toc}{chapter}{Abstract}
 
-This document is a \LaTeX-based skeleton for BSc/MSc~theses of students at the Electrical Engineering and Informatics Faculty, Budapest University of Technology and Economics. The usage of this skeleton is optional. It has been tested with the \emph{TeXLive} \TeX~implementation, and it requires the PDF-\LaTeX~compiler.
+The Nintendo Entertainment System (NES) is an iconic video game console originally introduced by Nintendo in Japan in 1983 as the Famicom (Family Computer), and later released in 1985 in the United States and other regions as the Nintendo Entertainment System.
 
+The subject of my thesis is the implementation of the relatively simple, well-designed hardware of the NES in a cheaper FPGA device with relatively fewer resources. This allows for further innovation of the older hardware, using modern display interfaces (VGA, DVI, HDMI, etc.) and modern data storage instead of the original game cartridges.
+
+In order to design the hardware, I had to first learn in detail how the original hardware worked, and then design a custom version of the hardware that would be able to run the original game programs. After the planning, I created a customized motherboard for the NES, which I equipped with a cheaper Spartan-6 FPGA chip. Alongside these, the pcb has a modern display and audio interface, as well as background storage (SD card). Then I started developing the refurbished NES hardware in the ISE Design Suit development program in Verilog.
+
+In the end, I tested the completed hardware and FPGA modules, with full system testing, by running the game programs (Super Mario Bros., Donkey Kong) as proof of the success of the project.
 
 \vfill
 \selectthesislanguage
